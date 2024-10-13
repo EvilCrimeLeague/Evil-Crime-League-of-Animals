@@ -2,6 +2,7 @@
 
 #include "Scene.hpp"
 #include "WalkMesh.hpp"
+#include "Font.hpp"
 
 #include <glm/glm.hpp>
 
@@ -36,4 +37,18 @@ struct PlayMode : Mode {
 		//camera is at player's head and will be pitched by mouse up/down motion:
 		Scene::Camera *camera = nullptr;
 	} player;
+
+	// font:
+    struct UI {
+        std::shared_ptr<Font> font_title = nullptr;
+        std::shared_ptr<Font> font_body = nullptr;
+        std::shared_ptr<Font> font_manual = nullptr;
+
+        std::shared_ptr<Text> manual = nullptr;
+        std::shared_ptr<Text> description = nullptr;
+
+        unsigned int texture;
+
+        std::vector<std::shared_ptr<Text> > texts;
+    } ui;
 };

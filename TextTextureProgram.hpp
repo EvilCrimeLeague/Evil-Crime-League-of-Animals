@@ -12,6 +12,7 @@ struct TextTextureProgram {
 	GLuint program = 0;
 
 	GLuint VAO; //an empty VAO
+	GLuint CLIP_FROM_LOCAL_mat4 = -1U;
 
 };
 
