@@ -2,12 +2,9 @@
 
 #include "Scene.hpp"
 #include "WalkMesh.hpp"
-#include "Font.hpp"
+#include "UI.hpp"
 
 #include <glm/glm.hpp>
-
-#include <vector>
-#include <deque>
 
 struct PlayMode : Mode {
 	PlayMode();
@@ -38,17 +35,5 @@ struct PlayMode : Mode {
 		Scene::Camera *camera = nullptr;
 	} player;
 
-	// font:
-    struct UI {
-        std::shared_ptr<Font> font_title = nullptr;
-        std::shared_ptr<Font> font_body = nullptr;
-        std::shared_ptr<Font> font_manual = nullptr;
-
-        std::shared_ptr<Text> manual = nullptr;
-        std::shared_ptr<Text> description = nullptr;
-
-        unsigned int texture;
-
-        std::vector<std::shared_ptr<Text> > texts;
-    } ui;
+    UI ui;
 };

@@ -40,7 +40,3 @@ struct Text {
     Text(std::string text, float line_length, glm::vec2 start_pos,std::shared_ptr<Font> font ) : text(text), line_length(line_length), start_pos(start_pos), font(font) {}
     Text(){}
 };
-
-void gen_texture(unsigned int& texture, std::vector<std::shared_ptr<Text> > const &texts, unsigned int width, unsigned int height);
-
-std::vector<std::string> wrapText(const std::string& text, size_t line_length = 85);

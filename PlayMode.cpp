@@ -66,21 +66,8 @@ PlayMode::PlayMode() : scene(*phonebank_scene) {
 
 	//start player walking at nearest walk point:
 	player.at = walkmesh->nearest_walk_point(player.transform->position);
-
-	// Set up UI
-    std::string font_path = data_path("Open_Sans/static/OpenSans-Regular.ttf");
-    ui.font_body = std::make_shared<Font>(font_path, 
-                                /*font_size*/30, 
-                                /*line_height*/35);
-    ui.description = std::make_shared<Text>("start", 
-                        /*line length*/80, 
-                        /*start pos*/glm::vec2(50, 120),
-                        ui.font_body);
-    ui.manual = std::make_shared<Text>("Press 'return' to continue, 1234 to make choices", 
-                        /*line length*/85, 
-                        /*start pos*/glm::vec2(500, 690),
-                        ui.font_body);
-    ui.texts = {ui.description, ui.manual};
+	ui.gen_text_texture();
+	ui.gen_box_texture();
 	// gen_texture(ui.texture, ui.texts, /*width*/1280, /*height*/720);
 }
 
@@ -279,37 +266,8 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 	*/
 
 	// Draw UI
-    {
-		int base_height = 720;
-		int width = drawable_size.x * base_height / drawable_size.y;
-		gen_texture(ui.texture, ui.texts, /*width*/width, /*height*/base_height);
-        glDisable(GL_DEPTH_TEST);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glBlendEquation(GL_FUNC_ADD);
-
-        glUseProgram(text_texture_program->program);
-
-        // float aspect = float(drawable_size.x) / float(drawable_size.y);
-        glm::mat4 world_to_clip = glm::mat4(
-            1.0f, 0.0f, 0.0f, 0.0f,
-            0.0f, 1.0f, 0.0f, 0.0f,
-            0.0f, 0.0f, 1.0f, 0.0f,
-            0.0f, 0.0f, 0.0f, 1.0f
-        );
-        glUniformMatrix4fv(text_texture_program->CLIP_FROM_LOCAL_mat4, 1, GL_FALSE, glm::value_ptr(world_to_clip));
-
-        glBindVertexArray(text_texture_program->VAO);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, ui.texture);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
-        GL_ERRORS();
-
-        glBindVertexArray(0);
-        glBindTexture(GL_TEXTURE_2D, 0);
-        glUseProgram(0);
-
-        GL_ERRORS();
+    {	
+		ui.draw();
     }
 
 	{ //use DrawLines to overlay some text:
