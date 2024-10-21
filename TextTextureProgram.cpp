@@ -68,6 +68,7 @@ uniform sampler2D text;
 void main()
 {    
     color = texture(text, TexCoords);
+	color.rgb *= color.a;
 })"
 	);
 	//As you can see above, adjacent strings in C/C++ are concatenated.

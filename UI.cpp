@@ -24,7 +24,8 @@ void UI::draw_texture(unsigned int texture) {
 
 void UI::draw(){
     draw_texture(box_texture);
-	draw_texture(text_texture);
+    draw_texture(text_texture);
+    draw_texture(img_texture);
 }
 
 void UI::gen_box_texture(){
@@ -53,7 +54,6 @@ void UI::gen_box_texture(){
             data[k++] = image[i][j];
     }
 
-    glGenTextures(1, &box_texture);
     glBindTexture(GL_TEXTURE_2D, box_texture);
     glTexImage2D(
         GL_TEXTURE_2D,
@@ -181,7 +181,6 @@ void UI::gen_text_texture() {
             data[k++] = image[i][j];
     }
 
-    glGenTextures(1, &text_texture);
     glBindTexture(GL_TEXTURE_2D, text_texture);
     glTexImage2D(
         GL_TEXTURE_2D,
@@ -234,4 +233,40 @@ std::vector<std::string> UI::wrapText(const std::string& text, size_t line_lengt
     }
 
     return lines;
+}
+
+void UI::gen_img_texture() {
+    glm::u8vec4 image[height][width];
+    for (int i = 0; i < height; i++ ){
+        for (int j = 0; j < width; j++ ) {
+            image[i][j] = glm::u8vec4(0x00);
+        }    
+    }
+    
+    for(auto img: imgs) {
+        assert(img->size.x <= width && img->size.y <= height && "Image size exceeds texture size");
+
+        for (int i = img->pos.y; i < img->size.y+img->pos.y && i < height; i++ ){
+            for (int j = img->pos.x; j < img->size.x+img->pos.x && j < width; j++ ) {
+                image[i][j] = img->data[i*img->size.x + j];
+            }    
+        }
+    }
+
+    glm::u8vec4* data = new glm::u8vec4[width*height];
+    int k = 0;
+    for (int i = height-1; i >= 0; i-- ){
+        for (int j = 0; j < width; j++ )
+            data[k++] = image[i][j];
+    }
+
+    glBindTexture(GL_TEXTURE_2D, img_texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    // glGenerateMipmap(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    GL_ERRORS();
 }

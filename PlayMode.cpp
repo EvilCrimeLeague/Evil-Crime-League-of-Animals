@@ -66,9 +66,11 @@ PlayMode::PlayMode() : scene(*phonebank_scene) {
 
 	//start player walking at nearest walk point:
 	player.at = walkmesh->nearest_walk_point(player.transform->position);
+
+	// Set up UI
 	ui.gen_text_texture();
 	ui.gen_box_texture();
-	// gen_texture(ui.texture, ui.texts, /*width*/1280, /*height*/720);
+	ui.gen_img_texture();
 }
 
 PlayMode::~PlayMode() {
