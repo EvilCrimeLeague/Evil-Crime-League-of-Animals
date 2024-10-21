@@ -68,9 +68,7 @@ PlayMode::PlayMode() : scene(*phonebank_scene) {
 	player.at = walkmesh->nearest_walk_point(player.transform->position);
 
 	// Set up UI
-	ui.gen_text_texture();
-	ui.gen_box_texture();
-	ui.gen_img_texture();
+	ui.update_texture();
 }
 
 PlayMode::~PlayMode() {
@@ -98,6 +96,18 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			down.downs += 1;
 			down.pressed = true;
 			return true;
+		} else if (evt.key.keysym.sym == SDLK_n) {
+			key_n.downs += 1;
+			key_n.pressed = true;
+			return true;
+		} else if (evt.key.keysym.sym == SDLK_i) {
+			key_i.downs += 1;
+			key_i.pressed = true;
+			return true;
+		} else if (evt.key.keysym.sym == SDLK_RETURN) {
+			enter.downs += 1;
+			enter.pressed = true;
+			return true;
 		}
 	} else if (evt.type == SDL_KEYUP) {
 		if (evt.key.keysym.sym == SDLK_a) {
@@ -111,6 +121,18 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_s) {
 			down.pressed = false;
+			return true;
+		} else if (evt.key.keysym.sym == SDLK_n) {
+			key_n.pressed = false;
+			ui.update_choice();
+			return true;
+		} else if (evt.key.keysym.sym == SDLK_i) {
+			key_i.pressed = false;
+			ui.show_description();
+			return true;
+		} else if (evt.key.keysym.sym == SDLK_RETURN) {
+			enter.pressed = false;
+			ui.hide_description();
 			return true;
 		}
 	} else if (evt.type == SDL_MOUSEBUTTONDOWN) {
@@ -232,6 +254,9 @@ void PlayMode::update(float elapsed) {
 	right.downs = 0;
 	up.downs = 0;
 	down.downs = 0;
+	key_n.downs = 0;
+	key_i.downs = 0;
+	enter.downs = 0;
 }
 
 void PlayMode::draw(glm::uvec2 const &drawable_size) {
@@ -269,6 +294,7 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 
 	// Draw UI
     {	
+		ui.update_texture();
 		ui.draw();
     }
 

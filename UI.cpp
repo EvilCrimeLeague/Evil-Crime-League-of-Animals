@@ -38,6 +38,7 @@ void UI::gen_box_texture(){
     }
 
 	for(auto box : boxes){
+        if(box->hide) continue;
 		// fill box area with color
         for (int i = box->rect[0]; i < box->rect[2]; i++ ){
             for (int j = box->rect[1]; j < box->rect[3]; j++ ) {
@@ -111,6 +112,7 @@ void UI::gen_text_texture() {
     };
 
     for(auto& text: texts) {
+        if(text->hide) continue;
         slot = text->font->ft_face->glyph;
         hb_buffer_t *hb_buffer = text->font->hb_buffer;
 
@@ -244,11 +246,13 @@ void UI::gen_img_texture() {
     }
     
     for(auto img: imgs) {
-        assert(img->size.x <= width && img->size.y <= height && "Image size exceeds texture size");
+        if(img->hide) continue;
 
-        for (int i = img->pos.y; i < img->size.y+img->pos.y && i < height; i++ ){
-            for (int j = img->pos.x; j < img->size.x+img->pos.x && j < width; j++ ) {
-                image[i][j] = img->data[i*img->size.x + j];
+        for (int i = 0; i < img->size.y && i < height; i++ ){
+            for (int j = 0; j < img->size.x && j < width; j++ ) {
+                int y = i+img->pos.y;
+                int x = j+img->pos.x;
+                image[y][x] = img->data[i*img->size.x + j];
             }    
         }
     }
@@ -270,3 +274,40 @@ void UI::gen_img_texture() {
     glBindTexture(GL_TEXTURE_2D, 0);
     GL_ERRORS();
 }
+
+void UI::update_choice() {
+    choice = (choice + 1) % choice_pos.size();
+    Y_img->pos = choice_pos[choice];
+    need_update_texture = true;
+}
+
+ void UI::update_texture() {
+    if(need_update_texture) {
+        gen_text_texture();
+        gen_box_texture();
+        gen_img_texture();
+        need_update_texture = false;
+    }
+ }
+
+ void UI::show_description() {
+    description->hide = false;
+    description_box->hide = false;
+    Y_img->hide = false;
+    slot_left->hide = false;
+    slot_right->hide = false;
+    choice1->hide = false;
+    choice2->hide = false;
+    need_update_texture = true;
+ }
+
+ void UI::hide_description() {
+    description->hide = true;
+    description_box->hide = true;
+    Y_img->hide = true;
+    slot_left->hide = true;
+    slot_right->hide = true;
+    choice1->hide = true;
+    choice2->hide = true;
+    need_update_texture = true;
+ }
