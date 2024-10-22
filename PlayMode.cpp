@@ -68,6 +68,7 @@ PlayMode::PlayMode() : scene(*phonebank_scene) {
 	player.at = walkmesh->nearest_walk_point(player.transform->position);
 
 	// Set up UI
+	ui.show_interactable_button();
 	ui.update_texture();
 }
 
@@ -133,7 +134,7 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 		} else if (evt.key.keysym.sym == SDLK_RETURN) {
 			enter.pressed = false;
 			if(ui.choice ==1) {
-				ui.show_game_over();
+				ui.show_game_over(/*won=*/true);
 			}
 			return true;
 		}

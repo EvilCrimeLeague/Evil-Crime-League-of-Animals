@@ -303,9 +303,16 @@ void UI::show_description() {
     need_update_texture = true;
 }
 
-void UI::show_game_over() {
+void UI::show_game_over(bool won) {
     reset();
     // show game over screen
+    if(won) {
+        game_over_text->text = "You won!";
+        game_over_text->color = glm::u8vec3(0, 255, 0);
+    } else {
+        game_over_text->text = "Game over";
+        game_over_text->color = glm::u8vec3(255, 0, 0);
+    }
     game_over_text->hide = false;
     game_over_box->hide = false;
     manual_text->hide = false;
@@ -328,5 +335,17 @@ void UI::reset() {
 
     choice = 0;
     Y_img->pos = choice_pos[choice];
+    need_update_texture = true;
+}
+
+void UI::show_interactable_button() {
+    // show interactable button if within range of an interactable object
+    I_img->hide = false;
+    need_update_texture = true;
+}
+
+void UI::hide_interactable_button() {
+    // hide interactable button if not within range of an interactable object
+    I_img->hide = true;
     need_update_texture = true;
 }

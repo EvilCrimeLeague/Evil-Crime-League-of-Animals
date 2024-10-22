@@ -86,7 +86,7 @@ struct UI {
                             /*line length*/85, 
                             /*start pos*/glm::vec2(500, 350),
                             font_title);
-        game_over_text->color = glm::u8vec3(255, 0, 0);
+        
         manual_text = std::make_shared<Text>("Press 'return' to restart", 
 						/*line length*/85, 
 						/*start pos*/glm::vec2(900, 690),
@@ -99,7 +99,7 @@ struct UI {
         boxes = {description_box, game_over_box};
 
         // Create images
-        I_img = std::make_shared<Img>(glm::vec2(100, 600), "UI/I_Button.png");
+        I_img = std::make_shared<Img>(glm::vec2(800, 300), "UI/I_Button.png");
         Y_img = std::make_shared<Img>(choice_pos[0], "UI/Y_Button.png");
         slot_left = std::make_shared<Img>(choice_pos[0], "UI/Slot.png");
         slot_right = std::make_shared<Img>(choice_pos[1], "UI/Slot.png");
@@ -125,7 +125,10 @@ struct UI {
 
     void show_description();
 
-    void show_game_over();
+    void show_game_over(bool won);
 
     void reset();
+
+    void show_interactable_button();
+    void hide_interactable_button();
 };
