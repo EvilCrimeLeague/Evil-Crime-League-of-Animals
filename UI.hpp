@@ -26,11 +26,14 @@ struct UI {
     std::shared_ptr<Font> font_body = nullptr;
     std::shared_ptr<Font> font_manual = nullptr;
 
-    std::shared_ptr<Text> description = nullptr;
-    std::shared_ptr<Text> choice1 = nullptr;
-    std::shared_ptr<Text> choice2 = nullptr;
+    std::shared_ptr<Text> description_text = nullptr;
+    std::shared_ptr<Text> choice1_text = nullptr;
+    std::shared_ptr<Text> choice2_text = nullptr;
+    std::shared_ptr<Text> game_over_text = nullptr;
+    std::shared_ptr<Text> manual_text = nullptr;
 
     std::shared_ptr<Box> description_box = nullptr;
+    std::shared_ptr<Box> game_over_box = nullptr;
 
     std::shared_ptr<Img> I_img = nullptr;
     std::shared_ptr<Img> Y_img = nullptr;
@@ -54,32 +57,50 @@ struct UI {
     UI() {
         // Load font
         std::string font_path = data_path("Open_Sans/static/OpenSans-Regular.ttf");
+        std::string font_path_bold = data_path("Open_Sans/static/OpenSans-Bold.ttf");
+        std::string font_path_italic = data_path("Open_Sans/static/OpenSans-Italic.ttf");
         font_body = std::make_shared<Font>(font_path, 
                                     /*font_size*/30, 
                                     /*line_height*/35);
+        font_title = std::make_shared<Font>(font_path_bold, 
+                                    /*font_size*/50, 
+                                    /*line_height*/55);
+        font_manual = std::make_shared<Font>(font_path_italic, 
+								/*font_size*/25, 
+								/*line_height*/30);
 
         // Create texts
-        description = std::make_shared<Text>("Do you want to shoot this vase?", 
+        description_text = std::make_shared<Text>("Do you want to shoot this vase?", 
                             /*line length*/80, 
                             /*start pos*/glm::vec2(40, 520),
                             font_body);
-        choice1 = std::make_shared<Text>("Yes", 
+        choice1_text = std::make_shared<Text>("Yes", 
                             /*line length*/85, 
                             /*start pos*/glm::vec2(180, 632),
                             font_body);
-        choice2 = std::make_shared<Text>("Skip it", 
+        choice2_text = std::make_shared<Text>("Skip it", 
                             /*line length*/85, 
                             /*start pos*/glm::vec2(680, 632),
                             font_body);
-        texts = {description, choice1, choice2};
+        game_over_text = std::make_shared<Text>("Game Over", 
+                            /*line length*/85, 
+                            /*start pos*/glm::vec2(500, 350),
+                            font_title);
+        game_over_text->color = glm::u8vec3(255, 0, 0);
+        manual_text = std::make_shared<Text>("Press 'return' to restart", 
+						/*line length*/85, 
+						/*start pos*/glm::vec2(900, 690),
+						font_manual);
+        texts = {description_text, choice1_text, choice2_text, game_over_text, manual_text};
 
         // Create boxes
         description_box = std::make_shared<Box>(glm::vec4(20, 480, 1260, 700), glm::u8vec4(100, 100, 100, 200));
-        boxes = {description_box};
+        game_over_box = std::make_shared<Box>(glm::vec4(0, 0, 1280, 720), glm::u8vec4(0, 0, 0, 255));
+        boxes = {description_box, game_over_box};
 
         // Create images
         I_img = std::make_shared<Img>(glm::vec2(100, 600), "UI/I_Button.png");
-        Y_img = std::make_shared<Img>(glm::vec2(600, 600), "UI/Y_Button.png");
+        Y_img = std::make_shared<Img>(choice_pos[0], "UI/Y_Button.png");
         slot_left = std::make_shared<Img>(choice_pos[0], "UI/Slot.png");
         slot_right = std::make_shared<Img>(choice_pos[1], "UI/Slot.png");
         imgs= {slot_left, slot_right, I_img, Y_img};
@@ -103,5 +124,8 @@ struct UI {
     void update_choice();
 
     void show_description();
-    void hide_description();
+
+    void show_game_over();
+
+    void reset();
 };

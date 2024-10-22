@@ -132,7 +132,9 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_RETURN) {
 			enter.pressed = false;
-			ui.hide_description();
+			if(ui.choice ==1) {
+				ui.show_game_over();
+			}
 			return true;
 		}
 	} else if (evt.type == SDL_MOUSEBUTTONDOWN) {

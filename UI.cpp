@@ -276,38 +276,57 @@ void UI::gen_img_texture() {
 }
 
 void UI::update_choice() {
+    // switch to the next choice
     choice = (choice + 1) % choice_pos.size();
     Y_img->pos = choice_pos[choice];
     need_update_texture = true;
 }
 
- void UI::update_texture() {
+void UI::update_texture() {
     if(need_update_texture) {
         gen_text_texture();
         gen_box_texture();
         gen_img_texture();
         need_update_texture = false;
     }
- }
+}
 
- void UI::show_description() {
-    description->hide = false;
+void UI::show_description() {
+    reset();
+    description_text->hide = false;
     description_box->hide = false;
     Y_img->hide = false;
     slot_left->hide = false;
     slot_right->hide = false;
-    choice1->hide = false;
-    choice2->hide = false;
+    choice1_text->hide = false;
+    choice2_text->hide = false;
     need_update_texture = true;
- }
+}
 
- void UI::hide_description() {
-    description->hide = true;
-    description_box->hide = true;
-    Y_img->hide = true;
-    slot_left->hide = true;
-    slot_right->hide = true;
-    choice1->hide = true;
-    choice2->hide = true;
+void UI::show_game_over() {
+    reset();
+    // show game over screen
+    game_over_text->hide = false;
+    game_over_box->hide = false;
+    manual_text->hide = false;
     need_update_texture = true;
- }
+}
+
+void UI::reset() {
+    // reset UI when game restart
+    for(auto text: texts) {
+        text->hide = true;
+    }
+
+    for(auto box: boxes) {
+        box->hide = true;
+    }
+    
+    for(auto img: imgs) {
+        img->hide = true;
+    }
+
+    choice = 0;
+    Y_img->pos = choice_pos[choice];
+    need_update_texture = true;
+}
