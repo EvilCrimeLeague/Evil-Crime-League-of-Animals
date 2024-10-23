@@ -67,9 +67,8 @@ PlayMode::PlayMode() : scene(*phonebank_scene) {
 	//start player walking at nearest walk point:
 	player.at = walkmesh->nearest_walk_point(player.transform->position);
 
-	// Set up UI
-	ui.show_interactable_button();
-	ui.update_texture();
+	// TEST for interactable button
+	// ui.toggle_interactable_button();
 }
 
 PlayMode::~PlayMode() {
@@ -97,9 +96,13 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			down.downs += 1;
 			down.pressed = true;
 			return true;
-		} else if (evt.key.keysym.sym == SDLK_n) {
-			key_n.downs += 1;
-			key_n.pressed = true;
+		} else if (evt.key.keysym.sym == SDLK_LEFT) {
+			left_arrow.downs += 1;
+			left_arrow.pressed = true;
+			return true;
+		} else if (evt.key.keysym.sym == SDLK_RIGHT) {
+			right_arrow.downs += 1;
+			right_arrow.pressed = true;
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_i) {
 			key_i.downs += 1;
@@ -108,6 +111,10 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 		} else if (evt.key.keysym.sym == SDLK_RETURN) {
 			enter.downs += 1;
 			enter.pressed = true;
+			return true;
+		} else if (evt.key.keysym.sym == SDLK_b) {
+			key_b.downs += 1;
+			key_b.pressed = true;
 			return true;
 		}
 	} else if (evt.type == SDL_KEYUP) {
@@ -123,9 +130,13 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 		} else if (evt.key.keysym.sym == SDLK_s) {
 			down.pressed = false;
 			return true;
-		} else if (evt.key.keysym.sym == SDLK_n) {
-			key_n.pressed = false;
-			ui.update_choice();
+		} else if (evt.key.keysym.sym == SDLK_LEFT) {
+			left_arrow.pressed = false;
+			ui.arrow_key_callback(true);
+			return true;
+		} else if (evt.key.keysym.sym == SDLK_RIGHT) {
+			right_arrow.pressed = false;
+			ui.arrow_key_callback(false);
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_i) {
 			key_i.pressed = false;
@@ -133,9 +144,20 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_RETURN) {
 			enter.pressed = false;
-			if(ui.choice ==1) {
-				ui.show_game_over(/*won=*/true);
+			if(ui.showing_description) {
+				if(ui.choice_id ==0) {
+					ui.show_game_over(/*won=*/true);
+				} else {
+					ui.reset();
+				}
+			} else if (ui.showing_inventory) {
+				std::cout<<"selected item: "<<ui.inventory_slot_selected_id<<std::endl;
 			}
+			
+			return true;
+		} else if (evt.key.keysym.sym == SDLK_b) {
+			key_b.pressed = false;
+			ui.toggle_inventory();
 			return true;
 		}
 	} else if (evt.type == SDL_MOUSEBUTTONDOWN) {
@@ -257,7 +279,8 @@ void PlayMode::update(float elapsed) {
 	right.downs = 0;
 	up.downs = 0;
 	down.downs = 0;
-	key_n.downs = 0;
+	left_arrow.downs = 0;
+	right_arrow.downs = 0;
 	key_i.downs = 0;
 	enter.downs = 0;
 }

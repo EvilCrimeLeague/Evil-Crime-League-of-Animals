@@ -16,11 +16,13 @@ struct UI {
     struct Img {
         glm::vec2 pos;
         glm::uvec2 size;
-        std::vector< glm::u8vec4 > data;
+        std::shared_ptr<std::vector< glm::u8vec4 > > data;
         bool hide = true;
         Img(glm::vec2 pos, std::string path) : pos(pos){
-            load_png(data_path(path), &size, &data, UpperLeftOrigin);
+            data = std::make_shared<std::vector< glm::u8vec4 >>();
+            load_png(data_path(path), &size, data.get(), UpperLeftOrigin);
         }
+        Img(glm::vec2 pos, glm::uvec2 size, std::shared_ptr<std::vector< glm::u8vec4 > > data): pos(pos), size(size), data(data) {}
     };
     std::shared_ptr<Font> font_title = nullptr;
     std::shared_ptr<Font> font_body = nullptr;
@@ -37,8 +39,10 @@ struct UI {
 
     std::shared_ptr<Img> I_img = nullptr;
     std::shared_ptr<Img> Y_img = nullptr;
-    std::shared_ptr<Img> slot_left = nullptr;
-    std::shared_ptr<Img> slot_right = nullptr;
+    std::shared_ptr<Img> slot_left_img = nullptr;
+    std::shared_ptr<Img> slot_right_img = nullptr;
+    std::shared_ptr<Img> inventory_img = nullptr;
+    std::shared_ptr<Img> slot_selected_img = nullptr;
 
     unsigned int text_texture = -1U;
     unsigned int box_texture = -1U;
@@ -51,8 +55,17 @@ struct UI {
     int32_t width = 1280;
     int32_t height = 720;
 
-    unsigned int choice = 0;
+    // state of the description box when interact with an item
+    bool showing_description = false;
+    uint32_t choice_id = 0;
     std::vector<glm::vec2> choice_pos = {glm::vec2(100, 600), glm::vec2(600, 600)};
+    
+    // state of the inventory
+    bool showing_inventory = false;
+    std::vector<glm::vec2> item_pos = {};
+    uint32_t inventory_slot_id_start; // index of the first slot in imgs
+    uint32_t inventory_slot_selected_id = 0; // index of the selected slot in the inventory
+    const uint32_t inventory_slot_num = 10;
 
     UI() {
         // Load font
@@ -99,11 +112,27 @@ struct UI {
         boxes = {description_box, game_over_box};
 
         // Create images
-        I_img = std::make_shared<Img>(glm::vec2(800, 300), "UI/I_Button.png");
-        Y_img = std::make_shared<Img>(choice_pos[0], "UI/Y_Button.png");
-        slot_left = std::make_shared<Img>(choice_pos[0], "UI/Slot.png");
-        slot_right = std::make_shared<Img>(choice_pos[1], "UI/Slot.png");
-        imgs= {slot_left, slot_right, I_img, Y_img};
+        I_img = std::make_shared<Img>(glm::vec2(800, 300), "UI/I.png");
+        Y_img = std::make_shared<Img>(choice_pos[0], "UI/Y.png");
+
+        glm::uvec2 size;
+        std::shared_ptr<std::vector< glm::u8vec4 > > data = std::make_shared<std::vector< glm::u8vec4 >>();
+        load_png(data_path("UI/Slot.png"), &size, data.get(), UpperLeftOrigin);
+        slot_left_img = std::make_shared<Img>(choice_pos[0], size, data);
+        slot_right_img = std::make_shared<Img>(choice_pos[1], size, data);
+        inventory_img = std::make_shared<Img>(glm::vec2(0, 592), "UI/inventory.png");
+        imgs= {slot_left_img, slot_right_img, I_img, Y_img, inventory_img};
+        
+
+        // Create slots for inventory
+        inventory_slot_id_start = imgs.size();
+        for (int i = 0; i < inventory_slot_num; i++) {
+            glm::vec2 pos = glm::vec2(260 + 78 * i, 626);
+            item_pos.push_back(pos);
+            imgs.push_back(std::make_shared<Img>(pos, size, data));
+        }
+        slot_selected_img = std::make_shared<Img>(item_pos[inventory_slot_selected_id], "UI/slot_selected.png");
+        imgs.push_back(slot_selected_img);
 
         glGenTextures(1, &box_texture);
         glGenTextures(1, &text_texture);
@@ -121,14 +150,18 @@ struct UI {
 
     void update_texture();
 
-    void update_choice();
-
+    void update_choice(bool left);
     void show_description();
 
     void show_game_over(bool won);
 
     void reset();
 
-    void show_interactable_button();
-    void hide_interactable_button();
+    void toggle_interactable_button();
+
+    void toggle_inventory();
+    void update_inventory_selection(bool left);
+
+    // Callback functions for left and right arrow keys
+    void arrow_key_callback(bool left);
 };

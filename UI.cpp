@@ -244,15 +244,16 @@ void UI::gen_img_texture() {
             image[i][j] = glm::u8vec4(0x00);
         }    
     }
-    
+
     for(auto img: imgs) {
         if(img->hide) continue;
-
         for (int i = 0; i < img->size.y && i < height; i++ ){
             for (int j = 0; j < img->size.x && j < width; j++ ) {
+                if((*img->data)[i*img->size.x + j] == glm::u8vec4(0x00))    
+                    continue;
                 int y = i+img->pos.y;
                 int x = j+img->pos.x;
-                image[y][x] = img->data[i*img->size.x + j];
+                image[y][x] = (*img->data)[i*img->size.x + j];
             }    
         }
     }
@@ -275,10 +276,15 @@ void UI::gen_img_texture() {
     GL_ERRORS();
 }
 
-void UI::update_choice() {
+void UI::update_choice(bool left) {
+    if(!showing_description) return;
     // switch to the next choice
-    choice = (choice + 1) % choice_pos.size();
-    Y_img->pos = choice_pos[choice];
+    if(left) {
+        choice_id = (choice_id - 1 + choice_pos.size()) % choice_pos.size();
+    } else {
+        choice_id = (choice_id + 1) % choice_pos.size();
+    }
+    Y_img->pos = choice_pos[choice_id];
     need_update_texture = true;
 }
 
@@ -292,14 +298,18 @@ void UI::update_texture() {
 }
 
 void UI::show_description() {
+    if(I_img->hide) return; // not within range of an interactable object
     reset();
+    showing_description = true;
+
     description_text->hide = false;
     description_box->hide = false;
     Y_img->hide = false;
-    slot_left->hide = false;
-    slot_right->hide = false;
+    slot_left_img->hide = false;
+    slot_right_img->hide = false;
     choice1_text->hide = false;
     choice2_text->hide = false;
+
     need_update_texture = true;
 }
 
@@ -333,19 +343,48 @@ void UI::reset() {
         img->hide = true;
     }
 
-    choice = 0;
-    Y_img->pos = choice_pos[choice];
+    choice_id = 0;
+    Y_img->pos = choice_pos[choice_id];
+    showing_description = false;
+    showing_inventory = false;
+    inventory_slot_selected_id = 0;
+
     need_update_texture = true;
 }
 
-void UI::show_interactable_button() {
+void UI::toggle_interactable_button() {
     // show interactable button if within range of an interactable object
-    I_img->hide = false;
+    I_img->hide = !I_img->hide;
     need_update_texture = true;
 }
 
-void UI::hide_interactable_button() {
-    // hide interactable button if not within range of an interactable object
-    I_img->hide = true;
+void UI::toggle_inventory(){
+    inventory_img->hide = !inventory_img->hide;
+    slot_selected_img->hide = !slot_selected_img->hide;
+    for(int i = inventory_slot_id_start; i <inventory_slot_id_start+inventory_slot_num; ++i) {
+        imgs[i]->hide = !imgs[i]->hide;
+    }
+    showing_inventory = !showing_inventory;
     need_update_texture = true;
+}
+
+void UI::update_inventory_selection(bool left) {
+    if(!showing_inventory) return;
+    if(left) {
+        inventory_slot_selected_id = (inventory_slot_selected_id - 1 + inventory_slot_num) % inventory_slot_num;
+    } else {
+        inventory_slot_selected_id = (inventory_slot_selected_id + 1) % inventory_slot_num;
+    }
+    slot_selected_img->pos = item_pos[inventory_slot_selected_id];
+    need_update_texture = true;
+}
+
+void UI::arrow_key_callback(bool left) {
+    if(showing_description) {
+        update_choice(left);
+    } else if(showing_inventory) {
+        update_inventory_selection(left);
+    } else {
+        // do nothing
+    }
 }
