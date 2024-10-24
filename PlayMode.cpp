@@ -68,7 +68,8 @@ PlayMode::PlayMode() : scene(*phonebank_scene) {
 	player.at = walkmesh->nearest_walk_point(player.transform->position);
 
 	// TEST for interactable button
-	// ui.toggle_interactable_button();
+	ui.toggle_interactable_button();
+	ui.add_inventory_item("bone", "UI/bone.png");
 }
 
 PlayMode::~PlayMode() {

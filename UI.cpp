@@ -247,12 +247,13 @@ void UI::gen_img_texture() {
 
     for(auto img: imgs) {
         if(img->hide) continue;
-        for (int i = 0; i < img->size.y && i < height; i++ ){
-            for (int j = 0; j < img->size.x && j < width; j++ ) {
+        for (int i = 0; i < img->size.y; i++ ){
+            for (int j = 0; j < img->size.x; j++ ) {
                 if((*img->data)[i*img->size.x + j] == glm::u8vec4(0x00))    
                     continue;
                 int y = i+img->pos.y;
                 int x = j+img->pos.x;
+                if(y < 0 || y >= height || x < 0 || x >= width) continue;
                 image[y][x] = (*img->data)[i*img->size.x + j];
             }    
         }
@@ -364,6 +365,9 @@ void UI::toggle_inventory(){
     for(int i = inventory_slot_id_start; i <inventory_slot_id_start+inventory_slot_num; ++i) {
         imgs[i]->hide = !imgs[i]->hide;
     }
+    for(auto& item: inventory_items) {
+        item.second->hide = !item.second->hide;
+    }
     showing_inventory = !showing_inventory;
     need_update_texture = true;
 }
@@ -387,4 +391,16 @@ void UI::arrow_key_callback(bool left) {
     } else {
         // do nothing
     }
+}
+
+void UI::add_inventory_item(std::string item_name, std::string img_path) {
+    auto img_ptr = std::make_shared<Img>(item_pos[inventory_items.size()], img_path);
+    std::cout<<item_pos[inventory_items.size()].x<<" "<<item_pos[inventory_items.size()].y<<std::endl;
+    inventory_items[item_name] = img_ptr;
+    imgs.push_back(img_ptr);
+}
+
+void UI::remove_inventory_item(std::string item_name) {
+    imgs.erase(std::remove(imgs.begin(), imgs.end(), inventory_items[item_name]), imgs.end());
+    inventory_items.erase(item_name);
 }

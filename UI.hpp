@@ -66,6 +66,7 @@ struct UI {
     uint32_t inventory_slot_id_start; // index of the first slot in imgs
     uint32_t inventory_slot_selected_id = 0; // index of the selected slot in the inventory
     const uint32_t inventory_slot_num = 10;
+    std::unordered_map<std::string, std::shared_ptr<Img>> inventory_items;
 
     UI() {
         // Load font
@@ -164,4 +165,7 @@ struct UI {
 
     // Callback functions for left and right arrow keys
     void arrow_key_callback(bool left);
+
+    void add_inventory_item(std::string item_name, std::string img_path);
+    void remove_inventory_item(std::string item_name);
 };
