@@ -67,9 +67,9 @@ PlayMode::PlayMode() : scene(*phonebank_scene) {
 	//start player walking at nearest walk point:
 	player.at = walkmesh->nearest_walk_point(player.transform->position);
 
-	// TEST for interactable button
-	ui.toggle_interactable_button();
-	ui.add_inventory_item("bone", "UI/bone.png");
+	ui = std::make_shared<UI>();
+	ui->toggle_interactable_button();
+	ui->add_inventory_item("bone", "UI/bone.png");
 }
 
 PlayMode::~PlayMode() {
@@ -133,32 +133,32 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_LEFT) {
 			left_arrow.pressed = false;
-			ui.arrow_key_callback(true);
+			ui->arrow_key_callback(true);
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_RIGHT) {
 			right_arrow.pressed = false;
-			ui.arrow_key_callback(false);
+			ui->arrow_key_callback(false);
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_i) {
 			key_i.pressed = false;
-			ui.show_description();
+			ui->show_description("You found a dinasaur speciment. Do you want to shoot it?", "Yes", "No");
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_RETURN) {
 			enter.pressed = false;
-			if(ui.showing_description) {
-				if(ui.choice_id ==0) {
-					ui.show_game_over(/*won=*/true);
+			if(ui->showing_description) {
+				if(ui->choice_id ==0) {
+					ui->show_game_over(/*won=*/true);
 				} else {
-					ui.reset();
+					ui->reset();
 				}
-			} else if (ui.showing_inventory) {
-				std::cout<<"selected item: "<<ui.inventory_slot_selected_id<<std::endl;
+			} else if (ui->showing_inventory) {
+				std::cout<<"selected item: "<<ui->inventory_slot_selected_id<<std::endl;
 			}
 			
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_b) {
 			key_b.pressed = false;
-			ui.toggle_inventory();
+			ui->toggle_inventory();
 			return true;
 		}
 	} else if (evt.type == SDL_MOUSEBUTTONDOWN) {
@@ -321,8 +321,8 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 
 	// Draw UI
     {	
-		ui.update_texture();
-		ui.draw();
+		ui->update_texture();
+		ui->draw();
     }
 
 	{ //use DrawLines to overlay some text:

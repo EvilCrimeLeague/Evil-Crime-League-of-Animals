@@ -298,18 +298,21 @@ void UI::update_texture() {
     }
 }
 
-void UI::show_description() {
+void UI::show_description(std::string description, std::string choice1, std::string choice2) {
     if(I_img->hide) return; // not within range of an interactable object
     reset();
     showing_description = true;
 
     description_text->hide = false;
+    description_text->text = description;
     description_box->hide = false;
     Y_img->hide = false;
     slot_left_img->hide = false;
     slot_right_img->hide = false;
     choice1_text->hide = false;
+    choice1_text->text = choice1;
     choice2_text->hide = false;
+    choice2_text->text = choice2;
 
     need_update_texture = true;
 }
@@ -360,6 +363,8 @@ void UI::toggle_interactable_button() {
 }
 
 void UI::toggle_inventory(){
+    inventory_manual_text->hide = !inventory_manual_text->hide;
+    B_img->hide = !B_img->hide;
     inventory_img->hide = !inventory_img->hide;
     slot_selected_img->hide = !slot_selected_img->hide;
     for(int i = inventory_slot_id_start; i <inventory_slot_id_start+inventory_slot_num; ++i) {
@@ -395,7 +400,6 @@ void UI::arrow_key_callback(bool left) {
 
 void UI::add_inventory_item(std::string item_name, std::string img_path) {
     auto img_ptr = std::make_shared<Img>(item_pos[inventory_items.size()], img_path);
-    std::cout<<item_pos[inventory_items.size()].x<<" "<<item_pos[inventory_items.size()].y<<std::endl;
     inventory_items[item_name] = img_ptr;
     imgs.push_back(img_ptr);
 }

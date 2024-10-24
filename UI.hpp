@@ -33,12 +33,14 @@ struct UI {
     std::shared_ptr<Text> choice2_text = nullptr;
     std::shared_ptr<Text> game_over_text = nullptr;
     std::shared_ptr<Text> manual_text = nullptr;
+    std::shared_ptr<Text> inventory_manual_text = nullptr;
 
     std::shared_ptr<Box> description_box = nullptr;
     std::shared_ptr<Box> game_over_box = nullptr;
 
     std::shared_ptr<Img> I_img = nullptr;
     std::shared_ptr<Img> Y_img = nullptr;
+    std::shared_ptr<Img> B_img = nullptr;
     std::shared_ptr<Img> slot_left_img = nullptr;
     std::shared_ptr<Img> slot_right_img = nullptr;
     std::shared_ptr<Img> inventory_img = nullptr;
@@ -105,7 +107,12 @@ struct UI {
 						/*line length*/85, 
 						/*start pos*/glm::vec2(900, 690),
 						font_manual);
-        texts = {description_text, choice1_text, choice2_text, game_over_text, manual_text};
+        inventory_manual_text = std::make_shared<Text>("Show/hide inventory", 
+                        /*line length*/85, 
+						/*start pos*/glm::vec2(180, 680),
+						font_manual);
+        inventory_manual_text->hide = false;
+        texts = {description_text, choice1_text, choice2_text, game_over_text, manual_text, inventory_manual_text};
 
         // Create boxes
         description_box = std::make_shared<Box>(glm::vec4(20, 480, 1260, 700), glm::u8vec4(100, 100, 100, 200));
@@ -115,6 +122,8 @@ struct UI {
         // Create images
         I_img = std::make_shared<Img>(glm::vec2(800, 300), "UI/I.png");
         Y_img = std::make_shared<Img>(choice_pos[0], "UI/Y.png");
+        B_img = std::make_shared<Img>(glm::vec2(100, 640), "UI/B.png");
+        B_img->hide = false;
 
         glm::uvec2 size;
         std::shared_ptr<std::vector< glm::u8vec4 > > data = std::make_shared<std::vector< glm::u8vec4 >>();
@@ -122,7 +131,7 @@ struct UI {
         slot_left_img = std::make_shared<Img>(choice_pos[0], size, data);
         slot_right_img = std::make_shared<Img>(choice_pos[1], size, data);
         inventory_img = std::make_shared<Img>(glm::vec2(0, 592), "UI/inventory.png");
-        imgs= {slot_left_img, slot_right_img, I_img, Y_img, inventory_img};
+        imgs= {slot_left_img, slot_right_img, B_img, I_img, Y_img, inventory_img};
         
 
         // Create slots for inventory
@@ -152,7 +161,7 @@ struct UI {
     void update_texture();
 
     void update_choice(bool left);
-    void show_description();
+    void show_description(std::string description, std::string choice1, std::string choice2);
 
     void show_game_over(bool won);
 

@@ -35,5 +35,5 @@ struct PlayMode : Mode {
 		Scene::Camera *camera = nullptr;
 	} player;
 
-    UI ui;
+    std::shared_ptr<UI> ui;
 };
