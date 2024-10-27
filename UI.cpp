@@ -30,7 +30,8 @@ void UI::draw(){
 
 void UI::gen_box_texture(){
     // initialize image. Origin is the upper left corner
-	glm::u8vec4 image[height][width];
+    std::vector<std::vector<glm::u8vec4>> image(height, std::vector<glm::u8vec4>(width));
+	// glm::u8vec4 image[height][width];
     for (int i = 0; i < height; i++ ){
         for (int j = 0; j < width; j++ ) {
             image[i][j] = glm::u8vec4(0x00);
@@ -40,8 +41,8 @@ void UI::gen_box_texture(){
 	for(auto box : boxes){
         if(box->hide) continue;
 		// fill box area with color
-        for (int i = box->rect[0]; i < box->rect[2]; i++ ){
-            for (int j = box->rect[1]; j < box->rect[3]; j++ ) {
+        for (uint32_t i = (uint32_t)box->rect[0]; i < (uint32_t)box->rect[2]; i++ ){
+            for (uint32_t j = (uint32_t)box->rect[1]; j < (uint32_t)box->rect[3]; j++ ) {
                 image[j][i] = box->color;
             }    
         }
@@ -82,7 +83,8 @@ void UI::gen_box_texture(){
 
 void UI::gen_text_texture() {
     /* Initialize image. Origin is the upper left corner */
-    glm::u8vec4 image[height][width];
+    std::vector<std::vector<glm::u8vec4>> image(height, std::vector<glm::u8vec4>(width));
+    // glm::u8vec4 image[height][width];
     for (int i = 0; i < height; i++ ){
         for (int j = 0; j < width; j++ ) {
             image[i][j] = glm::u8vec4(0x00);
@@ -117,7 +119,7 @@ void UI::gen_text_texture() {
         hb_buffer_t *hb_buffer = text->font->hb_buffer;
 
         // break text by newlines
-        std::vector<std::string> lines = wrapText(text->text, text->line_length);
+        std::vector<std::string> lines = wrapText(text->text, (size_t)text->line_length);
 
         double current_x = text->start_pos.x;
         double current_y = text->start_pos.y;
@@ -153,8 +155,8 @@ void UI::gen_text_texture() {
                     current_y += pos[i].y_advance / 64.;
 
                     draw_bitmap( &slot->bitmap,
-                                x_position,
-                                y_position,
+                                (FT_Int) x_position,
+                                (FT_Int) y_position,
                                 text->color);
                     
                 }
@@ -238,7 +240,8 @@ std::vector<std::string> UI::wrapText(const std::string& text, size_t line_lengt
 }
 
 void UI::gen_img_texture() {
-    glm::u8vec4 image[height][width];
+    std::vector<std::vector<glm::u8vec4>> image(height, std::vector<glm::u8vec4>(width));
+    // glm::u8vec4 image[height][width];
     for (int i = 0; i < height; i++ ){
         for (int j = 0; j < width; j++ ) {
             image[i][j] = glm::u8vec4(0x00);
@@ -247,14 +250,14 @@ void UI::gen_img_texture() {
 
     for(auto img: imgs) {
         if(img->hide) continue;
-        for (int i = 0; i < img->size.y; i++ ){
-            for (int j = 0; j < img->size.x; j++ ) {
+        for (uint32_t i = 0; i < img->size.y; i++ ){
+            for (uint32_t j = 0; j < img->size.x; j++ ) {
                 if((*img->data)[i*img->size.x + j] == glm::u8vec4(0x00))    
                     continue;
-                int y = i+img->pos.y;
-                int x = j+img->pos.x;
+                float y = i+img->pos.y;
+                float x = j+img->pos.x;
                 if(y < 0 || y >= height || x < 0 || x >= width) continue;
-                image[y][x] = (*img->data)[i*img->size.x + j];
+                image[(uint32_t)y][(uint32_t)x] = ((*img->data)[i*((uint32_t)img->size.x) + j]);
             }    
         }
     }
@@ -281,9 +284,9 @@ void UI::update_choice(bool left) {
     if(!showing_description) return;
     // switch to the next choice
     if(left) {
-        choice_id = (choice_id - 1 + choice_pos.size()) % choice_pos.size();
+        choice_id = uint32_t((choice_id - 1 + choice_pos.size()) % choice_pos.size());
     } else {
-        choice_id = (choice_id + 1) % choice_pos.size();
+        choice_id = uint32_t((choice_id + 1) % choice_pos.size());
     }
     Y_img->pos = choice_pos[choice_id];
     need_update_texture = true;
@@ -367,7 +370,7 @@ void UI::toggle_inventory(){
     B_img->hide = !B_img->hide;
     inventory_img->hide = !inventory_img->hide;
     slot_selected_img->hide = !slot_selected_img->hide;
-    for(int i = inventory_slot_id_start; i <inventory_slot_id_start+inventory_slot_num; ++i) {
+    for(uint32_t i = inventory_slot_id_start; i <inventory_slot_id_start+inventory_slot_num; ++i) {
         imgs[i]->hide = !imgs[i]->hide;
     }
     for(auto& item: inventory_items) {

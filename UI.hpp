@@ -5,6 +5,7 @@
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 struct UI {
     struct Box {
@@ -135,8 +136,8 @@ struct UI {
         
 
         // Create slots for inventory
-        inventory_slot_id_start = imgs.size();
-        for (int i = 0; i < inventory_slot_num; i++) {
+        inventory_slot_id_start = (uint32_t)imgs.size();
+        for (uint32_t i = 0; i < inventory_slot_num; i++) {
             glm::vec2 pos = glm::vec2(260 + 78 * i, 626);
             item_pos.push_back(pos);
             imgs.push_back(std::make_shared<Img>(pos, size, data));
