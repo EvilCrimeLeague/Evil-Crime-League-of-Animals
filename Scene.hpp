@@ -21,6 +21,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include "Mesh.hpp"
 
 struct Scene {
 	struct Transform {
@@ -79,6 +80,9 @@ struct Scene {
 				GLenum target = GL_TEXTURE_2D;
 			} textures[TextureCount];
 		} pipeline;
+		
+		const MeshBuffer *meshBuffer;
+		const Mesh *mesh;
 	};
 
 	struct Camera {

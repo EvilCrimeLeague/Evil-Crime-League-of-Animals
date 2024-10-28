@@ -14,8 +14,14 @@
 #include <map>
 #include <limits>
 #include <string>
+#include <vector>
 
-
+struct Vertex {
+	glm::vec3 Position;
+	glm::vec3 Normal;
+	glm::u8vec4 Color;
+	glm::vec2 TexCoord;
+};
 struct Mesh {
 	//Meshes are vertex ranges (and primitive types) in their MeshBuffer:
 
@@ -27,6 +33,7 @@ struct Mesh {
 	//useful for debug visualization and (perhaps, eventually) collision detection:
 	glm::vec3 min = glm::vec3( std::numeric_limits< float >::infinity());
 	glm::vec3 max = glm::vec3(-std::numeric_limits< float >::infinity());
+
 };
 
 struct MeshBuffer {
@@ -67,4 +74,6 @@ struct MeshBuffer {
 	Attrib Normal;
 	Attrib Color;
 	Attrib TexCoord;
+
+	std::vector< Vertex > data;
 };

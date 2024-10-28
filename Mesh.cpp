@@ -18,14 +18,8 @@ MeshBuffer::MeshBuffer(std::string const &filename) {
 
 	GLuint total = 0;
 
-	struct Vertex {
-		glm::vec3 Position;
-		glm::vec3 Normal;
-		glm::u8vec4 Color;
-		glm::vec2 TexCoord;
-	};
 	static_assert(sizeof(Vertex) == 3*4+3*4+4*1+2*4, "Vertex is packed.");
-	std::vector< Vertex > data;
+	// std::vector< Vertex > data;
 
 	//read + upload data chunk:
 	if (filename.size() >= 5 && filename.substr(filename.size()-5) == ".pnct") {
