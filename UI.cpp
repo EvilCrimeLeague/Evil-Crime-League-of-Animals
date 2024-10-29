@@ -302,8 +302,7 @@ void UI::update_texture() {
 }
 
 void UI::show_description(std::string description, std::string choice1, std::string choice2) {
-    if(I_img->hide && !showing_description) return; // not within range of an interactable object
-    reset();
+    hide_all();
     showing_description = true;
 
     description_text->hide = false;
@@ -338,8 +337,7 @@ void UI::show_game_over(bool won) {
     need_update_texture = true;
 }
 
-void UI::reset() {
-    // reset UI when game restart
+void UI::hide_all() {
     for(auto text: texts) {
         text->hide = true;
     }
@@ -351,6 +349,11 @@ void UI::reset() {
     for(auto img: imgs) {
         img->hide = true;
     }
+}
+
+void UI::reset() {
+    // reset UI when game restart
+    hide_all();
 
     choice_id = 0;
     Y_img->pos = choice_pos[choice_id];
@@ -380,6 +383,10 @@ void UI::toggle_inventory(){
         item.second->hide = !item.second->hide;
     }
     showing_inventory = !showing_inventory;
+    if(showing_inventory) {
+        inventory_manual_text->hide = true;
+        B_img->hide = true;
+    }
     need_update_texture = true;
 }
 

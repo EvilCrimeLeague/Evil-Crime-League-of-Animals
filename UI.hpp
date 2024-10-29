@@ -167,6 +167,7 @@ struct UI {
 
     void show_game_over(bool won);
 
+    void hide_all();
     void reset();
 
     void toggle_interactable_button();

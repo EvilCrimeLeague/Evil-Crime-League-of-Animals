@@ -144,7 +144,9 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_i) {
 			key_i.pressed = false;
-			ui->show_description("You found a bone. Do you want to collect it?", "Yes", "No");
+			if(ui->I_img->hide == false) {
+				ui->show_description("You found a bone. Do you want to collect it?", "Yes", "No");
+			}
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_RETURN) {
 			enter.pressed = false;
@@ -161,12 +163,15 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 					// Interact with inventory
 					if(ui->choice_id == 0) {
 						// use item
-						ui->show_description("You have used the bone.");
 						ui->remove_inventory_item("bone");
+						// TODO: set bone position to somewhere around the dog
 					}
+					showing_inventory_description = false;
 				}
-			} else if (ui->showing_inventory && ui->inventory_items.size() > 0) {
+			} else if (ui->showing_inventory && ui->inventory_items.size() > 0 && ui->inventory_slot_selected_id == 0) {
+				std::cout<<"select item in inventory"<<std::endl;
 				ui->show_description("Do you want to use the bone to distract the guard?", "Yes", "No");
+				showing_inventory_description = true;
 			}
 			
 			return true;
@@ -197,8 +202,6 @@ void PlayMode::update(float elapsed) {
 		//get move in world coordinate system:
 		glm::vec3 remain = player.transform->make_local_to_world() * glm::vec4(move.x, move.y, 0.0f, 0.0f);
 
-		//using a for() instead of a while() here so that if walkpoint gets stuck in
-		// some awkward case, code will not infinite loop:
 		//using a for() instead of a while() here so that if walkpoint gets stuck in
 		// some awkward case, code will not infinite loop:
 		for (uint32_t iter = 0; iter < 10; ++iter) {
