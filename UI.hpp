@@ -106,7 +106,7 @@ struct UI {
                             /*start pos*/glm::vec2(500, 350),
                             font_title);
         
-        manual_text = std::make_shared<Text>("Press 'return' to restart", 
+        manual_text = std::make_shared<Text>("Press 'return' to continue", 
 						/*line length*/85, 
 						/*start pos*/glm::vec2(900, 690),
 						font_manual);
@@ -164,7 +164,7 @@ struct UI {
     void update_texture();
 
     void update_choice(bool left);
-    
+
     void show_description(std::string description, std::string choice1 = "", std::string choice2 = "");
     void hide_description();
 
