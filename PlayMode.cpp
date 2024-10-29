@@ -52,25 +52,19 @@ Load< WalkMeshes > level1_walkmeshes(LoadTagDefault, []() -> WalkMeshes const * 
 
 PlayMode::PlayMode() : scene(*level1_scene) {
 	for (auto &transform : scene.transforms) {
-		if (transform.name == "RedPanda") redPanda = &transform;
+		if (transform.name == "RedPanda") player.transform = &transform;
 		else if (transform.name == "Bone") bone = &transform;
 		else if (transform.name == "GuardDog") guardDog = &transform;
 	}
 
-	if (redPanda == nullptr) throw std::runtime_error("RedPanda not found.");
+	if (player.transform == nullptr) throw std::runtime_error("RedPanda not found.");
 	else if (bone == nullptr) throw std::runtime_error("Bone not found.");
 	else if (guardDog == nullptr) throw std::runtime_error("GuardDog not found.");
 
-	redPanda_rotation = redPanda->rotation;
-
-	//create a player transform:
-	scene.transforms.emplace_back();
-	player.transform = &scene.transforms.back();
+	player.rotation_euler = glm::eulerAngles(player.transform->rotation) / float(M_PI) * 180.0f;
 
 	//create a player camera attached to a child of the player transform:
-	scene.transforms.emplace_back();
-	scene.cameras.emplace_back(&scene.transforms.back());
-	player.camera = &scene.cameras.back();
+	player.camera = &scene.cameras.front();
 	player.camera->fovy = glm::radians(60.0f);
 	player.camera->near = 0.01f;
 	player.camera->transform->parent = player.transform;
@@ -85,7 +79,6 @@ PlayMode::PlayMode() : scene(*level1_scene) {
 	player.at = walkmesh->nearest_walk_point(player.transform->position);
 
 	ui = std::make_shared<UI>();
-	ui->toggle_interactable_button();
 	
 }
 
@@ -169,6 +162,7 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 						ui->add_inventory_item("bone", "UI/bone.png");
 						ui->show_description("You have collected the bone.");
 						// hide bone
+						bone->position.z = -500.0f;
 					} 
 				} else {
 					// Interact with inventory

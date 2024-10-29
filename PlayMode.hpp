@@ -26,11 +26,9 @@ struct PlayMode : Mode {
 	//local copy of the game scene (so code can change it during gameplay):
 	Scene scene;
 
-	Scene::Transform *redPanda = nullptr;
+	// Scene::Transform *redPanda = nullptr;
 	Scene::Transform *guardDog = nullptr;
 	Scene::Transform *bone = nullptr;
-
-	glm::quat redPanda_rotation;
 
 	//player info:
 	struct Player {
@@ -39,6 +37,9 @@ struct PlayMode : Mode {
 		Scene::Transform *transform = nullptr;
 		//camera is at player's head and will be pitched by mouse up/down motion:
 		Scene::Camera *camera = nullptr;
+		glm::vec3 rotation_euler;
+		float rotation_speed = 50.0f;
+		float move_speed = 10.0f;
 	} player;
 
     std::shared_ptr<UI> ui;
