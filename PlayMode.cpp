@@ -62,6 +62,7 @@ PlayMode::PlayMode() : scene(*level1_scene) {
 
 	player.rotation_euler = glm::eulerAngles(player.transform->rotation) / float(M_PI) * 180.0f;
 	player.rotation = player.transform->rotation;
+	player.spawn_point = player.transform->position;
 
 	//create a player camera attached to a child of the player transform:
 	player.camera = &scene.cameras.front();
@@ -303,7 +304,7 @@ void PlayMode::update(float elapsed) {
 		constexpr uint32_t verticalRays = 20;
 		float horizontalStep = guardDogHorizontalFov / horizontalRays;
 		float verticalStep = guardDogVerticalFov / verticalRays;
-		float visionDistance = 2.0f;
+		float visionDistance = 5.0f;
 		glm::vec3 guardDogPositionWorld = guardDog->make_local_to_world() * glm::vec4(0, 0, 0, 1);
 		glm::vec3 guardDogDirectionWorld = glm::normalize(guardDog->make_local_to_world() * glm::vec4(glm::vec3(0.0, -1.0, 0.0) - guardDogPositionWorld, 1));
 
@@ -311,10 +312,14 @@ void PlayMode::update(float elapsed) {
 			float horizontalAngle = - (guardDogHorizontalFov / 2) + (x * horizontalStep);
 			glm::vec3 horizontalDirection = glm::angleAxis(glm::radians(horizontalAngle), glm::vec3(0.0f, 0.0f, 1.0f)) * guardDogDirectionWorld;
 			for (uint32_t z = 0; z < verticalRays; z++) {
+				float closest_t = 10000000;
 				float verticalAngle = - (guardDogVerticalFov / 2) + (z * verticalStep);
 				glm::vec3 direction = glm::angleAxis(glm::radians(verticalAngle), glm::vec3(1.0f, 0.0f, 0.0f)) * horizontalDirection;
 				glm::vec3 point = guardDog->position + glm::vec3(0.0f, 0.0f, 1.8f);
+				direction.y = -direction.y;
 				Ray r = Ray(point, direction, glm::vec2(0.0f, 2.0f), (uint32_t)0);
+				// std::cout<<"point: "<<point.x<<" "<<point.y<<" "<<point.z<<std::endl;
+				// std::cout<<"dir: "<<direction.x<<" "<<direction.y<<" "<<direction.z<<std::endl;
 				// loop through primitives 
 				for (Scene::Drawable &d : scene.drawables) {
 					GLuint start = d.mesh->start;
@@ -335,7 +340,7 @@ void PlayMode::update(float elapsed) {
 
 						if (glm::abs(denominator) > 0.00001f) {
 							float t = glm::dot(a - r.point, normal) / denominator;
-
+							//std::cout<<"ray intersects plane of "<<d.transform->name<<std::endl;
 							// if the ray intersects the abc plane
 							if (t >= 0.00001f && t <= visionDistance) {
 								glm::vec3 p = r.at(t);
@@ -345,7 +350,12 @@ void PlayMode::update(float elapsed) {
 								if (glm::dot(glm::cross(ac, ab), glm::cross(ac, ap)) > 0 && 
 									glm::dot(glm::cross(cb, ca), glm::cross(cb, cp)) > 0 &&
 									glm::dot(glm::cross(ba, bc), glm::cross(ba, bp)) > 0) {
-										std::cout<<"true"<<std::endl;
+										closest_t = std::min(t, closest_t);
+										if ((t <= closest_t) && (d.transform->name == "RedPanda")) {
+											player.transform->position = player.spawn_point;
+											player.at = walkmesh->nearest_walk_point(player.transform->position);
+										}
+										
 									}
 							}
 						}
