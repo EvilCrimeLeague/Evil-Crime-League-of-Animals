@@ -360,29 +360,30 @@ void UI::reset() {
     showing_description = false;
     showing_inventory = false;
     inventory_slot_selected_id = 0;
+    showing_interactable_button = false;
 
     need_update_texture = true;
 }
 
-void UI::toggle_interactable_button() {
+void UI::set_interactable_button(bool hide) {
     // show interactable button if within range of an interactable object
-    I_img->hide = !I_img->hide;
-    showing_interactable_button = !showing_interactable_button;
+    I_img->hide = hide;
+    showing_interactable_button = !hide;
     need_update_texture = true;
 }
 
-void UI::toggle_inventory(){
-    inventory_manual_text->hide = !inventory_manual_text->hide;
-    B_img->hide = !B_img->hide;
-    inventory_img->hide = !inventory_img->hide;
-    slot_selected_img->hide = !slot_selected_img->hide;
+void UI::set_inventory(bool hide){
+    inventory_manual_text->hide = !hide;
+    B_img->hide = !hide;
+    inventory_img->hide = hide;
+    slot_selected_img->hide = hide;
     for(uint32_t i = inventory_slot_id_start; i <inventory_slot_id_start+inventory_slot_num; ++i) {
-        imgs[i]->hide = !imgs[i]->hide;
+        imgs[i]->hide = hide;
     }
     for(auto& item: inventory_items) {
-        item.second->hide = !item.second->hide;
+        item.second->hide = hide;
     }
-    showing_inventory = !showing_inventory;
+    showing_inventory = !hide;
     if(showing_inventory) {
         inventory_manual_text->hide = true;
         B_img->hide = true;

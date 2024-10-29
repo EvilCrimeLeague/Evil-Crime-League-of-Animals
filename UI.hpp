@@ -170,9 +170,9 @@ struct UI {
     void hide_all();
     void reset();
 
-    void toggle_interactable_button();
+    void set_interactable_button(bool hide);
 
-    void toggle_inventory();
+    void set_inventory(bool hide);
     void update_inventory_selection(bool left);
 
     // Callback functions for left and right arrow keys
