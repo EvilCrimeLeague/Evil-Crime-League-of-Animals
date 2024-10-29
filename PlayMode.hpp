@@ -26,6 +26,12 @@ struct PlayMode : Mode {
 	//local copy of the game scene (so code can change it during gameplay):
 	Scene scene;
 
+	Scene::Transform *redPanda = nullptr;
+	Scene::Transform *guardDog = nullptr;
+	Scene::Transform *bone = nullptr;
+
+	glm::quat redPanda_rotation;
+
 	//player info:
 	struct Player {
 		WalkPoint at;
