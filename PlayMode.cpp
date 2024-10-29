@@ -65,21 +65,11 @@ PlayMode::PlayMode() : scene(*level1_scene) {
 
 	//create a player camera attached to a child of the player transform:
 	player.camera = &scene.cameras.front();
-	player.camera->fovy = glm::radians(60.0f);
-	player.camera->near = 0.01f;
-	player.camera->transform->parent = player.transform;
-
-	//player's eyes are 1.8 units above the ground:
-	player.camera->transform->position = glm::vec3(0.0f, 0.0f, 1.8f);
-
-	//rotate camera facing direction (-z) to player facing direction (+y):
-	player.camera->transform->rotation = glm::angleAxis(glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
 	//start player walking at nearest walk point:
 	player.at = walkmesh->nearest_walk_point(player.transform->position);
 
 	ui = std::make_shared<UI>();
-	
 }
 
 PlayMode::~PlayMode() {
@@ -182,30 +172,31 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			ui->toggle_inventory();
 			return true;
 		}
-	} else if (evt.type == SDL_MOUSEBUTTONDOWN) {
-		if (SDL_GetRelativeMouseMode() == SDL_FALSE) {
-			SDL_SetRelativeMouseMode(SDL_TRUE);
-			return true;
-		}
-	} else if (evt.type == SDL_MOUSEMOTION) {
-		if (SDL_GetRelativeMouseMode() == SDL_TRUE) {
-			glm::vec2 motion = glm::vec2(
-				evt.motion.xrel / float(window_size.y),
-				-evt.motion.yrel / float(window_size.y)
-			);
-			glm::vec3 upDir = walkmesh->to_world_smooth_normal(player.at);
-			player.transform->rotation = glm::angleAxis(-motion.x * player.camera->fovy, upDir) * player.transform->rotation;
+	} 
+	// else if (evt.type == SDL_MOUSEBUTTONDOWN) {
+		// if (SDL_GetRelativeMouseMode() == SDL_FALSE) {
+		// 	SDL_SetRelativeMouseMode(SDL_TRUE);
+		// 	return true;
+		// }
+	// } else if (evt.type == SDL_MOUSEMOTION) {
+		// if (SDL_GetRelativeMouseMode() == SDL_TRUE) {
+		// 	glm::vec2 motion = glm::vec2(
+		// 		evt.motion.xrel / float(window_size.y),
+		// 		-evt.motion.yrel / float(window_size.y)
+		// 	);
+		// 	glm::vec3 upDir = walkmesh->to_world_smooth_normal(player.at);
+		// 	player.transform->rotation = glm::angleAxis(-motion.x * player.camera->fovy, upDir) * player.transform->rotation;
 
-			float pitch = glm::pitch(player.camera->transform->rotation);
-			pitch += motion.y * player.camera->fovy;
-			//camera looks down -z (basically at the player's feet) when pitch is at zero.
-			pitch = std::min(pitch, 0.95f * 3.1415926f);
-			pitch = std::max(pitch, 0.05f * 3.1415926f);
-			player.camera->transform->rotation = glm::angleAxis(pitch, glm::vec3(1.0f, 0.0f, 0.0f));
+		// 	float pitch = glm::pitch(player.camera->transform->rotation);
+		// 	pitch += motion.y * player.camera->fovy;
+		// 	//camera looks down -z (basically at the player's feet) when pitch is at zero.
+		// 	pitch = std::min(pitch, 0.95f * 3.1415926f);
+		// 	pitch = std::max(pitch, 0.05f * 3.1415926f);
+		// 	player.camera->transform->rotation = glm::angleAxis(pitch, glm::vec3(1.0f, 0.0f, 0.0f));
 
-			return true;
-		}
-	}
+		// 	return true;
+		// }
+	// }
 
 	return false;
 }
@@ -214,18 +205,21 @@ void PlayMode::update(float elapsed) {
 	//player walking:
 	{
 		//combine inputs into a move:
-		constexpr float PlayerSpeed = 3.0f;
 		glm::vec2 move = glm::vec2(0.0f);
 		if (left.pressed && !right.pressed) move.x =-1.0f;
 		if (!left.pressed && right.pressed) move.x = 1.0f;
-		if (down.pressed && !up.pressed) move.y =-1.0f;
-		if (!down.pressed && up.pressed) move.y = 1.0f;
+		if (down.pressed && !up.pressed) move.y = 1.0f;
+		if (!down.pressed && up.pressed) move.y = -1.0f;
 
 		//make it so that moving diagonally doesn't go faster:
-		if (move != glm::vec2(0.0f)) move = glm::normalize(move) * PlayerSpeed * elapsed;
+		if (move != glm::vec2(0.0f)) {
+			move = glm::normalize(move) * elapsed;
+			move.x *= player.rotation_speed;
+			move.y *= player.move_speed;
+		}
 
 		//get move in world coordinate system:
-		glm::vec3 remain = player.transform->make_local_to_world() * glm::vec4(move.x, move.y, 0.0f, 0.0f);
+		glm::vec3 remain = player.transform->make_local_to_world() * glm::vec4(move.y, 0.0, 0.0f, 0.0f);
 
 		//using a for() instead of a while() here so that if walkpoint gets stuck in
 		// some awkward case, code will not infinite loop:
@@ -279,11 +273,15 @@ void PlayMode::update(float elapsed) {
 
 		{ //update player's rotation to respect local (smooth) up-vector:
 			
-			glm::quat adjust = glm::rotation(
-				player.transform->rotation * glm::vec3(0.0f, 0.0f, 1.0f), //current up vector
-				walkmesh->to_world_smooth_normal(player.at) //smoothed up vector at walk location
-			);
-			player.transform->rotation = glm::normalize(adjust * player.transform->rotation);
+			// glm::quat adjust = glm::rotation(
+			// 	player.transform->rotation * glm::vec3(0.0f, 0.0f, 1.0f), //current up vector
+			// 	walkmesh->to_world_smooth_normal(player.at) //smoothed up vector at walk location
+			// );
+			// player.transform->rotation = glm::normalize(adjust * player.transform->rotation);
+
+			// update rotation
+			player.rotation_euler.z -= move.x;
+			player.transform->rotation = glm::quat(player.rotation_euler * float(M_PI) / 180.0f);
 		}
 
 		/*
@@ -298,23 +296,23 @@ void PlayMode::update(float elapsed) {
 
 	// Field of view collisions
 	{
-		constexpr float playerVerticalFov = 90.0f;
-		constexpr float playerHorizontalFov = 120.0f;
+		constexpr float guardDogVerticalFov = 90.0f;
+		constexpr float guardDogHorizontalFov = 120.0f;
 		constexpr uint32_t horizontalRays = 30;
 		constexpr uint32_t verticalRays = 20;
-		float horizontalStep = playerHorizontalFov / horizontalRays;
-		float verticalStep = playerVerticalFov / verticalRays;
+		float horizontalStep = guardDogHorizontalFov / horizontalRays;
+		float verticalStep = guardDogVerticalFov / verticalRays;
 		float visionDistance = 2.0f;
-		glm::vec3 playerPositionWorld = player.transform->make_local_to_world() * glm::vec4(0, 0, 0, 1);
-		glm::vec3 playerDirectionWorld = glm::normalize(player.transform->make_local_to_world() * glm::vec4(glm::vec3(0.0, -1.0, 0.0) - playerPositionWorld, 1));
+		glm::vec3 guardDogPositionWorld = guardDog->make_local_to_world() * glm::vec4(0, 0, 0, 1);
+		glm::vec3 guardDogDirectionWorld = glm::normalize(guardDog->make_local_to_world() * glm::vec4(glm::vec3(0.0, -1.0, 0.0) - guardDogPositionWorld, 1));
 
 		for (uint32_t x = 0; x < horizontalRays; x++) {
-			float horizontalAngle = - (playerHorizontalFov / 2) + (x * horizontalStep);
-			glm::vec3 horizontalDirection = glm::angleAxis(glm::radians(horizontalAngle), glm::vec3(0.0f, 0.0f, 1.0f)) * playerDirectionWorld;
+			float horizontalAngle = - (guardDogHorizontalFov / 2) + (x * horizontalStep);
+			glm::vec3 horizontalDirection = glm::angleAxis(glm::radians(horizontalAngle), glm::vec3(0.0f, 0.0f, 1.0f)) * guardDogDirectionWorld;
 			for (uint32_t z = 0; z < verticalRays; z++) {
-				float verticalAngle = - (playerVerticalFov / 2) + (z * verticalStep);
+				float verticalAngle = - (guardDogVerticalFov / 2) + (z * verticalStep);
 				glm::vec3 direction = glm::angleAxis(glm::radians(verticalAngle), glm::vec3(1.0f, 0.0f, 0.0f)) * horizontalDirection;
-				glm::vec3 point = player.transform->position + glm::vec3(0.0f, 0.0f, 1.8f);
+				glm::vec3 point = guardDog->position + glm::vec3(0.0f, 0.0f, 1.8f);
 				Ray r = Ray(point, direction, glm::vec2(0.0f, 2.0f), (uint32_t)0);
 				// loop through primitives 
 				for (Scene::Drawable &d : scene.drawables) {
