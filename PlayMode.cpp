@@ -154,7 +154,7 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 					// Interact with item
 					if(ui->choice_id ==0) {
 						ui->add_inventory_item("bone", "UI/bone.png");
-						ui->show_description("You have collected the bone.");
+						ui->reset();
 						// hide bone
 						bone->position.z = -500.0f;
 					} 
@@ -337,6 +337,13 @@ void PlayMode::update(float elapsed) {
 			}
 		}
 
+	}
+
+	{
+		// check for interaction
+		if (!ui->showing_interactable_button && glm::distance(player.transform->position, bone->position) < 3.0f) {
+			ui->toggle_interactable_button();
+		}
 	}
 
 	//reset button press counters:

@@ -58,6 +58,7 @@ struct UI {
     int32_t width = 1280;
     int32_t height = 720;
 
+    bool showing_interactable_button = false;
     // state of the description box when interact with an item
     bool showing_description = false;
     uint32_t choice_id = 0;

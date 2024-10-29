@@ -302,7 +302,7 @@ void UI::update_texture() {
 }
 
 void UI::show_description(std::string description, std::string choice1, std::string choice2) {
-    if(I_img->hide) return; // not within range of an interactable object
+    if(I_img->hide && !showing_description) return; // not within range of an interactable object
     reset();
     showing_description = true;
 
@@ -364,6 +364,7 @@ void UI::reset() {
 void UI::toggle_interactable_button() {
     // show interactable button if within range of an interactable object
     I_img->hide = !I_img->hide;
+    showing_interactable_button = !showing_interactable_button;
     need_update_texture = true;
 }
 
