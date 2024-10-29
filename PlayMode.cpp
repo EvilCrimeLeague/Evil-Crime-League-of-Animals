@@ -70,8 +70,10 @@ PlayMode::PlayMode() : scene(*level1_scene) {
 	camera = &scene.cameras.front();
 
 	player.camera = &scene.cameras.front();
-	camera_transform = player.camera->transform->position - player.transform->position;
-
+	player.camera->transform->parent = player.transform;
+	player.camera->fovy = glm::radians(60.0f);
+	player.camera->near = 0.01f;
+	player.camera->transform->position = glm::vec3(5.f, -5.f, 10.f);
 
 	//start player walking at nearest walk point:
 	player.at = walkmesh->nearest_walk_point(player.transform->position);
@@ -185,11 +187,12 @@ void PlayMode::update(float elapsed) {
 	//player walking:
 	{
 		//combine inputs into a move:
+		constexpr float playerSpeed = 5.0f;
 		glm::vec2 move = glm::vec2(0.0f);
-		if (left.pressed && !right.pressed) move.x =-1.0f;
-		if (!left.pressed && right.pressed) move.x = 1.0f;
-		if (down.pressed && !up.pressed) move.y = 1.0f;
-		if (!down.pressed && up.pressed) move.y = -1.0f;
+		if (left.pressed && !right.pressed) move.y =-1.0f;
+		if (!left.pressed && right.pressed) move.y = 1.0f;
+		if (down.pressed && !up.pressed) move.x = 1.0f;
+		if (!down.pressed && up.pressed) move.x =-1.0f;
 
 		//make it so that moving diagonally doesn't go faster:
 		if (move != glm::vec2(0.0f)) {
@@ -250,7 +253,6 @@ void PlayMode::update(float elapsed) {
 
 		//update player's position to respect walking:
 		player.transform->position = walkmesh->to_world_point(player.at);
-		player.camera->transform->position = player.transform->position + camera_transform;
 
 		{ //update player's rotation to respect local (smooth) up-vector:
 			
