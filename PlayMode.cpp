@@ -147,7 +147,6 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 		} else if (evt.key.keysym.sym == SDLK_i) {
 			key_i.pressed = false;
 			if(ui->showing_interactable_button) {
-				ui->hide_all();
 				ui->show_description("You found a bone. Do you want to collect it?", "Yes", "No");
 			}
 			return true;
@@ -172,7 +171,8 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 						// use item
 						std::cout << "Use item: yes" << std::endl;
 						ui->remove_inventory_item("bone");
-						// TODO: set bone position to somewhere around the dog
+						bone->position = glm::vec3(8.0f, 7.0f, 1.0f);
+						guardDog->position = glm::vec3(8.0f, 8.5f, 0.424494f);
 					} else {
 						std::cout << "Use item: no" << std::endl;
 						ui->set_inventory(false);
@@ -180,8 +180,6 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 					showing_inventory_description = false;
 				}
 			} else if (ui->showing_inventory && ui->inventory_items.size() > 0 && ui->inventory_slot_selected_id == 0) {
-				ui->set_inventory(/*hide=*/true);
-				ui->set_B_button(/*hide=*/true);
 				ui->show_description("Do you want to use the bone to distract the guard?", "Yes", "No");
 				showing_inventory_description = true;
 			}

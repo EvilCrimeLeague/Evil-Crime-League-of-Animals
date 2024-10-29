@@ -302,6 +302,7 @@ void UI::update_texture() {
 }
 
 void UI::show_description(std::string description, std::string choice1, std::string choice2) {
+    hide_all();
     showing_description = true;
 
     description_text->hide = false;
