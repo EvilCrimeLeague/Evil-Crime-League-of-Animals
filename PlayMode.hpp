@@ -36,4 +36,6 @@ struct PlayMode : Mode {
 	} player;
 
     std::shared_ptr<UI> ui;
+
+	bool showing_inventory_description = false;
 };

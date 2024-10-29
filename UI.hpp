@@ -162,7 +162,7 @@ struct UI {
     void update_texture();
 
     void update_choice(bool left);
-    void show_description(std::string description, std::string choice1, std::string choice2);
+    void show_description(std::string description, std::string choice1 = "", std::string choice2 = "");
 
     void show_game_over(bool won);
 

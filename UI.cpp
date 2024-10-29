@@ -309,13 +309,15 @@ void UI::show_description(std::string description, std::string choice1, std::str
     description_text->hide = false;
     description_text->text = description;
     description_box->hide = false;
-    Y_img->hide = false;
-    slot_left_img->hide = false;
-    slot_right_img->hide = false;
-    choice1_text->hide = false;
-    choice1_text->text = choice1;
-    choice2_text->hide = false;
-    choice2_text->text = choice2;
+    if(choice1 != "" && choice2 != "") {
+        Y_img->hide = false;
+        slot_left_img->hide = false;
+        slot_right_img->hide = false;
+        choice1_text->hide = false;
+        choice1_text->text = choice1;
+        choice2_text->hide = false;
+        choice2_text->text = choice2;
+    }
 
     need_update_texture = true;
 }

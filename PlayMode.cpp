@@ -74,7 +74,7 @@ PlayMode::PlayMode() : scene(*level1_scene) {
 
 	ui = std::make_shared<UI>();
 	ui->toggle_interactable_button();
-	ui->add_inventory_item("bone", "UI/bone.png");
+	
 }
 
 PlayMode::~PlayMode() {
@@ -146,18 +146,28 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_i) {
 			key_i.pressed = false;
-			ui->show_description("You found a dinasaur speciment. Do you want to shoot it?", "Yes", "No");
+			ui->show_description("You found a bone. Do you want to collect it?", "Yes", "No");
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_RETURN) {
 			enter.pressed = false;
 			if(ui->showing_description) {
-				if(ui->choice_id ==0) {
-					ui->show_game_over(/*won=*/true);
+				if(!showing_inventory_description) {
+					// Interact with item
+					if(ui->choice_id ==0) {
+						ui->add_inventory_item("bone", "UI/bone.png");
+						ui->show_description("You have collected the bone.");
+						// hide bone
+					} 
 				} else {
-					ui->reset();
+					// Interact with inventory
+					if(ui->choice_id == 0) {
+						// use item
+						ui->show_description("You have used the bone.");
+						ui->remove_inventory_item("bone");
+					}
 				}
-			} else if (ui->showing_inventory) {
-				std::cout<<"selected item: "<<ui->inventory_slot_selected_id<<std::endl;
+			} else if (ui->showing_inventory && ui->inventory_items.size() > 0) {
+				ui->show_description("Do you want to use the bone to distract the guard?", "Yes", "No");
 			}
 			
 			return true;
