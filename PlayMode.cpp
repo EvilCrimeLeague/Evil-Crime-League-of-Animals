@@ -160,9 +160,10 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 				if(!showing_inventory_description) {
 					// Interact with item
 					if(ui->choice_id ==0) {
+						std::cout<<"Interact with item"<<std::endl;
 						ui->add_inventory_item("bone", "UI/bone.png");
 						// hide bone
-						bone->position.z = -500.0f;
+						bone->position.x = -1000.0f;
 					} else {
 						// show iteractable button again
 						ui->set_interactable_button(/*hide=*/false);
