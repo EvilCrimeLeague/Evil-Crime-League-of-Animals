@@ -42,6 +42,7 @@ struct PlayMode : Mode {
 		//camera is at player's head and will be pitched by mouse up/down motion:
 		Scene::Camera *camera = nullptr;
 		glm::vec3 rotation_euler;
+		glm::quat rotation;
 	} player;
 
     std::shared_ptr<UI> ui;

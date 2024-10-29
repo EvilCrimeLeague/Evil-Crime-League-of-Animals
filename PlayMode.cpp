@@ -61,6 +61,7 @@ PlayMode::PlayMode() : scene(*level1_scene) {
 	else if (guardDog == nullptr) throw std::runtime_error("GuardDog not found.");
 
 	player.rotation_euler = glm::eulerAngles(player.transform->rotation) / float(M_PI) * 180.0f;
+	player.rotation = player.transform->rotation;
 
 	//create a player camera attached to a child of the player transform:
 	player.camera = &scene.cameras.front();
@@ -196,12 +197,24 @@ void PlayMode::update(float elapsed) {
 	//player walking:
 	{
 		//combine inputs into a move:
-		constexpr float playerSpeed = 10.0f;
+		constexpr float playerSpeed = 20.0f;
 		glm::vec2 move = glm::vec2(0.0f);
-		if (left.pressed && !right.pressed) move.y =-1.0f;
-		if (!left.pressed && right.pressed) move.y = 1.0f;
-		if (down.pressed && !up.pressed) move.x = 1.0f;
-		if (!down.pressed && up.pressed) move.x =-1.0f;
+		if (left.pressed && !right.pressed) {
+			move.x =-1.0f;
+			player.transform->rotation = player.rotation * glm::angleAxis(glm::radians(90.f),glm::vec3(0.0f, 0.0f, 1.0f));
+		}
+		if (!left.pressed && right.pressed) {
+			move.x =-1.0f;
+			player.transform->rotation = player.rotation * glm::angleAxis(glm::radians(-90.f),glm::vec3(0.0f, 0.0f, 1.0f));
+		}
+		if (down.pressed && !up.pressed) {
+			move.x =-1.0f;
+			player.transform->rotation = player.rotation * glm::angleAxis(glm::radians(180.f),glm::vec3(0.0f, 0.0f, 1.0f));
+		}
+		if (!down.pressed && up.pressed) {
+			move.x =-1.0f;
+			player.transform->rotation = player.rotation * glm::angleAxis(glm::radians(0.f),glm::vec3(0.0f, 0.0f, 1.0f));
+		}
 
 		//make it so that moving diagonally doesn't go faster:
 		if (move != glm::vec2(0.0f)) move = glm::normalize(move) * playerSpeed * elapsed;
