@@ -62,6 +62,7 @@ PlayMode::PlayMode() : scene(*level1_scene) {
 
 	player.rotation_euler = glm::eulerAngles(player.transform->rotation) / float(M_PI) * 180.0f;
 	player.rotation = player.transform->rotation;
+	player.spawn_point = player.transform->position;
 
 	//create a player camera attached to a child of the player transform:
 	player.camera = &scene.cameras.front();
@@ -348,8 +349,8 @@ void PlayMode::update(float elapsed) {
 									glm::dot(glm::cross(ba, bc), glm::cross(ba, bp)) > 0) {
 										closest_t = std::min(t, closest_t);
 										if ((t <= closest_t) && (d.transform->name == "RedPanda")) {
-											std::cout<<d.transform->name<<std::endl;
-											std::cout<<t<<std::endl;
+											player.transform->position = player.spawn_point;
+											player.at = walkmesh->nearest_walk_point(player.transform->position);
 										}
 										
 									}
