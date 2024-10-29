@@ -61,7 +61,7 @@ PlayMode::PlayMode() : scene(*level1_scene) {
 	else if (bone == nullptr) throw std::runtime_error("Bone not found.");
 	else if (guardDog == nullptr) throw std::runtime_error("GuardDog not found.");
 
-	redpanda_rotation = raccoon->rotation;
+	redPanda_rotation = redPanda->rotation;
 
 	//create a player transform:
 	scene.transforms.emplace_back();
