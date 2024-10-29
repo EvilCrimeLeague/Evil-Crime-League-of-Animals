@@ -56,12 +56,15 @@ PlayMode::PlayMode() : scene(*level1_scene) {
 		else if (transform.name == "Bone") bone = &transform;
 		else if (transform.name == "GuardDog") guardDog = &transform;
 		else if (transform.name == "Jewel") jewel = &transform;
+		else if (transform.name == "FOV") fov = &transform;
 	}
 
 	if (bone == nullptr) throw std::runtime_error("Bone not found.");
 	else if (guardDog == nullptr) throw std::runtime_error("GuardDog not found.");
 	else if (jewel == nullptr) throw std::runtime_error("Jewel not found.");
 	else if (player.transform == nullptr) throw std::runtime_error("RedPanda not found.");
+	else if (fov == nullptr) throw std::runtime_error("FOV not found.");
+	std::cout<<guardDog->position.y - fov->position.y<<std::endl;
 
 	player.rotation_euler = glm::eulerAngles(player.transform->rotation) / float(M_PI) * 180.0f;
 	player.rotation = player.transform->rotation;
@@ -175,6 +178,7 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 						ui->remove_inventory_item("bone");
 						bone->position = glm::vec3(8.0f, 7.0f, 1.0f);
 						guardDog->position = glm::vec3(8.0f, 8.5f, 0.424494f);
+						fov->position = glm::vec3(8.0f, 6.0f, 0.42449f);
 					} else {
 						// show inventory again
 						ui->set_inventory(false);

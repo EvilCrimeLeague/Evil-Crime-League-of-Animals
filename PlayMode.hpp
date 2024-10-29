@@ -32,6 +32,7 @@ struct PlayMode : Mode {
 	Scene::Transform *guardDog = nullptr;
 	Scene::Transform *bone = nullptr;
 	Scene::Transform *jewel = nullptr;
+	Scene::Transform *fov = nullptr;
 
 	glm::vec3 camera_transform;
 
