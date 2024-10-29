@@ -52,20 +52,20 @@ Load< WalkMeshes > level1_walkmeshes(LoadTagDefault, []() -> WalkMeshes const * 
 
 PlayMode::PlayMode() : scene(*level1_scene) {
 	for (auto &transform : scene.transforms) {
-		if (transform.name == "RedPanda") redPanda = &transform;
+		if (transform.name == "RedPanda") player.transform = &transform;
 		else if (transform.name == "Bone") bone = &transform;
 		else if (transform.name == "GuardDog") guardDog = &transform;
 	}
 
-	if (redPanda == nullptr) throw std::runtime_error("RedPanda not found.");
+	if (player.transform == nullptr) throw std::runtime_error("RedPanda not found.");
 	else if (bone == nullptr) throw std::runtime_error("Bone not found.");
 	else if (guardDog == nullptr) throw std::runtime_error("GuardDog not found.");
 
-	redpanda_rotation = raccoon->rotation;
+	//glm::quat redpanda_rotation = player->rotation;
 
 	//create a player transform:
-	scene.transforms.emplace_back();
-	player.transform = &scene.transforms.back();
+	// scene.transforms.emplace_back();
+	// player.transform = &scene.transforms.back();
 
 	//create a player camera attached to a child of the player transform:
 	scene.transforms.emplace_back();
@@ -210,7 +210,7 @@ void PlayMode::update(float elapsed) {
 	//player walking:
 	{
 		//combine inputs into a move:
-		constexpr float PlayerSpeed = 3.0f;
+		constexpr float playerSpeed = 3.0f;
 		glm::vec2 move = glm::vec2(0.0f);
 		if (left.pressed && !right.pressed) move.x =-1.0f;
 		if (!left.pressed && right.pressed) move.x = 1.0f;
@@ -218,7 +218,7 @@ void PlayMode::update(float elapsed) {
 		if (!down.pressed && up.pressed) move.y = 1.0f;
 
 		//make it so that moving diagonally doesn't go faster:
-		if (move != glm::vec2(0.0f)) move = glm::normalize(move) * PlayerSpeed * elapsed;
+		if (move != glm::vec2(0.0f)) move = glm::normalize(move) * playerSpeed * elapsed;
 
 		//get move in world coordinate system:
 		glm::vec3 remain = player.transform->make_local_to_world() * glm::vec4(move.x, move.y, 0.0f, 0.0f);
@@ -294,23 +294,23 @@ void PlayMode::update(float elapsed) {
 
 	// Field of view collisions
 	{
-		constexpr float playerVerticalFov = 90.0f;
-		constexpr float playerHorizontalFov = 120.0f;
+		constexpr float guardDogVerticalFov = 90.0f;
+		constexpr float guardDogHorizontalFov = 120.0f;
 		constexpr uint32_t horizontalRays = 30;
 		constexpr uint32_t verticalRays = 20;
-		float horizontalStep = playerHorizontalFov / horizontalRays;
-		float verticalStep = playerVerticalFov / verticalRays;
+		float horizontalStep = guardDogHorizontalFov / horizontalRays;
+		float verticalStep = guardDogVerticalFov / verticalRays;
 		float visionDistance = 2.0f;
-		glm::vec3 playerPositionWorld = player.transform->make_local_to_world() * glm::vec4(0, 0, 0, 1);
-		glm::vec3 playerDirectionWorld = glm::normalize(player.transform->make_local_to_world() * glm::vec4(glm::vec3(0.0, -1.0, 0.0) - playerPositionWorld, 1));
+		glm::vec3 guardDogPositionWorld = guardDog->make_local_to_world() * glm::vec4(0, 0, 0, 1);
+		glm::vec3 guardDogDirectionWorld = glm::normalize(guardDog->make_local_to_world() * glm::vec4(glm::vec3(0.0, -1.0, 0.0) - guardDogPositionWorld, 1));
 
 		for (uint32_t x = 0; x < horizontalRays; x++) {
-			float horizontalAngle = - (playerHorizontalFov / 2) + (x * horizontalStep);
-			glm::vec3 horizontalDirection = glm::angleAxis(glm::radians(horizontalAngle), glm::vec3(0.0f, 0.0f, 1.0f)) * playerDirectionWorld;
+			float horizontalAngle = - (guardDogHorizontalFov / 2) + (x * horizontalStep);
+			glm::vec3 horizontalDirection = glm::angleAxis(glm::radians(horizontalAngle), glm::vec3(0.0f, 0.0f, 1.0f)) * guardDogDirectionWorld;
 			for (uint32_t z = 0; z < verticalRays; z++) {
-				float verticalAngle = - (playerVerticalFov / 2) + (z * verticalStep);
+				float verticalAngle = - (guardDogVerticalFov / 2) + (z * verticalStep);
 				glm::vec3 direction = glm::angleAxis(glm::radians(verticalAngle), glm::vec3(1.0f, 0.0f, 0.0f)) * horizontalDirection;
-				glm::vec3 point = player.transform->position + glm::vec3(0.0f, 0.0f, 1.8f);
+				glm::vec3 point = guardDog->position + glm::vec3(0.0f, 0.0f, 1.8f);
 				Ray r = Ray(point, direction, glm::vec2(0.0f, 2.0f), (uint32_t)0);
 				// loop through primitives 
 				for (Scene::Drawable &d : scene.drawables) {
