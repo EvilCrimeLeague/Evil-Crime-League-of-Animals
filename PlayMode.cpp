@@ -161,6 +161,7 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			if(ui->showing_description) {
 				ui->hide_description();
 				if(!showing_inventory_description) {
+					ui->set_B_button(/*hide=*/false);
 					// Interact with item
 					if(ui->choice_id ==0) {
 						std::cout<<"Interact with item"<<std::endl;
