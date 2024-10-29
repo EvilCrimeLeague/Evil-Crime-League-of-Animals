@@ -284,11 +284,11 @@ void UI::update_choice(bool left) {
     if(!showing_description) return;
     // switch to the next choice
     if(left) {
-        choice_id = uint32_t((choice_id - 1 + choice_pos.size()) % choice_pos.size());
+        choice_id = uint32_t(std::max(0, (int)choice_id - 1));
     } else {
-        choice_id = uint32_t((choice_id + 1) % choice_pos.size());
+        choice_id = uint32_t(std::min((int)choice_id+1, (int)(choice_pos.size()-1)));
     }
-    Y_img->pos = choice_pos[choice_id];
+    enter_bt_img->pos = choice_pos[choice_id];
     need_update_texture = true;
 }
 
@@ -308,8 +308,9 @@ void UI::show_description(std::string description, std::string choice1, std::str
     description_text->hide = false;
     description_text->text = description;
     description_box->hide = false;
+    manual_text->hide = false;
     if(choice1 != "" && choice2 != "") {
-        Y_img->hide = false;
+        enter_bt_img->hide = false;
         slot_left_img->hide = false;
         slot_right_img->hide = false;
         choice1_text->hide = false;
@@ -326,17 +327,18 @@ void UI::hide_description() {
 
     description_text->hide = true;
     description_box->hide = true;
-    Y_img->hide = true;
+    enter_bt_img->hide = true;
     slot_left_img->hide = true;
     slot_right_img->hide = true;
     choice1_text->hide = true;
     choice2_text->hide = true;
+    manual_text->hide = true;
 
     need_update_texture = true;
 }
 
 void UI::show_game_over(bool won) {
-    reset();
+    hide_all();
     // show game over screen
     if(won) {
         game_over_text->text = "You won!";
@@ -345,6 +347,8 @@ void UI::show_game_over(bool won) {
         game_over_text->text = "Game over";
         game_over_text->color = glm::u8vec3(255, 0, 0);
     }
+    manual_text->text = "Press Enter to continue";
+    manual_text->start_pos.x = 900;
     game_over_text->hide = false;
     game_over_box->hide = false;
     manual_text->hide = false;
@@ -367,6 +371,7 @@ void UI::hide_all() {
     showing_description = false;
     showing_inventory = false;
     showing_interactable_button = false;
+    showing_notification = false;
 }
 
 void UI::reset() {
@@ -374,29 +379,33 @@ void UI::reset() {
     hide_all();
 
     choice_id = 0;
-    Y_img->pos = choice_pos[choice_id];
+    enter_bt_img->pos = choice_pos[choice_id];
     inventory_slot_selected_id = 0;
+    manual_text->start_pos.x = 700;
+
+    set_inventory_button(/*hide=*/false);
 
     need_update_texture = true;
 }
 
 void UI::set_interactable_button(bool hide) {
     // show interactable button if within range of an interactable object
-    I_img->hide = hide;
+    interact_bt_img->hide = hide;
     showing_interactable_button = !hide;
     need_update_texture = true;
 }
 
-void UI::set_B_button(bool hide) {
-    inventory_manual_text->hide = hide;
-    B_img->hide = hide;
+void UI::set_inventory_button(bool hide) {
+    inventory_bt_manual_text->hide = hide;
+    inventory_bt_img->hide = hide;
     need_update_texture = true;
 }
 
 void UI::set_inventory(bool hide){
-    set_B_button(!hide);
+    set_inventory_button(!hide);
     inventory_img->hide = hide;
     slot_selected_img->hide = hide;
+    inventory_manual_text->hide = hide;
     for(uint32_t i = inventory_slot_id_start; i <inventory_slot_id_start+inventory_slot_num; ++i) {
         imgs[i]->hide = hide;
     }
@@ -405,7 +414,7 @@ void UI::set_inventory(bool hide){
     }
     showing_inventory = !hide;
     if(showing_inventory) {
-        set_B_button(true);
+        set_inventory_button(true);
     }
     need_update_texture = true;
 }
@@ -440,4 +449,21 @@ void UI::add_inventory_item(std::string item_name, std::string img_path) {
 void UI::remove_inventory_item(std::string item_name) {
     imgs.erase(std::remove(imgs.begin(), imgs.end(), inventory_items[item_name]), imgs.end());
     inventory_items.erase(item_name);
+}
+
+void UI::show_notification(std::string notification) {
+    notification_text->text = notification;
+    notification_text->hide = false;
+    notification_box->hide = false;
+    showing_notification = true;
+
+    need_update_texture = true;
+}
+
+void UI::hide_notification() {
+    notification_text->hide = true;
+    notification_box->hide = true;
+    showing_notification = false;
+
+    need_update_texture = true;
 }

@@ -21,7 +21,7 @@ struct PlayMode : Mode {
 	struct Button {
 		uint8_t downs = 0;
 		uint8_t pressed = 0;
-	} left, right, down, up, left_arrow, right_arrow, key_i/*interact*/, enter/*make choice*/, key_b/*show inventory*/;
+	} left, right, down, up, left_arrow, right_arrow, key_f/*interact*/, enter/*make choice*/, key_e/*show inventory*/;
 
 	//local copy of the game scene (so code can change it during gameplay):
 	Scene scene;
@@ -53,6 +53,7 @@ struct PlayMode : Mode {
 	bool showing_inventory_description = false;
 
 	bool game_over = false;
+	bool paused = false;
 
 	float get_distance(glm::vec3 a, glm::vec3 b) {
 		// get distance between two points disregarding z

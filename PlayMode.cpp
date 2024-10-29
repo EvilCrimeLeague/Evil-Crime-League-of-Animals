@@ -116,17 +116,17 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			right_arrow.downs += 1;
 			right_arrow.pressed = true;
 			return true;
-		} else if (evt.key.keysym.sym == SDLK_i) {
-			key_i.downs += 1;
-			key_i.pressed = true;
+		} else if (evt.key.keysym.sym == SDLK_f) {
+			key_f.downs += 1;
+			key_f.pressed = true;
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_RETURN) {
 			enter.downs += 1;
 			enter.pressed = true;
 			return true;
-		} else if (evt.key.keysym.sym == SDLK_b) {
-			key_b.downs += 1;
-			key_b.pressed = true;
+		} else if (evt.key.keysym.sym == SDLK_e) {
+			key_e.downs += 1;
+			key_e.pressed = true;
 			return true;
 		}
 	} else if (evt.type == SDL_KEYUP) {
@@ -150,10 +150,11 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			right_arrow.pressed = false;
 			ui->arrow_key_callback(false);
 			return true;
-		} else if (evt.key.keysym.sym == SDLK_i) {
-			key_i.pressed = false;
+		} else if (evt.key.keysym.sym == SDLK_f) {
+			key_f.pressed = false;
 			if(ui->showing_interactable_button) {
 				ui->show_description("You found a bone. Do you want to collect it?", "Yes", "No");
+				paused = true;
 			}
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_RETURN) {
@@ -161,10 +162,9 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			if(ui->showing_description) {
 				ui->hide_description();
 				if(!showing_inventory_description) {
-					ui->set_B_button(/*hide=*/false);
+					ui->set_inventory_button(/*hide=*/false);
 					// Interact with item
 					if(ui->choice_id ==0) {
-						std::cout<<"Interact with item"<<std::endl;
 						ui->add_inventory_item("bone", "UI/bone.png");
 						// hide bone
 						bone->position.x = -1000.0f;
@@ -185,6 +185,7 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 						ui->set_inventory(false);
 					}
 					showing_inventory_description = false;
+					paused = false;
 				}
 			} else if (ui->showing_inventory && ui->inventory_items.size() > 0 && ui->inventory_slot_selected_id == 0 && get_distance(player.transform->position, glm::vec3(-4,7.834,0.0))<2.0f) {
 				ui->show_description("Do you want to use the bone to distract the guard?", "Yes", "No");
@@ -192,8 +193,8 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			}
 			
 			return true;
-		} else if (evt.key.keysym.sym == SDLK_b) {
-			key_b.pressed = false;
+		} else if (evt.key.keysym.sym == SDLK_e) {
+			key_e.pressed = false;
 			ui->set_inventory(ui->showing_inventory);
 			return true;
 		}
@@ -204,6 +205,9 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 
 void PlayMode::update(float elapsed) {
 	//player walking:
+	paused = showing_inventory_description || ui->showing_description;
+	if(game_over || paused) 
+		return;
 	{
 		//combine inputs into a move:
 		constexpr float playerSpeed = 20.0f;
@@ -394,7 +398,7 @@ void PlayMode::update(float elapsed) {
 	down.downs = 0;
 	left_arrow.downs = 0;
 	right_arrow.downs = 0;
-	key_i.downs = 0;
+	key_f.downs = 0;
 	enter.downs = 0;
 }
 
