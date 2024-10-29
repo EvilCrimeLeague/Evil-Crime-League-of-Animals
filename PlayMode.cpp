@@ -51,6 +51,18 @@ Load< WalkMeshes > level1_walkmeshes(LoadTagDefault, []() -> WalkMeshes const * 
 });
 
 PlayMode::PlayMode() : scene(*level1_scene) {
+	for (auto &transform : scene.transforms) {
+		if (transform.name == "RedPanda") redPanda = &transform;
+		else if (transform.name == "Bone") bone = &transform;
+		else if (transform.name == "GuardDog") guardDog = &transform;
+	}
+
+	if (redPanda == nullptr) throw std::runtime_error("RedPanda not found.");
+	else if (bone == nullptr) throw std::runtime_error("Bone not found.");
+	else if (guardDog == nullptr) throw std::runtime_error("GuardDog not found.");
+
+	redpanda_rotation = raccoon->rotation;
+
 	//create a player transform:
 	scene.transforms.emplace_back();
 	player.transform = &scene.transforms.back();
