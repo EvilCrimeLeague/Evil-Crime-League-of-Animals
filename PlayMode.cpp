@@ -309,8 +309,8 @@ void PlayMode::update(float elapsed) {
 	{
 		constexpr float guardDogVerticalFov = 90.0f;
 		constexpr float guardDogHorizontalFov = 120.0f;
-		constexpr uint32_t horizontalRays = 30;
-		constexpr uint32_t verticalRays = 20;
+		constexpr uint32_t horizontalRays = 20;
+		constexpr uint32_t verticalRays = 10;
 		float horizontalStep = guardDogHorizontalFov / horizontalRays;
 		float verticalStep = guardDogVerticalFov / verticalRays;
 		float visionDistance = 5.0f;

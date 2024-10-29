@@ -1,4 +1,4 @@
-# (TODO: your game's title)
+# Evil Crime Animals
 
 Author: (TODO: your name)
 
@@ -10,7 +10,9 @@ Screen Shot:
 
 How To Play:
 
-(TODO: describe the controls and (if needed) goals/strategy.)
+- Use wasd to move the player in different directions. The goal is to reach the
+  jewel (a cube in the game) without being seen by any of the guards. Use items 
+  in the area to figure out how to reach the cube.
 
 Sources: (TODO: list a source URL for any assets you did not create yourself. Make sure you have a license for the asset.)
 
