@@ -146,13 +146,14 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 		} else if (evt.key.keysym.sym == SDLK_i) {
 			key_i.pressed = false;
 			if(ui->showing_interactable_button) {
+				ui->hide_all();
 				ui->show_description("You found a bone. Do you want to collect it?", "Yes", "No");
 			}
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_RETURN) {
 			enter.pressed = false;
 			if(ui->showing_description) {
-				ui->reset();
+				ui->hide_description();
 				if(!showing_inventory_description) {
 					// Interact with item
 					if(ui->choice_id ==0) {
@@ -178,6 +179,8 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 					showing_inventory_description = false;
 				}
 			} else if (ui->showing_inventory && ui->inventory_items.size() > 0 && ui->inventory_slot_selected_id == 0) {
+				ui->set_inventory(/*hide=*/true);
+				ui->set_B_button(/*hide=*/true);
 				ui->show_description("Do you want to use the bone to distract the guard?", "Yes", "No");
 				showing_inventory_description = true;
 			}

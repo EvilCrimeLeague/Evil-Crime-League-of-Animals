@@ -59,6 +59,7 @@ struct UI {
     int32_t height = 720;
 
     bool showing_interactable_button = false;
+
     // state of the description box when interact with an item
     bool showing_description = false;
     uint32_t choice_id = 0;
@@ -164,6 +165,7 @@ struct UI {
 
     void update_choice(bool left);
     void show_description(std::string description, std::string choice1 = "", std::string choice2 = "");
+    void hide_description();
 
     void show_game_over(bool won);
 
@@ -171,6 +173,7 @@ struct UI {
     void reset();
 
     void set_interactable_button(bool hide);
+    void set_B_button(bool hide);
 
     void set_inventory(bool hide);
     void update_inventory_selection(bool left);

@@ -302,7 +302,6 @@ void UI::update_texture() {
 }
 
 void UI::show_description(std::string description, std::string choice1, std::string choice2) {
-    hide_all();
     showing_description = true;
 
     description_text->hide = false;
@@ -317,6 +316,20 @@ void UI::show_description(std::string description, std::string choice1, std::str
         choice2_text->hide = false;
         choice2_text->text = choice2;
     }
+
+    need_update_texture = true;
+}
+
+void UI::hide_description() {
+    showing_description = false;
+
+    description_text->hide = true;
+    description_box->hide = true;
+    Y_img->hide = true;
+    slot_left_img->hide = true;
+    slot_right_img->hide = true;
+    choice1_text->hide = true;
+    choice2_text->hide = true;
 
     need_update_texture = true;
 }
@@ -348,7 +361,11 @@ void UI::hide_all() {
     
     for(auto img: imgs) {
         img->hide = true;
-    }
+    } 
+
+    showing_description = false;
+    showing_inventory = false;
+    showing_interactable_button = false;
 }
 
 void UI::reset() {
@@ -357,10 +374,7 @@ void UI::reset() {
 
     choice_id = 0;
     Y_img->pos = choice_pos[choice_id];
-    showing_description = false;
-    showing_inventory = false;
     inventory_slot_selected_id = 0;
-    showing_interactable_button = false;
 
     need_update_texture = true;
 }
@@ -372,9 +386,14 @@ void UI::set_interactable_button(bool hide) {
     need_update_texture = true;
 }
 
+void UI::set_B_button(bool hide) {
+    inventory_manual_text->hide = hide;
+    B_img->hide = hide;
+    need_update_texture = true;
+}
+
 void UI::set_inventory(bool hide){
-    inventory_manual_text->hide = !hide;
-    B_img->hide = !hide;
+    set_B_button(!hide);
     inventory_img->hide = hide;
     slot_selected_img->hide = hide;
     for(uint32_t i = inventory_slot_id_start; i <inventory_slot_id_start+inventory_slot_num; ++i) {
@@ -385,8 +404,7 @@ void UI::set_inventory(bool hide){
     }
     showing_inventory = !hide;
     if(showing_inventory) {
-        inventory_manual_text->hide = true;
-        B_img->hide = true;
+        set_B_button(true);
     }
     need_update_texture = true;
 }
