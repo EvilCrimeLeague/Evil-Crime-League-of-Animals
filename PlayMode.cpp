@@ -72,7 +72,6 @@ PlayMode::PlayMode() : scene(*level1_scene) {
 	player.camera = &scene.cameras.front();
 	camera_transform = player.camera->transform->position - player.transform->position;
 
-
 	//start player walking at nearest walk point:
 	player.at = walkmesh->nearest_walk_point(player.transform->position);
 
@@ -185,22 +184,21 @@ void PlayMode::update(float elapsed) {
 	//player walking:
 	{
 		//combine inputs into a move:
+		constexpr float playerSpeed = 10.0f;
 		glm::vec2 move = glm::vec2(0.0f);
-		if (left.pressed && !right.pressed) move.x =-1.0f;
-		if (!left.pressed && right.pressed) move.x = 1.0f;
-		if (down.pressed && !up.pressed) move.y = 1.0f;
-		if (!down.pressed && up.pressed) move.y = -1.0f;
+		if (left.pressed && !right.pressed) move.y =-1.0f;
+		if (!left.pressed && right.pressed) move.y = 1.0f;
+		if (down.pressed && !up.pressed) move.x = 1.0f;
+		if (!down.pressed && up.pressed) move.x =-1.0f;
 
 		//make it so that moving diagonally doesn't go faster:
-		if (move != glm::vec2(0.0f)) {
-			move = glm::normalize(move) * elapsed;
-			move.x *= player.rotation_speed;
-			move.y *= player.move_speed;
-		}
+		if (move != glm::vec2(0.0f)) move = glm::normalize(move) * playerSpeed * elapsed;
 
 		//get move in world coordinate system:
-		glm::vec3 remain = player.transform->make_local_to_world() * glm::vec4(move.y, 0.0, 0.0f, 0.0f);
+		glm::vec3 remain = player.transform->make_local_to_world() * glm::vec4(move.x, move.y, 0.0f, 0.0f);
 
+		//using a for() instead of a while() here so that if walkpoint gets stuck in
+		// some awkward case, code will not infinite loop:
 		//using a for() instead of a while() here so that if walkpoint gets stuck in
 		// some awkward case, code will not infinite loop:
 		for (uint32_t iter = 0; iter < 10; ++iter) {
@@ -254,15 +252,11 @@ void PlayMode::update(float elapsed) {
 
 		{ //update player's rotation to respect local (smooth) up-vector:
 			
-			// glm::quat adjust = glm::rotation(
-			// 	player.transform->rotation * glm::vec3(0.0f, 0.0f, 1.0f), //current up vector
-			// 	walkmesh->to_world_smooth_normal(player.at) //smoothed up vector at walk location
-			// );
-			// player.transform->rotation = glm::normalize(adjust * player.transform->rotation);
-
-			// update rotation
-			player.rotation_euler.z -= move.x;
-			player.transform->rotation = glm::quat(player.rotation_euler * float(M_PI) / 180.0f);
+			glm::quat adjust = glm::rotation(
+				player.transform->rotation * glm::vec3(0.0f, 0.0f, 1.0f), //current up vector
+				walkmesh->to_world_smooth_normal(player.at) //smoothed up vector at walk location
+			);
+			player.transform->rotation = glm::normalize(adjust * player.transform->rotation);
 		}
 
 		/*
