@@ -31,6 +31,7 @@ struct PlayMode : Mode {
 
 	Scene::Transform *guardDog = nullptr;
 	Scene::Transform *bone = nullptr;
+	Scene::Transform *jewel = nullptr;
 
 	glm::vec3 camera_transform;
 
@@ -49,4 +50,15 @@ struct PlayMode : Mode {
     std::shared_ptr<UI> ui;
 
 	bool showing_inventory_description = false;
+
+	bool game_over = false;
+
+	float get_distance(glm::vec3 a, glm::vec3 b) {
+		// get distance between two points disregarding z
+		a.z = 0.0f;
+		b.z = 0.0f;
+		return glm::distance(a, b);
+	}
+
+	const float iteractable_distance = 2.0f;
 };

@@ -55,10 +55,13 @@ PlayMode::PlayMode() : scene(*level1_scene) {
 		if (transform.name == "RedPanda") player.transform = &transform;
 		else if (transform.name == "Bone") bone = &transform;
 		else if (transform.name == "GuardDog") guardDog = &transform;
+		else if (transform.name == "Jewel") jewel = &transform;
 	}
 
 	if (bone == nullptr) throw std::runtime_error("Bone not found.");
 	else if (guardDog == nullptr) throw std::runtime_error("GuardDog not found.");
+	else if (jewel == nullptr) throw std::runtime_error("Jewel not found.");
+	else if (player.transform == nullptr) throw std::runtime_error("RedPanda not found.");
 
 	player.rotation_euler = glm::eulerAngles(player.transform->rotation) / float(M_PI) * 180.0f;
 	player.rotation = player.transform->rotation;
@@ -157,29 +160,27 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 				if(!showing_inventory_description) {
 					// Interact with item
 					if(ui->choice_id ==0) {
-						std::cout << "Interact with item: yes" << std::endl;
 						ui->add_inventory_item("bone", "UI/bone.png");
 						// hide bone
 						bone->position.z = -500.0f;
 					} else {
-						std::cout << "Interact with item: no" << std::endl;
+						// show iteractable button again
 						ui->set_interactable_button(/*hide=*/false);
 					}
 				} else {
 					// Interact with inventory
 					if(ui->choice_id == 0) {
 						// use item
-						std::cout << "Use item: yes" << std::endl;
 						ui->remove_inventory_item("bone");
 						bone->position = glm::vec3(8.0f, 7.0f, 1.0f);
 						guardDog->position = glm::vec3(8.0f, 8.5f, 0.424494f);
 					} else {
-						std::cout << "Use item: no" << std::endl;
+						// show inventory again
 						ui->set_inventory(false);
 					}
 					showing_inventory_description = false;
 				}
-			} else if (ui->showing_inventory && ui->inventory_items.size() > 0 && ui->inventory_slot_selected_id == 0) {
+			} else if (ui->showing_inventory && ui->inventory_items.size() > 0 && ui->inventory_slot_selected_id == 0 && get_distance(player.transform->position, glm::vec3(-4,7.834,0.0))<2.0f) {
 				ui->show_description("Do you want to use the bone to distract the guard?", "Yes", "No");
 				showing_inventory_description = true;
 			}
@@ -368,11 +369,15 @@ void PlayMode::update(float elapsed) {
 	}
 
 	{
-		// check for interaction
-		if (!ui->showing_interactable_button && glm::distance(player.transform->position, bone->position) < 3.0f) {
+		// check distance between player and items for itemsinteraction
+		if (!ui->showing_interactable_button && get_distance(player.transform->position, bone->position) < iteractable_distance) {
 			ui->set_interactable_button(/*hide=*/false);
-		} else if(ui->showing_interactable_button && glm::distance(player.transform->position, bone->position) > 3.0f) {
+		} else if(ui->showing_interactable_button && get_distance(player.transform->position, bone->position) > iteractable_distance) {
 			ui->set_interactable_button(/*hide=*/true);
+		}
+		if(get_distance(player.transform->position, jewel->position) < iteractable_distance) {
+			game_over = true;
+			ui->show_game_over(true);
 		}
 	}
 
