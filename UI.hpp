@@ -93,7 +93,7 @@ struct UI {
         // Load font
         std::string font_path = data_path("Open_Sans/static/OpenSans-Regular.ttf");
         std::string font_path_bold = data_path("Open_Sans/static/OpenSans-Bold.ttf");
-        std::string font_path_italic = data_path("Open_Sans/static/OpenSans-Italic.ttf");
+        std::string font_path_italic = data_path("Open_Sans/static/OpenSans-Medium.ttf");
         font_body = std::make_shared<Font>(font_path, 
                                     /*font_size*/30, 
                                     /*line_height*/35);
@@ -124,7 +124,7 @@ struct UI {
         
         manual_text = std::make_shared<Text>("Press <- or -> to select, press 'return' to continue", 
 						/*line length*/85, 
-						/*start pos*/glm::vec2(700, 690),
+						/*start pos*/glm::vec2(680, 690),
 						font_manual);
         inventory_bt_manual_text = std::make_shared<Text>("Show/hide inventory", 
                         /*line length*/85, 

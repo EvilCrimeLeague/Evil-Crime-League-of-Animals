@@ -121,7 +121,7 @@ void Level1::handle_inventory_choice(uint32_t choice_id) {
         ui->remove_inventory_item();
         if(item_name == "Bone") {
             bone->position = player_transform->position; //TODO: put in the forward direction of the player
-            driver_guardDog_walk->add_walk_in_straight_line_anim(guardDog->position, bone->position, 5.0f, 5);
+            driver_guardDog_walk->add_walk_in_straight_line_anim(guardDog->position, bone->position, 4.0f, 4);
             driver_guardDog_walk->start();
             // guardDog->position = glm::vec3(8.0f, 8.5f, 0.424494f);
             // fov->position = glm::vec3(8.0f, 6.0f, 0.42449f);

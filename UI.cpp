@@ -83,7 +83,7 @@ void UI::gen_box_texture(){
 
 void UI::gen_text_texture() {
     /* Initialize image. Origin is the upper left corner */
-    std::vector<std::vector<glm::u8vec4>> image(height, std::vector<glm::u8vec4>(width));
+    std::vector<std::vector<glm::u8vec4> > image(height, std::vector<glm::u8vec4>(width));
     // glm::u8vec4 image[height][width];
     for (int i = 0; i < height; i++ ){
         for (int j = 0; j < width; j++ ) {
@@ -383,7 +383,7 @@ void UI::reset() {
     choice_id = 0;
     enter_bt_img->pos = choice_pos[choice_id];
     inventory_slot_selected_id = 0;
-    manual_text->start_pos.x = 700;
+    manual_text->start_pos.x = 680;
     inventory_items.clear();
     manual_text->text = "Press <- or -> to select, press 'return' to continue";
 
