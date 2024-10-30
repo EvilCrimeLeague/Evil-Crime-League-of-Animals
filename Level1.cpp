@@ -171,4 +171,6 @@ void Level1::restart() {
     }
 
     driver_guardDog_walk->playing = false;
+    driver_guardDog_walk->times.clear();
+    driver_guardDog_walk->values3d.clear();
 }
