@@ -487,8 +487,8 @@ void UI::hide_notification() {
     need_update_texture = true;
 }
 
-void UI::show_alarm() {
-    alarm_img->hide = false;
-    showing_alarm = true;
+void UI::set_alarm(bool hide) {
+    alarm_img->hide = hide;
+    showing_alarm = !hide;
     need_update_texture = true;
 }

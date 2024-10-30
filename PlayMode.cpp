@@ -221,6 +221,11 @@ void PlayMode::update(float elapsed) {
 		*/
 	}
 
+	{
+		// update animation
+		level->update_animation(elapsed);
+	}
+
 	// Field of view collisions
 	{
 		seen_by_guard = level->update_guard();
@@ -233,10 +238,11 @@ void PlayMode::update(float elapsed) {
 		}
 		if(seen_by_guard) {
 			if(!ui->showing_alarm) {
-				ui->show_alarm();
+				ui->set_alarm(/*hide=*/false);
 			}
 			seen_by_guard_timer += elapsed;
 		} else {
+			ui->set_alarm(/*hide=*/true);
 			seen_by_guard_timer = 0.0f;
 		}
 	}

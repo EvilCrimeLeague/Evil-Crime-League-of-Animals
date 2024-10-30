@@ -93,3 +93,9 @@ bool Level::update_guard() {
 
     return seen_by_guard;
 }
+
+void Level::update_animation(const float deltaTime) {
+    for(auto& driver: drivers){
+        driver->animate(deltaTime);
+    }
+}

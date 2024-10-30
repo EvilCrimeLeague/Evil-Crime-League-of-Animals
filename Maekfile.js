@@ -143,6 +143,7 @@ const game_names = [
 	maek.CPP('UI.cpp'),
 	maek.CPP('Level.cpp'),
 	maek.CPP('Level1.cpp'),
+	maek.CPP('Driver.cpp'),
 ];
 
 const common_names = [
