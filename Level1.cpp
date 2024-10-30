@@ -1,17 +1,64 @@
 #include "Level1.hpp"
+
 #include <iostream>
 
-Level1::Level1(Scene const * scene_, std::shared_ptr<UI> ui_): Level(scene_, ui_) {
+GLuint level1_meshes_for_lit_color_texture_program = 0;
+Load< MeshBuffer > level1_meshes(LoadTagDefault, []() -> MeshBuffer const * {
+	MeshBuffer const *ret = new MeshBuffer(data_path("level1.pnct"));
+	level1_meshes_for_lit_color_texture_program = ret->make_vao_for_program(lit_color_texture_program->program);
+	return ret;
+});
+
+Load< Scene > level1_scene(LoadTagDefault, []() -> Scene const * {
+	return new Scene(data_path("level1.scene"), [&](Scene &scene, Scene::Transform *transform, std::string const &mesh_name){
+		Mesh const &mesh = level1_meshes->lookup(mesh_name);
+
+		scene.drawables.emplace_back(transform);
+		Scene::Drawable &drawable = scene.drawables.back();
+
+		drawable.pipeline = lit_color_texture_program_pipeline;
+
+		drawable.pipeline.vao = level1_meshes_for_lit_color_texture_program;
+		drawable.pipeline.type = mesh.type;
+		drawable.pipeline.start = mesh.start;
+		drawable.pipeline.count = mesh.count;
+
+		// if this doenst work, ask on discord, ping Jim
+		drawable.meshBuffer = &(*level1_meshes);
+		drawable.mesh = &mesh;
+
+	});
+});
+
+Load< WalkMesh > level1_walkmesh(LoadTagDefault, []() -> WalkMesh const * {
+	WalkMeshes *ret = new WalkMeshes(data_path("level1.w"));
+	WalkMesh const *walkmesh = &ret->lookup("WalkMesh");
+	return walkmesh;
+});
+
+Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
+    scene = *level1_scene;
+    walkmesh = level1_walkmesh;
+
     for (auto &transform : scene.transforms) {
-		if (transform.name == "Bone") bone = &transform;
+        if (transform.name == "RedPanda") player_transform = &transform;
+        else if (transform.name == "Jewel") target_transform = &transform;
+		else if (transform.name == "Bone") bone = &transform;
 		else if (transform.name == "GuardDog") guardDog = &transform;
 		else if (transform.name == "FOV") fov = &transform;
 	}
 
-    if (bone == nullptr) throw std::runtime_error("Bone not found.");
+    if (target_transform == nullptr) throw std::runtime_error("Target not found.");
+    else if (player_transform == nullptr) throw std::runtime_error("Player not found.");
+    else if (bone == nullptr) throw std::runtime_error("Bone not found.");
 	else if (guardDog == nullptr) throw std::runtime_error("GuardDog not found.");
 	else if (fov == nullptr) throw std::runtime_error("FOV not found.");
 	std::cout<<guardDog->position.y - fov->position.y<<std::endl;
+
+    player_spawn_point = player_transform->position;
+
+    if (scene.cameras.size() != 1) throw std::runtime_error("Expecting scene to have exactly one camera, but it has " + std::to_string(scene.cameras.size()));
+    camera = &scene.cameras.front();
 
     // initialize items
     auto bone_ptr = std::make_shared<Item>();

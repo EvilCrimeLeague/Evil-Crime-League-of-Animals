@@ -38,7 +38,6 @@ struct PlayMode : Mode {
 		Scene::Camera *camera = nullptr;
 		glm::vec3 rotation_euler;
 		glm::quat rotation;
-		glm::vec3 spawn_point;
 	} player;
 
 	// UI:

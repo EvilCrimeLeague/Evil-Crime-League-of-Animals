@@ -7,7 +7,7 @@ struct Level1 : Level {
 	Scene::Transform *bone = nullptr;
 	Scene::Transform *fov = nullptr;
 
-    Level1(Scene const * scene_, std::shared_ptr<UI> ui_);
+    Level1(std::shared_ptr<UI> ui_);
     virtual ~Level1() {}
 
     void handle_enter_key();
