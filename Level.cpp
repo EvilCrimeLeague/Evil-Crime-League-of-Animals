@@ -75,10 +75,6 @@ void Level::update_guard() {
 										closest_t = std::min(t, closest_t);
 										if (t <= closest_t) {
 											// guard sees something
-											if (d.transform->name != "GuardDog" & d.transform->name != "Floor") {
-												std::cout<<d.transform->name<<std::endl;
-											}
-											
 											auto item_seen = guard_detectables.find(d.transform->name);
 											if ( item_seen != guard_detectables.end()) {
 												guard_detectables[d.transform->name] = true;
