@@ -3,6 +3,8 @@
 #include "Scene.hpp"
 #include "WalkMesh.hpp"
 #include "UI.hpp"
+#include "Level.hpp"
+#include "Level1.hpp"
 
 #include <glm/glm.hpp>
 
@@ -21,19 +23,10 @@ struct PlayMode : Mode {
 	struct Button {
 		uint8_t downs = 0;
 		uint8_t pressed = 0;
-	} left, right, down, up, left_arrow, right_arrow, key_i/*interact*/, enter/*make choice*/, key_b/*show inventory*/;
-
-	//local copy of the game scene (so code can change it during gameplay):
-	Scene scene;
+	} left, right, down, up, left_arrow, right_arrow, key_f/*interact*/, enter/*make choice*/, key_e/*show inventory*/;
 
 	//camera:
 	Scene::Camera *camera = nullptr;
-
-	Scene::Transform *guardDog = nullptr;
-	Scene::Transform *bone = nullptr;
-	Scene::Transform *jewel = nullptr;
-	Scene::Transform *fov = nullptr;
-
 	glm::vec3 camera_transform;
 
 	//player info:
@@ -48,12 +41,23 @@ struct PlayMode : Mode {
 		glm::vec3 spawn_point;
 	} player;
 
+	// UI:
     std::shared_ptr<UI> ui;
 
-	bool showing_inventory_description = false;
+	// levels:
+	std::vector<std::shared_ptr<Level> > levels;
+	std::shared_ptr<Level> level;
+
+	// game status:
+	std::shared_ptr<Level::Item> curr_item;
 
 	bool game_over = false;
+	bool paused = false;
 
+	float seen_by_guard_timer = 0.0f;
+	bool seen_by_guard = false;
+
+	// helper functions
 	float get_distance(glm::vec3 a, glm::vec3 b) {
 		// get distance between two points disregarding z
 		a.z = 0.0f;
@@ -61,5 +65,5 @@ struct PlayMode : Mode {
 		return glm::distance(a, b);
 	}
 
-	const float iteractable_distance = 2.0f;
+	void restart();
 };

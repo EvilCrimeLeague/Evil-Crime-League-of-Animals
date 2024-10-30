@@ -50,39 +50,26 @@ Load< WalkMeshes > level1_walkmeshes(LoadTagDefault, []() -> WalkMeshes const * 
 	return ret;
 });
 
-PlayMode::PlayMode() : scene(*level1_scene) {
-	for (auto &transform : scene.transforms) {
-		if (transform.name == "RedPanda") player.transform = &transform;
-		else if (transform.name == "Bone") bone = &transform;
-		else if (transform.name == "GuardDog") guardDog = &transform;
-		else if (transform.name == "Jewel") jewel = &transform;
-		else if (transform.name == "FOV") fov = &transform;
-	}
+PlayMode::PlayMode() {
+	ui = std::make_shared<UI>();
 
-	if (bone == nullptr) throw std::runtime_error("Bone not found.");
-	else if (guardDog == nullptr) throw std::runtime_error("GuardDog not found.");
-	else if (jewel == nullptr) throw std::runtime_error("Jewel not found.");
-	else if (player.transform == nullptr) throw std::runtime_error("RedPanda not found.");
-	else if (fov == nullptr) throw std::runtime_error("FOV not found.");
+	auto level1 = std::make_shared<Level1>(level1_scene, ui);
+	levels.push_back(level1);
+	level = level1;
 
+	player.transform = level->player_transform;
 	player.rotation_euler = glm::eulerAngles(player.transform->rotation) / float(M_PI) * 180.0f;
 	player.rotation = player.transform->rotation;
 	player.spawn_point = player.transform->position;
 
 	//create a player camera attached to a child of the player transform:
-	player.camera = &scene.cameras.front();
+	camera = level->camera;
+	player.camera = camera;
 
-	//create a player camera attached to a child of the player transform:
-	if (scene.cameras.size() != 1) throw std::runtime_error("Expecting scene to have exactly one camera, but it has " + std::to_string(scene.cameras.size()));
-	camera = &scene.cameras.front();
-
-	player.camera = &scene.cameras.front();
 	camera_transform = player.camera->transform->position - player.transform->position;
 
 	//start player walking at nearest walk point:
 	player.at = walkmesh->nearest_walk_point(player.transform->position);
-
-	ui = std::make_shared<UI>();
 }
 
 PlayMode::~PlayMode() {
@@ -115,17 +102,17 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			right_arrow.downs += 1;
 			right_arrow.pressed = true;
 			return true;
-		} else if (evt.key.keysym.sym == SDLK_i) {
-			key_i.downs += 1;
-			key_i.pressed = true;
+		} else if (evt.key.keysym.sym == SDLK_f) {
+			key_f.downs += 1;
+			key_f.pressed = true;
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_RETURN) {
 			enter.downs += 1;
 			enter.pressed = true;
 			return true;
-		} else if (evt.key.keysym.sym == SDLK_b) {
-			key_b.downs += 1;
-			key_b.pressed = true;
+		} else if (evt.key.keysym.sym == SDLK_e) {
+			key_e.downs += 1;
+			key_e.pressed = true;
 			return true;
 		}
 	} else if (evt.type == SDL_KEYUP) {
@@ -149,50 +136,16 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			right_arrow.pressed = false;
 			ui->arrow_key_callback(false);
 			return true;
-		} else if (evt.key.keysym.sym == SDLK_i) {
-			key_i.pressed = false;
-			if(ui->showing_interactable_button) {
-				ui->show_description("You found a bone. Do you want to collect it?", "Yes", "No");
-			}
+		} else if (evt.key.keysym.sym == SDLK_f) {
+			key_f.pressed = false;
+			level->handle_interact_key();
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_RETURN) {
 			enter.pressed = false;
-			if(ui->showing_description) {
-				ui->hide_description();
-				if(!showing_inventory_description) {
-					ui->set_B_button(/*hide=*/false);
-					// Interact with item
-					if(ui->choice_id ==0) {
-						std::cout<<"Interact with item"<<std::endl;
-						ui->add_inventory_item("bone", "UI/bone.png");
-						// hide bone
-						bone->position.x = -1000.0f;
-					} else {
-						// show iteractable button again
-						ui->set_interactable_button(/*hide=*/false);
-					}
-				} else {
-					// Interact with inventory
-					if(ui->choice_id == 0) {
-						// use item
-						ui->remove_inventory_item("bone");
-						bone->position = glm::vec3(8.0f, 7.0f, 1.0f);
-						guardDog->position = glm::vec3(8.0f, 8.5f, 0.424494f);
-						fov->position = glm::vec3(8.0f, 6.0f, 0.42449f);
-					} else {
-						// show inventory again
-						ui->set_inventory(false);
-					}
-					showing_inventory_description = false;
-				}
-			} else if (ui->showing_inventory && ui->inventory_items.size() > 0 && ui->inventory_slot_selected_id == 0 && get_distance(player.transform->position, glm::vec3(-4,7.834,0.0))<2.0f) {
-				ui->show_description("Do you want to use the bone to distract the guard?", "Yes", "No");
-				showing_inventory_description = true;
-			}
-			
+			level->handle_enter_key();
 			return true;
-		} else if (evt.key.keysym.sym == SDLK_b) {
-			key_b.pressed = false;
+		} else if (evt.key.keysym.sym == SDLK_e) {
+			key_e.pressed = false;
 			ui->set_inventory(ui->showing_inventory);
 			return true;
 		}
@@ -203,6 +156,10 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 
 void PlayMode::update(float elapsed) {
 	//player walking:
+	paused = ui->showing_inventory_description || ui->showing_description;
+	if(game_over || paused) 
+		return;
+
 	{
 		//combine inputs into a move:
 		constexpr float playerSpeed = 20.0f;
@@ -302,89 +259,40 @@ void PlayMode::update(float elapsed) {
 
 	// Field of view collisions
 	{
-		constexpr float guardDogVerticalFov = 90.0f;
-		constexpr float guardDogHorizontalFov = 120.0f;
-		constexpr uint32_t horizontalRays = 20;
-		constexpr uint32_t verticalRays = 10;
-		float horizontalStep = guardDogHorizontalFov / horizontalRays;
-		float verticalStep = guardDogVerticalFov / verticalRays;
-		float visionDistance = 5.0f;
-		glm::vec3 guardDogPositionWorld = guardDog->make_local_to_world() * glm::vec4(0, 0, 0, 1);
-		glm::vec3 guardDogDirectionWorld = glm::normalize(guardDog->make_local_to_world() * glm::vec4(glm::vec3(0.0, -1.0, 0.0) - guardDogPositionWorld, 1));
-
-		for (uint32_t x = 0; x < horizontalRays; x++) {
-			float horizontalAngle = - (guardDogHorizontalFov / 2) + (x * horizontalStep);
-			glm::vec3 horizontalDirection = glm::angleAxis(glm::radians(horizontalAngle), glm::vec3(0.0f, 0.0f, 1.0f)) * guardDogDirectionWorld;
-			for (uint32_t z = 0; z < verticalRays; z++) {
-				float closest_t = 10000000;
-				float verticalAngle = - (guardDogVerticalFov / 2) + (z * verticalStep);
-				glm::vec3 direction = glm::angleAxis(glm::radians(verticalAngle), glm::vec3(1.0f, 0.0f, 0.0f)) * horizontalDirection;
-				glm::vec3 point = guardDog->position + glm::vec3(0.0f, 0.0f, 1.8f);
-				direction.y = -direction.y;
-				Ray r = Ray(point, direction, glm::vec2(0.0f, 2.0f), (uint32_t)0);
-				// std::cout<<"point: "<<point.x<<" "<<point.y<<" "<<point.z<<std::endl;
-				// std::cout<<"dir: "<<direction.x<<" "<<direction.y<<" "<<direction.z<<std::endl;
-				// loop through primitives 
-				for (Scene::Drawable &d : scene.drawables) {
-					GLuint start = d.mesh->start;
-					GLuint count = d.mesh->count;
-					glm::mat4x3 transform = d.transform->make_local_to_world();
-					for (GLuint i = start; i < start + count; i+=3) {
-						glm::vec3 a = transform * glm::vec4(d.meshBuffer->data[i].Position, 1);
-						glm::vec3 b = transform * glm::vec4(d.meshBuffer->data[i + 1].Position, 1);
-						glm::vec3 c = transform * glm::vec4(d.meshBuffer->data[i + 2].Position, 1);
-						glm::vec3 ab = a - b;
-						glm::vec3 ac = a - c;
-						glm::vec3 cb = c - b;
-						glm::vec3 ca = c - a;
-						glm::vec3 ba = b - a;
-						glm::vec3 bc = b - c;
-						glm::vec3 normal = glm::cross(ba, cb);
-						float denominator = glm::dot(normal, r.dir);
-
-						if (glm::abs(denominator) > 0.00001f) {
-							float t = glm::dot(a - r.point, normal) / denominator;
-							//std::cout<<"ray intersects plane of "<<d.transform->name<<std::endl;
-							// if the ray intersects the abc plane
-							if (t >= 0.00001f && t <= visionDistance) {
-								glm::vec3 p = r.at(t);
-								glm::vec3 ap = a - p;
-								glm::vec3 bp = b - p;
-								glm::vec3 cp = c - p;
-								if (glm::dot(glm::cross(ac, ab), glm::cross(ac, ap)) > 0 && 
-									glm::dot(glm::cross(cb, ca), glm::cross(cb, cp)) > 0 &&
-									glm::dot(glm::cross(ba, bc), glm::cross(ba, bp)) > 0) {
-										closest_t = std::min(t, closest_t);
-										if ((t <= closest_t) && (d.transform->name == "RedPanda")) {
-											player.transform->position = player.spawn_point;
-											player.at = walkmesh->nearest_walk_point(player.transform->position);
-										}
-										
-									}
-							}
-						}
-
-
-					}
-				}
-
-			}
-		}
-
+		seen_by_guard = level->update_guard();
 	}
 
 	{
-		// check distance between player and items for itemsinteraction
-		if (!ui->showing_interactable_button && get_distance(player.transform->position, bone->position) < iteractable_distance) {
+		if(seen_by_guard_timer > 1.0f) {
+			// player caught, restart game
+			restart();
+		}
+		if(seen_by_guard) {
+			if(!ui->showing_alarm) {
+				ui->show_alarm();
+			}
+			seen_by_guard_timer += elapsed;
+		} else {
+			seen_by_guard_timer = 0.0f;
+		}
+	}
+
+	{
+		// player and item interaction
+		curr_item = level->get_closest_item(player.transform->position);
+		if(!ui->showing_interactable_button && curr_item!=nullptr) {
 			ui->set_interactable_button(/*hide=*/false);
-		} else if(ui->showing_interactable_button && get_distance(player.transform->position, bone->position) > iteractable_distance) {
+		} else if (ui->showing_interactable_button && curr_item==nullptr) {
 			ui->set_interactable_button(/*hide=*/true);
 		}
-		if(get_distance(player.transform->position, jewel->position) < iteractable_distance) {
+
+		if(get_distance(player.transform->position, level->target_transform->position) < 2.0f) {
 			game_over = true;
 			ui->show_game_over(true);
 		}
 	}
+
+	
 
 	//reset button press counters:
 	left.downs = 0;
@@ -393,7 +301,7 @@ void PlayMode::update(float elapsed) {
 	down.downs = 0;
 	left_arrow.downs = 0;
 	right_arrow.downs = 0;
-	key_i.downs = 0;
+	key_f.downs = 0;
 	enter.downs = 0;
 }
 
@@ -416,7 +324,7 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS); //this is the default depth comparison function, but FYI you can change it.
 
-	scene.draw(*player.camera);
+	level->scene.draw(*player.camera);
 
 	/* In case you are wondering if your walkmesh is lining up with your scene, try:
 	{
@@ -460,4 +368,15 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 	GL_ERRORS();
 
 
+}
+
+void PlayMode::restart(){
+	ui->reset();
+	seen_by_guard_timer = 0.0f;
+	seen_by_guard = false;
+	game_over = false;
+	paused = false;
+	player.transform->position = player.spawn_point;
+	player.at = walkmesh->nearest_walk_point(player.transform->position);
+	level->restart();
 }
