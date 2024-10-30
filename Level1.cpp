@@ -141,8 +141,8 @@ void Level1::restart() {
         item.second->transform->position = item.second->spawn_point;
     }
 
-    for(auto &guardDog: guard_dogs) {
-        guardDog->transform->position = guardDog->spawn_point;
-        guardDog->fov->position = guardDog->fov_spawn_point;
+    for(auto &guard_dog: guard_dogs) {
+        guard_dog->transform->position = guard_dog->spawn_point;
+        guard_dog->fov->position = guard_dog->fov_spawn_point;
     }
 }

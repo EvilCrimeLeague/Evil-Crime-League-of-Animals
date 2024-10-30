@@ -37,7 +37,7 @@ bool Level::update_guard() {
 				float closest_t = 10000000;
 				float verticalAngle = - (guardDogVerticalFov / 2) + (z * verticalStep);
 				glm::vec3 direction = glm::angleAxis(glm::radians(verticalAngle), glm::vec3(1.0f, 0.0f, 0.0f)) * horizontalDirection;
-				glm::vec3 point = guardDog->transform->position + glm::vec3(0.0f, 0.0f, 1.8f);
+				glm::vec3 point = guardDog->transform->position;
 				direction.y = -direction.y;
 				Ray r = Ray(point, direction, glm::vec2(0.0f, 2.0f), (uint32_t)0);
 				// std::cout<<"point: "<<point.x<<" "<<point.y<<" "<<point.z<<std::endl;
