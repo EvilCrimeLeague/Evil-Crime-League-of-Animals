@@ -2,7 +2,14 @@
 
 #include "Scene.hpp"
 #include "Ray.hpp"
+#include "WalkMesh.hpp"
 #include "UI.hpp"
+#include "Mesh.hpp"
+#include "Load.hpp"
+#include "data_path.hpp"
+#include "LitColorTextureProgram.hpp"
+#include "TextTextureProgram.hpp"
+
 #include <glm/glm.hpp>
 #include <string>
 #include <vector>
@@ -37,16 +44,18 @@ struct Level {
     // scene information
     // local copy of the game scene (so code can change it during gameplay):
     Scene scene;
+    const WalkMesh* walkmesh;
 
     Scene::Camera *camera = nullptr;
     Scene::Transform *player_transform = nullptr;
+    glm::vec3 player_spawn_point;
     Scene::Transform *target_transform = nullptr;
 
     std::shared_ptr<UI> ui;
 
     std::vector<std::shared_ptr<GuardDog> > guard_dogs;
 
-    Level(Scene const * scene_, std::shared_ptr<UI> ui_);
+    Level(std::shared_ptr<UI> ui_);
     virtual ~Level() {}
 
     std::shared_ptr<Item> get_closest_item(glm::vec3 player_position);

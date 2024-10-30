@@ -15,52 +15,16 @@
 
 #include <random>
 
-GLuint level1_meshes_for_lit_color_texture_program = 0;
-Load< MeshBuffer > level1_meshes(LoadTagDefault, []() -> MeshBuffer const * {
-	MeshBuffer const *ret = new MeshBuffer(data_path("level1.pnct"));
-	level1_meshes_for_lit_color_texture_program = ret->make_vao_for_program(lit_color_texture_program->program);
-	return ret;
-});
-
-Load< Scene > level1_scene(LoadTagDefault, []() -> Scene const * {
-	return new Scene(data_path("level1.scene"), [&](Scene &scene, Scene::Transform *transform, std::string const &mesh_name){
-		Mesh const &mesh = level1_meshes->lookup(mesh_name);
-
-		scene.drawables.emplace_back(transform);
-		Scene::Drawable &drawable = scene.drawables.back();
-
-		drawable.pipeline = lit_color_texture_program_pipeline;
-
-		drawable.pipeline.vao = level1_meshes_for_lit_color_texture_program;
-		drawable.pipeline.type = mesh.type;
-		drawable.pipeline.start = mesh.start;
-		drawable.pipeline.count = mesh.count;
-
-		// if this doenst work, ask on discord, ping Jim
-		drawable.meshBuffer = &(*level1_meshes);
-		drawable.mesh = &mesh;
-
-	});
-});
-
-WalkMesh const *walkmesh = nullptr;
-Load< WalkMeshes > level1_walkmeshes(LoadTagDefault, []() -> WalkMeshes const * {
-	WalkMeshes *ret = new WalkMeshes(data_path("level1.w"));
-	walkmesh = &ret->lookup("WalkMesh");
-	return ret;
-});
-
 PlayMode::PlayMode() {
 	ui = std::make_shared<UI>();
 
-	auto level1 = std::make_shared<Level1>(level1_scene, ui);
+	auto level1 = std::make_shared<Level1>(ui);
 	levels.push_back(level1);
 	level = level1;
 
 	player.transform = level->player_transform;
 	player.rotation_euler = glm::eulerAngles(player.transform->rotation) / float(M_PI) * 180.0f;
 	player.rotation = player.transform->rotation;
-	player.spawn_point = player.transform->position;
 
 	//create a player camera attached to a child of the player transform:
 	camera = level->camera;
@@ -69,7 +33,7 @@ PlayMode::PlayMode() {
 	camera_transform = player.camera->transform->position - player.transform->position;
 
 	//start player walking at nearest walk point:
-	player.at = walkmesh->nearest_walk_point(player.transform->position);
+	player.at = level->walkmesh->nearest_walk_point(player.transform->position);
 }
 
 PlayMode::~PlayMode() {
@@ -193,7 +157,7 @@ void PlayMode::update(float elapsed) {
 			if (remain == glm::vec3(0.0f)) break;
 			WalkPoint end;
 			float time;
-			walkmesh->walk_in_triangle(player.at, remain, &end, &time);
+			level->walkmesh->walk_in_triangle(player.at, remain, &end, &time);
 			player.at = end;
 			if (time == 1.0f) {
 				//finished within triangle:
@@ -204,16 +168,16 @@ void PlayMode::update(float elapsed) {
 			remain *= (1.0f - time);
 			//try to step over edge:
 			glm::quat rotation;
-			if (walkmesh->cross_edge(player.at, &end, &rotation)) {
+			if (level->walkmesh->cross_edge(player.at, &end, &rotation)) {
 				//stepped to a new triangle:
 				player.at = end;
 				//rotate step to follow surface:
 				remain = rotation * remain;
 			} else {
 				//ran into a wall, bounce / slide along it:
-				glm::vec3 const &a = walkmesh->vertices[player.at.indices.x];
-				glm::vec3 const &b = walkmesh->vertices[player.at.indices.y];
-				glm::vec3 const &c = walkmesh->vertices[player.at.indices.z];
+				glm::vec3 const &a = level->walkmesh->vertices[player.at.indices.x];
+				glm::vec3 const &b = level->walkmesh->vertices[player.at.indices.y];
+				glm::vec3 const &c = level->walkmesh->vertices[player.at.indices.z];
 				glm::vec3 along = glm::normalize(b-a);
 				glm::vec3 normal = glm::normalize(glm::cross(b-a, c-a));
 				glm::vec3 in = glm::cross(normal, along);
@@ -235,14 +199,14 @@ void PlayMode::update(float elapsed) {
 		}
 
 		//update player's position to respect walking:
-		player.transform->position = walkmesh->to_world_point(player.at);
+		player.transform->position = level->walkmesh->to_world_point(player.at);
 		player.camera->transform->position = player.transform->position + camera_transform;
 
 		{ //update player's rotation to respect local (smooth) up-vector:
 			
 			glm::quat adjust = glm::rotation(
 				player.transform->rotation * glm::vec3(0.0f, 0.0f, 1.0f), //current up vector
-				walkmesh->to_world_smooth_normal(player.at) //smoothed up vector at walk location
+				level->walkmesh->to_world_smooth_normal(player.at) //smoothed up vector at walk location
 			);
 			player.transform->rotation = glm::normalize(adjust * player.transform->rotation);
 		}
@@ -376,7 +340,7 @@ void PlayMode::restart(){
 	seen_by_guard = false;
 	game_over = false;
 	paused = false;
-	player.transform->position = player.spawn_point;
-	player.at = walkmesh->nearest_walk_point(player.transform->position);
+	player.transform->position = level->player_spawn_point;
+	player.at = level->walkmesh->nearest_walk_point(player.transform->position);
 	level->restart();
 }

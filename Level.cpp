@@ -1,17 +1,6 @@
 #include "Level.hpp"
 
-Level::Level(Scene const * scene_, std::shared_ptr<UI> ui_): scene(*scene_), ui(ui_) {
-    for (auto &transform : scene.transforms) {
-        if (transform.name == "RedPanda") player_transform = &transform;
-        else if (transform.name == "Jewel") target_transform = &transform;
-    }
-
-    if (target_transform == nullptr) throw std::runtime_error("Target not found.");
-    else if (player_transform == nullptr) throw std::runtime_error("Player not found.");
-
-    if (scene.cameras.size() != 1) throw std::runtime_error("Expecting scene to have exactly one camera, but it has " + std::to_string(scene.cameras.size()));
-    camera = &scene.cameras.front();
-};
+Level::Level(std::shared_ptr<UI> ui_): ui(ui_) {};
 
 std::shared_ptr<Level::Item> Level::get_closest_item(glm::vec3 player_position) {
     std::shared_ptr<Item> closest_item = nullptr;
