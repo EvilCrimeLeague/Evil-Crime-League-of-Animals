@@ -9,6 +9,7 @@
 #include "gl_errors.hpp"
 #include "data_path.hpp"
 #include "Ray.hpp"
+#include "Level.hpp"
 
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -25,6 +26,7 @@ PlayMode::PlayMode() {
 	player.transform = level->player_transform;
 	player.rotation_euler = glm::eulerAngles(player.transform->rotation) / float(M_PI) * 180.0f;
 	player.rotation = player.transform->rotation;
+	level->guard_detectables["RedPanda"] = false;
 
 	//create a player camera attached to a child of the player transform:
 	camera = level->camera;
@@ -236,7 +238,7 @@ void PlayMode::update(float elapsed) {
 
 	// Field of view collisions
 	{
-		seen_by_guard = level->update_guard();
+		level->update_guard();
 	}
 
 	{
@@ -244,7 +246,7 @@ void PlayMode::update(float elapsed) {
 			// player caught, restart game
 			restart();
 		}
-		if(seen_by_guard) {
+		if(level->guard_detectables["RedPanda"]) {
 			if(!ui->showing_alarm) {
 				ui->set_alarm(/*hide=*/false);
 			}
@@ -351,7 +353,6 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 void PlayMode::restart(){
 	ui->reset();
 	seen_by_guard_timer = 0.0f;
-	seen_by_guard = false;
 	game_over = false;
 	paused = false;
 	player.transform->position = level->player_spawn_point;

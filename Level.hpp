@@ -40,6 +40,7 @@ struct Level {
 
     const float interactable_distance = 2.0f;
     std::unordered_map<std::string, std::shared_ptr<Item> > items;
+    std::unordered_map<std::string, bool> guard_detectables;
     std::shared_ptr<Item> curr_item;
 
     // scene
@@ -69,7 +70,7 @@ struct Level {
     virtual void handle_enter_key() = 0;
     virtual void handle_interact_key() = 0;
 
-    bool update_guard(); // return seen_by_guard
+    void update_guard(); // return seen_by_guard
     void update_animation(const float deltaTime);
 
     virtual void restart() = 0;

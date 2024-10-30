@@ -54,7 +54,6 @@ struct PlayMode : Mode {
 	bool paused = false;
 
 	float seen_by_guard_timer = 0.0f;
-	bool seen_by_guard = false;
 
 	// helper functions
 	float get_distance(glm::vec3 a, glm::vec3 b) {

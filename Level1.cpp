@@ -72,6 +72,7 @@ Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
     bone_ptr->transform = bone;
     bone_ptr->img_path = "UI/bone.png";
     bone_ptr->spawn_point = bone->position;
+    guard_detectables["Bone"] = false;
     items["Bone"] = bone_ptr;
 
     // initialize guard dogs
@@ -120,9 +121,14 @@ void Level1::handle_inventory_choice(uint32_t choice_id) {
         std::string item_name = ui->get_selected_inventory_item_name();
         ui->remove_inventory_item();
         if(item_name == "Bone") {
-            bone->position = player_transform->position; //TODO: put in the forward direction of the player
-            driver_guardDog_walk->add_walk_in_straight_line_anim(guardDog->position, bone->position, 4.0f, 4);
-            driver_guardDog_walk->start();
+            glm::vec3 playerPositionWorld = player_transform->make_local_to_world() * glm::vec4(0, 0, 0, 1);
+		    glm::vec3 playerDirectionWorld = glm::normalize(player_transform->make_local_to_world() * glm::vec4(glm::vec3(0.0, -1.0, 0.0) - playerPositionWorld, 1));
+            bone->position = player_transform->position + playerDirectionWorld; //TODO: put in the forward direction of the player
+            update_guard();
+            if (guard_detectables["Bone"]) {
+                driver_guardDog_walk->add_walk_in_straight_line_anim(guardDog->position, bone->position, 5.0f, 5);
+                driver_guardDog_walk->start();
+            }
             // guardDog->position = glm::vec3(8.0f, 8.5f, 0.424494f);
             // fov->position = glm::vec3(8.0f, 6.0f, 0.42449f);
         }
@@ -159,5 +165,10 @@ void Level1::restart() {
     for(auto &driver: drivers) {
         driver->restart();
     }
+
+    for(auto &item: guard_detectables) {
+        item.second = false;
+    }
+
     driver_guardDog_walk->playing = false;
 }
