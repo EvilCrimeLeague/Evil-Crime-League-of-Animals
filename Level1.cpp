@@ -55,7 +55,7 @@ Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
 	else if (fov == nullptr) throw std::runtime_error("FOV not found.");
 	std::cout<<guardDog->position.y - fov->position.y<<std::endl;
 
-    fov->parent = guardDog;
+    // fov->parent = guardDog;
 
     player_spawn_point = player_transform->position;
 
@@ -151,9 +151,9 @@ void Level1::restart() {
         item.second->transform->position = item.second->spawn_point;
     }
 
-    for(auto &guardDog: guard_dogs) {
-        guardDog->transform->position = guardDog->spawn_point;
-        guardDog->fov->position = guardDog->fov_spawn_point;
+    for(auto &guard_dog: guard_dogs) {
+        guard_dog->transform->position = guard_dog->spawn_point;
+        guard_dog->fov->position = guard_dog->fov_spawn_point;
     }
 
     for(auto &driver: drivers) {

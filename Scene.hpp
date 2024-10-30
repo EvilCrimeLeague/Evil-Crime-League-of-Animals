@@ -95,6 +95,9 @@ struct Scene {
 		float fovy = glm::radians(60.0f); //vertical fov (in radians)
 		float aspect = 1.0f; //x / y
 		float near = 0.01f; //near plane
+
+		//orthographic camera parameters
+		float scale = 10.0f;
 		//computed from the above:
 		glm::mat4 make_projection() const;
 	};
