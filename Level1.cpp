@@ -122,7 +122,7 @@ void Level1::handle_inventory_choice(uint32_t choice_id) {
         ui->remove_inventory_item();
         if(item_name == "Bone") {
             glm::vec3 playerPositionWorld = player_transform->make_local_to_world() * glm::vec4(0, 0, 0, 1);
-		    glm::vec3 playerDirectionWorld = glm::normalize(player_transform->make_local_to_world() * glm::vec4(glm::vec3(0.0, -1.0, 0.0) - playerPositionWorld, 1));
+		    glm::vec3 playerDirectionWorld = glm::normalize(player_transform->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
             bone->position = player_transform->position + playerDirectionWorld; //TODO: put in the forward direction of the player
             update_guard();
             if (guard_detectables["Bone"]) {

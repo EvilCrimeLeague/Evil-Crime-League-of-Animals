@@ -27,7 +27,7 @@ void Level::update_guard() {
 		float verticalStep = guardDogVerticalFov / verticalRays;
 		float visionDistance = 5.0f;
 		glm::vec3 guardDogPositionWorld = guardDog->transform->make_local_to_world() * glm::vec4(0, 0, 0, 1);
-		glm::vec3 guardDogDirectionWorld = glm::normalize(guardDog->transform->make_local_to_world() * glm::vec4(glm::vec3(0.0, -1.0, 0.0) - guardDogPositionWorld, 1));
+		glm::vec3 guardDogDirectionWorld = glm::normalize(guardDog->transform->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
 		//std::cout<<guardDogDirectionWorld.x<<" "<<guardDogDirectionWorld.y<<" "<<guardDogDirectionWorld.z<<std::endl;
 
 		for (uint32_t x = 0; x < horizontalRays; x++) {
@@ -39,7 +39,6 @@ void Level::update_guard() {
 				float verticalAngle = - (guardDogVerticalFov / 2) + (z * verticalStep);
 				glm::vec3 direction = glm::angleAxis(glm::radians(verticalAngle), glm::vec3(1.0f, 0.0f, 0.0f)) * horizontalDirection;
 				glm::vec3 point = guardDog->transform->position;
-				direction.y = -direction.y;
 				Ray r = Ray(point, direction, glm::vec2(0.0f, 2.0f), (uint32_t)0);
 
 				// loop through primitives 
