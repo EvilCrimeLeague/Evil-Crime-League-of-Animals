@@ -14,6 +14,7 @@ struct UI {
         bool hide = true;
         Box(glm::vec4 rect, glm::u8vec4 color) : rect(rect), color(color) {}
     };
+
     struct Img {
         glm::vec2 pos;
         glm::uvec2 size;
@@ -25,6 +26,7 @@ struct UI {
         }
         Img(glm::vec2 pos, glm::uvec2 size, std::shared_ptr<std::vector< glm::u8vec4 > > data): pos(pos), size(size), data(data) {}
     };
+
     std::shared_ptr<Font> font_title = nullptr;
     std::shared_ptr<Font> font_body = nullptr;
     std::shared_ptr<Font> font_manual = nullptr;
@@ -67,11 +69,16 @@ struct UI {
     std::vector<glm::vec2> choice_pos = {glm::vec2(100, 600), glm::vec2(600, 600)};
     
     // state of the inventory
+    struct InventoryItem {
+        std::string name;
+        std::shared_ptr<Img> img;
+        uint32_t inventory_slot_id;
+    };
     std::vector<glm::vec2> item_pos = {};
     uint32_t inventory_slot_id_start; // index of the first slot in imgs
     uint32_t inventory_slot_selected_id = 0; // index of the selected slot in the inventory
     const uint32_t inventory_slot_num = 10;
-    std::unordered_map<std::string, std::shared_ptr<Img>> inventory_items;
+    std::vector<InventoryItem> inventory_items;
 
     bool showing_inventory = false;
     bool showing_inventory_description = false;
@@ -204,7 +211,8 @@ struct UI {
     void arrow_key_callback(bool left);
 
     void add_inventory_item(std::string item_name, std::string img_path);
-    void remove_inventory_item(std::string item_name);
+    void remove_inventory_item(); // remove selected inventory item
+    std::string get_selected_inventory_item_name();
 
     void show_notification(std::string notification);
     void hide_notification();

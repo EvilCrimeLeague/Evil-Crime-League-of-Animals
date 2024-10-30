@@ -373,6 +373,7 @@ void UI::hide_all() {
     showing_interactable_button = false;
     showing_notification = false;
     showing_alarm = false;
+    showing_inventory_description = false;
 }
 
 void UI::reset() {
@@ -413,7 +414,7 @@ void UI::set_inventory(bool hide){
         imgs[i]->hide = hide;
     }
     for(auto& item: inventory_items) {
-        item.second->hide = hide;
+        item.img->hide = hide;
     }
     showing_inventory = !hide;
     if(showing_inventory) {
@@ -445,13 +446,28 @@ void UI::arrow_key_callback(bool left) {
 
 void UI::add_inventory_item(std::string item_name, std::string img_path) {
     auto img_ptr = std::make_shared<Img>(item_pos[inventory_items.size()], img_path);
-    inventory_items[item_name] = img_ptr;
     imgs.push_back(img_ptr);
+    InventoryItem item = {item_name, img_ptr, static_cast<uint32_t>(inventory_items.size())};
+    inventory_items.push_back(item);
 }
 
-void UI::remove_inventory_item(std::string item_name) {
-    imgs.erase(std::remove(imgs.begin(), imgs.end(), inventory_items[item_name]), imgs.end());
-    inventory_items.erase(item_name);
+void UI::remove_inventory_item() {
+    std::string item_name = get_selected_inventory_item_name();
+
+    imgs.erase(std::remove(imgs.begin(), imgs.end(), inventory_items[inventory_slot_selected_id].img), imgs.end());
+
+    inventory_items.erase(std::remove_if(inventory_items.begin(), inventory_items.end(), [&item_name](InventoryItem& item){return item.name == item_name;}), inventory_items.end());
+
+    // Reassign inventory slot
+    for (uint32_t i = 0; i < inventory_items.size(); i++) {
+        inventory_items[i].inventory_slot_id = i;
+        inventory_items[i].img->pos = item_pos[i];
+    }
+}
+
+std::string UI::get_selected_inventory_item_name() {
+    if(inventory_slot_selected_id > inventory_items.size()) return "";
+    return inventory_items[inventory_slot_selected_id].name;
 }
 
 void UI::show_notification(std::string notification) {
