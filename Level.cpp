@@ -18,6 +18,9 @@ std::shared_ptr<Level::Item> Level::get_closest_item(glm::vec3 player_position) 
 }
 
 void Level::update_guard() {
+	for (auto &item: guard_detectables) {
+        item.second = false;
+    }
     for (auto guardDog: guard_dogs) {
         constexpr float guardDogVerticalFov = 120.0f;
 		constexpr float guardDogHorizontalFov = 120.0f;
