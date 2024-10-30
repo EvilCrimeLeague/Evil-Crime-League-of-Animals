@@ -121,16 +121,14 @@ void Level1::handle_inventory_choice(uint32_t choice_id) {
         std::string item_name = ui->get_selected_inventory_item_name();
         ui->remove_inventory_item();
         if(item_name == "Bone") {
-            glm::vec3 playerPositionWorld = player_transform->make_local_to_world() * glm::vec4(0, 0, 0, 1);
 		    glm::vec3 playerDirectionWorld = glm::normalize(player_transform->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
-            bone->position = player_transform->position + playerDirectionWorld; //TODO: put in the forward direction of the player
+            bone->position = player_transform->position + playerDirectionWorld*2.0f + glm::vec3(0,0,0.5);
             update_guard();
             if (guard_detectables["Bone"]) {
-                driver_guardDog_walk->add_walk_in_straight_line_anim(guardDog->position, bone->position, 5.0f, 5);
+                glm::vec3 guardDirectionWorld = glm::normalize(guardDog->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
+                driver_guardDog_walk->add_walk_in_straight_line_anim(guardDog->position, bone->position - guardDirectionWorld, 5.0f, 5);
                 driver_guardDog_walk->start();
             }
-            // guardDog->position = glm::vec3(8.0f, 8.5f, 0.424494f);
-            // fov->position = glm::vec3(8.0f, 6.0f, 0.42449f);
         }
     } else {
         // show inventory again
