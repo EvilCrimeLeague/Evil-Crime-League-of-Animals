@@ -17,22 +17,23 @@ std::shared_ptr<Level::Item> Level::get_closest_item(glm::vec3 player_position) 
     return closest_item;
 }
 
-bool Level::update_guard() {
-    bool seen_by_guard = false;
+void Level::update_guard() {
     for (auto guardDog: guard_dogs) {
-        constexpr float guardDogVerticalFov = 90.0f;
+        constexpr float guardDogVerticalFov = 120.0f;
 		constexpr float guardDogHorizontalFov = 120.0f;
 		constexpr uint32_t horizontalRays = 20;
-		constexpr uint32_t verticalRays = 10;
+		constexpr uint32_t verticalRays = 20;
 		float horizontalStep = guardDogHorizontalFov / horizontalRays;
 		float verticalStep = guardDogVerticalFov / verticalRays;
 		float visionDistance = 5.0f;
 		glm::vec3 guardDogPositionWorld = guardDog->transform->make_local_to_world() * glm::vec4(0, 0, 0, 1);
 		glm::vec3 guardDogDirectionWorld = glm::normalize(guardDog->transform->make_local_to_world() * glm::vec4(glm::vec3(0.0, -1.0, 0.0) - guardDogPositionWorld, 1));
+		//std::cout<<guardDogDirectionWorld.x<<" "<<guardDogDirectionWorld.y<<" "<<guardDogDirectionWorld.z<<std::endl;
 
 		for (uint32_t x = 0; x < horizontalRays; x++) {
 			float horizontalAngle = - (guardDogHorizontalFov / 2) + (x * horizontalStep);
 			glm::vec3 horizontalDirection = glm::angleAxis(glm::radians(horizontalAngle), glm::vec3(0.0f, 0.0f, 1.0f)) * guardDogDirectionWorld;
+
 			for (uint32_t z = 0; z < verticalRays; z++) {
 				float closest_t = 10000000;
 				float verticalAngle = - (guardDogVerticalFov / 2) + (z * verticalStep);
@@ -40,8 +41,7 @@ bool Level::update_guard() {
 				glm::vec3 point = guardDog->transform->position;
 				direction.y = -direction.y;
 				Ray r = Ray(point, direction, glm::vec2(0.0f, 2.0f), (uint32_t)0);
-				// std::cout<<"point: "<<point.x<<" "<<point.y<<" "<<point.z<<std::endl;
-				// std::cout<<"dir: "<<direction.x<<" "<<direction.y<<" "<<direction.z<<std::endl;
+
 				// loop through primitives 
 				for (Scene::Drawable &d : scene.drawables) {
 					GLuint start = d.mesh->start;
@@ -73,25 +73,25 @@ bool Level::update_guard() {
 									glm::dot(glm::cross(cb, ca), glm::cross(cb, cp)) > 0 &&
 									glm::dot(glm::cross(ba, bc), glm::cross(ba, bp)) > 0) {
 										closest_t = std::min(t, closest_t);
-										if ((t <= closest_t) && (d.transform->name == "RedPanda")) {
-											// player seen by guard
-											seen_by_guard = true;
+										if (t <= closest_t) {
+											// guard sees something
+											if (d.transform->name != "GuardDog" & d.transform->name != "Floor") {
+												std::cout<<d.transform->name<<std::endl;
+											}
+											
+											auto item_seen = guard_detectables.find(d.transform->name);
+											if ( item_seen != guard_detectables.end()) {
+												guard_detectables[d.transform->name] = true;
+											}
 										}
-										
 									}
 							}
 						}
-
-
 					}
 				}
-
 			}
 		}
     }
-
-
-    return seen_by_guard;
 }
 
 void Level::update_animation(const float deltaTime) {
