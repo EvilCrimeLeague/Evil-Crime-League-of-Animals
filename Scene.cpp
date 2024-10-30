@@ -74,7 +74,8 @@ glm::mat4x3 Scene::Transform::make_world_to_local() const {
 //-------------------------
 
 glm::mat4 Scene::Camera::make_projection() const {
-	return glm::infinitePerspective( fovy, aspect, near );
+	return glm::ortho((scale * aspect) / -2, (scale * aspect) / 2, scale / -2, scale / 2, near, 1000.0f);
+	//return glm::infinitePerspective( fovy, aspect, near );
 }
 
 //-------------------------
@@ -267,10 +268,10 @@ void Scene::load(std::string const &filename,
 		if (c.transform >= hierarchy_transforms.size()) {
 			throw std::runtime_error("scene file '" + filename + "' contains camera entry with invalid transform index (" + std::to_string(c.transform) + ")");
 		}
-		if (std::string(c.type, 4) != "pers") {
-			std::cout << "Ignoring non-perspective camera (" + std::string(c.type, 4) + ") stored in file." << std::endl;
-			continue;
-		}
+		//if (std::string(c.type, 4) != "pers") {
+		//	std::cout << "Ignoring non-perspective camera (" + std::string(c.type, 4) + ") stored in file." << std::endl;
+		//	continue;
+		//}
 		cameras.emplace_back(hierarchy_transforms[c.transform]);
 		Camera *camera = &cameras.back();
 		camera->fovy = c.data / 180.0f * 3.1415926f; //FOV is stored in degrees; convert to radians.
