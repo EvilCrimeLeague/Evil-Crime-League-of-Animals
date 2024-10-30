@@ -55,6 +55,8 @@ Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
 	else if (fov == nullptr) throw std::runtime_error("FOV not found.");
 	std::cout<<guardDog->position.y - fov->position.y<<std::endl;
 
+    // fov->parent = guardDog;
+
     player_spawn_point = player_transform->position;
 
     if (scene.cameras.size() != 1) throw std::runtime_error("Expecting scene to have exactly one camera, but it has " + std::to_string(scene.cameras.size()));
@@ -80,6 +82,12 @@ Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
     guardDog_ptr->fov = fov;
     guardDog_ptr->fov_spawn_point = fov->position;
     guard_dogs.push_back(guardDog_ptr);
+
+    // initialize drivers
+    driver_guardDog_walk = std::make_shared<Driver>("guardDog", CHANEL_TRANSLATION);
+    driver_guardDog_walk->transform = guardDog;
+    driver_guardDog_walk->loop = false;
+    drivers.push_back(driver_guardDog_walk);
 }
 
 void Level1::handle_enter_key() {
@@ -91,7 +99,7 @@ void Level1::handle_enter_key() {
         handle_description_choice(ui->choice_id);
     } else if (ui->showing_inventory && ui->inventory_items.size() > 0) {
         std::string item_name = ui->get_selected_inventory_item_name();
-        if(item_name == "Bone" && glm::distance(player_transform->position, glm::vec3(-4,7.834,0.0))<2.0f) {
+        if(item_name == "Bone") {
             ui->show_description(items[item_name]->inventory_description, items[item_name]->inventory_choices[0], items[item_name]->inventory_choices[1]);
             ui->showing_inventory_description = true;
         }
@@ -112,9 +120,11 @@ void Level1::handle_inventory_choice(uint32_t choice_id) {
         std::string item_name = ui->get_selected_inventory_item_name();
         ui->remove_inventory_item();
         if(item_name == "Bone") {
-            bone->position = glm::vec3(8.0f, 7.0f, 1.0f);
-            guardDog->position = glm::vec3(8.0f, 8.5f, 0.424494f);
-            fov->position = glm::vec3(8.0f, 6.0f, 0.42449f);
+            bone->position = player_transform->position; //TODO: put in the forward direction of the player
+            driver_guardDog_walk->add_walk_in_straight_line_anim(guardDog->position, bone->position, 5.0f, 5);
+            driver_guardDog_walk->start();
+            // guardDog->position = glm::vec3(8.0f, 8.5f, 0.424494f);
+            // fov->position = glm::vec3(8.0f, 6.0f, 0.42449f);
         }
     } else {
         // show inventory again
@@ -145,4 +155,9 @@ void Level1::restart() {
         guard_dog->transform->position = guard_dog->spawn_point;
         guard_dog->fov->position = guard_dog->fov_spawn_point;
     }
+
+    for(auto &driver: drivers) {
+        driver->restart();
+    }
+    driver_guardDog_walk->playing = false;
 }

@@ -9,6 +9,7 @@
 #include "data_path.hpp"
 #include "LitColorTextureProgram.hpp"
 #include "TextTextureProgram.hpp"
+#include "Driver.hpp"
 
 #include <glm/glm.hpp>
 #include <string>
@@ -41,7 +42,7 @@ struct Level {
     std::unordered_map<std::string, std::shared_ptr<Item> > items;
     std::shared_ptr<Item> curr_item;
 
-    // scene information
+    // scene
     // local copy of the game scene (so code can change it during gameplay):
     Scene scene;
     const WalkMesh* walkmesh;
@@ -51,9 +52,14 @@ struct Level {
     glm::vec3 player_spawn_point;
     Scene::Transform *target_transform = nullptr;
 
+    // ui
     std::shared_ptr<UI> ui;
 
+    // guards
     std::vector<std::shared_ptr<GuardDog> > guard_dogs;
+
+    // animation
+    std::vector<std::shared_ptr<Driver> > drivers;
 
     Level(std::shared_ptr<UI> ui_);
     virtual ~Level() {}
@@ -64,6 +70,7 @@ struct Level {
     virtual void handle_interact_key() = 0;
 
     bool update_guard(); // return seen_by_guard
+    void update_animation(const float deltaTime);
 
     virtual void restart() = 0;
 };

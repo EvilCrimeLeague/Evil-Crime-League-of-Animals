@@ -217,5 +217,5 @@ struct UI {
     void show_notification(std::string notification);
     void hide_notification();
 
-    void show_alarm();
+    void set_alarm(bool hide);
 };
