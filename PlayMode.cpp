@@ -64,7 +64,6 @@ PlayMode::PlayMode() : scene(*level1_scene) {
 	else if (jewel == nullptr) throw std::runtime_error("Jewel not found.");
 	else if (player.transform == nullptr) throw std::runtime_error("RedPanda not found.");
 	else if (fov == nullptr) throw std::runtime_error("FOV not found.");
-	std::cout<<guardDog->position.y - fov->position.y<<std::endl;
 
 	player.rotation_euler = glm::eulerAngles(player.transform->rotation) / float(M_PI) * 180.0f;
 	player.rotation = player.transform->rotation;
@@ -305,8 +304,8 @@ void PlayMode::update(float elapsed) {
 	{
 		constexpr float guardDogVerticalFov = 90.0f;
 		constexpr float guardDogHorizontalFov = 120.0f;
-		constexpr uint32_t horizontalRays = 30;
-		constexpr uint32_t verticalRays = 20;
+		constexpr uint32_t horizontalRays = 20;
+		constexpr uint32_t verticalRays = 10;
 		float horizontalStep = guardDogHorizontalFov / horizontalRays;
 		float verticalStep = guardDogVerticalFov / verticalRays;
 		float visionDistance = 5.0f;
