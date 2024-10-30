@@ -55,6 +55,9 @@ struct PlayMode : Mode {
 	bool game_over = false;
 	bool paused = false;
 
+	float seen_by_guard_timer = 0.0f;
+	bool seen_by_guard = false;
+
 	float get_distance(glm::vec3 a, glm::vec3 b) {
 		// get distance between two points disregarding z
 		a.z = 0.0f;
@@ -63,4 +66,6 @@ struct PlayMode : Mode {
 	}
 
 	const float iteractable_distance = 2.0f;
+
+	void restart();
 };

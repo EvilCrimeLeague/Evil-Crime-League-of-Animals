@@ -372,6 +372,7 @@ void UI::hide_all() {
     showing_inventory = false;
     showing_interactable_button = false;
     showing_notification = false;
+    showing_alarm = false;
 }
 
 void UI::reset() {
@@ -382,6 +383,8 @@ void UI::reset() {
     enter_bt_img->pos = choice_pos[choice_id];
     inventory_slot_selected_id = 0;
     manual_text->start_pos.x = 700;
+    inventory_items.clear();
+    manual_text->text = "Press <- or -> to select, press 'return' to continue";
 
     set_inventory_button(/*hide=*/false);
 
@@ -465,5 +468,11 @@ void UI::hide_notification() {
     notification_box->hide = true;
     showing_notification = false;
 
+    need_update_texture = true;
+}
+
+void UI::show_alarm() {
+    alarm_img->hide = false;
+    showing_alarm = true;
     need_update_texture = true;
 }

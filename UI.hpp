@@ -49,6 +49,7 @@ struct UI {
     std::shared_ptr<Img> slot_right_img = nullptr;
     std::shared_ptr<Img> inventory_img = nullptr;
     std::shared_ptr<Img> slot_selected_img = nullptr;
+    std::shared_ptr<Img> alarm_img = nullptr;
 
     unsigned int text_texture = -1U;
     unsigned int box_texture = -1U;
@@ -77,6 +78,7 @@ struct UI {
     bool showing_notification = false;
     bool showing_description = false;
     bool showing_interactable_button = false;
+    bool showing_alarm = false;
 
     bool need_update_texture = true;
 
@@ -145,6 +147,7 @@ struct UI {
         enter_bt_img = std::make_shared<Img>(choice_pos[0], "UI/return.png");
         inventory_bt_img = std::make_shared<Img>(glm::vec2(100, 640), "UI/E.png");
         inventory_bt_img->hide = false;
+        alarm_img = std::make_shared<Img>(glm::vec2(600, 300), "UI/!.png");
 
         glm::uvec2 size;
         std::shared_ptr<std::vector< glm::u8vec4 > > data = std::make_shared<std::vector< glm::u8vec4 >>();
@@ -152,7 +155,7 @@ struct UI {
         slot_left_img = std::make_shared<Img>(choice_pos[0], size, data);
         slot_right_img = std::make_shared<Img>(choice_pos[1], size, data);
         inventory_img = std::make_shared<Img>(glm::vec2(0, 592), "UI/inventory.png");
-        imgs= {slot_left_img, slot_right_img, inventory_bt_img, interact_bt_img, enter_bt_img, inventory_img};
+        imgs= {slot_left_img, slot_right_img, inventory_bt_img, interact_bt_img, enter_bt_img, inventory_img, alarm_img};
         
 
         // Create slots for inventory
@@ -205,4 +208,6 @@ struct UI {
 
     void show_notification(std::string notification);
     void hide_notification();
+
+    void show_alarm();
 };

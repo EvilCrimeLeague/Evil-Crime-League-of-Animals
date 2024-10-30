@@ -317,6 +317,7 @@ void PlayMode::update(float elapsed) {
 		glm::vec3 guardDogPositionWorld = guardDog->make_local_to_world() * glm::vec4(0, 0, 0, 1);
 		glm::vec3 guardDogDirectionWorld = glm::normalize(guardDog->make_local_to_world() * glm::vec4(glm::vec3(0.0, -1.0, 0.0) - guardDogPositionWorld, 1));
 
+		bool seen = false;
 		for (uint32_t x = 0; x < horizontalRays; x++) {
 			float horizontalAngle = - (guardDogHorizontalFov / 2) + (x * horizontalStep);
 			glm::vec3 horizontalDirection = glm::angleAxis(glm::radians(horizontalAngle), glm::vec3(0.0f, 0.0f, 1.0f)) * guardDogDirectionWorld;
@@ -361,8 +362,8 @@ void PlayMode::update(float elapsed) {
 									glm::dot(glm::cross(ba, bc), glm::cross(ba, bp)) > 0) {
 										closest_t = std::min(t, closest_t);
 										if ((t <= closest_t) && (d.transform->name == "RedPanda")) {
-											player.transform->position = player.spawn_point;
-											player.at = walkmesh->nearest_walk_point(player.transform->position);
+											// player seen by guard
+											seen = true;
 										}
 										
 									}
@@ -375,11 +376,27 @@ void PlayMode::update(float elapsed) {
 
 			}
 		}
-
+		seen_by_guard = seen;
 	}
 
 	{
-		// check distance between player and items for itemsinteraction
+		if(seen_by_guard_timer > 1.0f) {
+			// player caught, restart game
+			restart();
+		}
+		if(seen_by_guard) {
+			if(!ui->showing_alarm) {
+				std::cout<<"Show alarm"<<std::endl;
+				ui->show_alarm();
+			}
+			seen_by_guard_timer += elapsed;
+		} else {
+			seen_by_guard_timer = 0.0f;
+		}
+	}
+
+	{
+		// player and item interaction
 		if (!ui->showing_interactable_button && get_distance(player.transform->position, bone->position) < iteractable_distance) {
 			ui->set_interactable_button(/*hide=*/false);
 		} else if(ui->showing_interactable_button && get_distance(player.transform->position, bone->position) > iteractable_distance) {
@@ -390,6 +407,8 @@ void PlayMode::update(float elapsed) {
 			ui->show_game_over(true);
 		}
 	}
+
+	
 
 	//reset button press counters:
 	left.downs = 0;
@@ -465,4 +484,12 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 	GL_ERRORS();
 
 
+}
+
+void PlayMode::restart(){
+	ui->reset();
+	seen_by_guard_timer = 0.0f;
+	seen_by_guard = false;
+	player.transform->position = player.spawn_point;
+	player.at = walkmesh->nearest_walk_point(player.transform->position);
 }
