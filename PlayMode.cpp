@@ -78,6 +78,10 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			key_e.downs += 1;
 			key_e.pressed = true;
 			return true;
+		} else if (evt.key.keysym.sym == SDLK_r) {
+			key_r.downs += 1;
+			key_r.pressed = true;
+			return true;
 		}
 	} else if (evt.type == SDL_KEYUP) {
 		if (evt.key.keysym.sym == SDLK_a) {
@@ -111,6 +115,10 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 		} else if (evt.key.keysym.sym == SDLK_e) {
 			key_e.pressed = false;
 			ui->set_inventory(ui->showing_inventory);
+			return true;
+		} else if (evt.key.keysym.sym == SDLK_r) {
+			key_r.pressed = false;
+			restart();
 			return true;
 		}
 	}

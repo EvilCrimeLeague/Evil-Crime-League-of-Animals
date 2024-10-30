@@ -38,7 +38,8 @@ struct UI {
     std::shared_ptr<Text> manual_text = nullptr;
     std::shared_ptr<Text> inventory_bt_manual_text = nullptr;
     std::shared_ptr<Text> inventory_manual_text = nullptr;
-     std::shared_ptr<Text> notification_text = nullptr;
+    std::shared_ptr<Text> notification_text = nullptr;
+    std::shared_ptr<Text> restart_bt_manual_text = nullptr;
 
     std::shared_ptr<Box> description_box = nullptr;
     std::shared_ptr<Box> game_over_box = nullptr;
@@ -52,6 +53,7 @@ struct UI {
     std::shared_ptr<Img> inventory_img = nullptr;
     std::shared_ptr<Img> slot_selected_img = nullptr;
     std::shared_ptr<Img> alarm_img = nullptr;
+    std::shared_ptr<Img> restart_bt_img = nullptr;
 
     unsigned int text_texture = -1U;
     unsigned int box_texture = -1U;
@@ -128,7 +130,7 @@ struct UI {
 						font_manual);
         inventory_bt_manual_text = std::make_shared<Text>("Show/hide inventory", 
                         /*line length*/85, 
-						/*start pos*/glm::vec2(180, 680),
+						/*start pos*/glm::vec2(120, 680),
 						font_manual);
         inventory_bt_manual_text->color = glm::vec3(0, 32.8, 73.8);
         inventory_manual_text = std::make_shared<Text>("Press <- or -> to select item, press 'return' to use", 
@@ -141,7 +143,13 @@ struct UI {
                             /*line length*/80, 
                             /*start pos*/glm::vec2(60, 520),
                             font_body);
-        texts = {description_text, choice1_text, choice2_text, game_over_text, manual_text, inventory_bt_manual_text, inventory_manual_text, notification_text};
+        restart_bt_manual_text = std::make_shared<Text>("Restart", 
+                            /*line length*/85, 
+                            /*start pos*/glm::vec2(120, 60),
+                            font_manual);
+        restart_bt_manual_text->hide = false;
+        restart_bt_manual_text->color = glm::vec3(0, 32.8, 73.8);
+        texts = {description_text, choice1_text, choice2_text, game_over_text, manual_text, inventory_bt_manual_text, inventory_manual_text, notification_text, restart_bt_manual_text};
 
         // Create boxes
         description_box = std::make_shared<Box>(glm::vec4(20, 480, 1260, 700), glm::u8vec4(100, 100, 100, 200));
@@ -152,9 +160,11 @@ struct UI {
         // Create images
         interact_bt_img = std::make_shared<Img>(glm::vec2(800, 300), "UI/F.png");
         enter_bt_img = std::make_shared<Img>(choice_pos[0], "UI/return.png");
-        inventory_bt_img = std::make_shared<Img>(glm::vec2(100, 640), "UI/E.png");
+        inventory_bt_img = std::make_shared<Img>(glm::vec2(40, 640), "UI/E.png");
         inventory_bt_img->hide = false;
         alarm_img = std::make_shared<Img>(glm::vec2(600, 300), "UI/!.png");
+        restart_bt_img = std::make_shared<Img>(glm::vec2(40, 20), "UI/R.png");
+        restart_bt_img->hide = false;
 
         glm::uvec2 size;
         std::shared_ptr<std::vector< glm::u8vec4 > > data = std::make_shared<std::vector< glm::u8vec4 >>();
@@ -162,7 +172,7 @@ struct UI {
         slot_left_img = std::make_shared<Img>(choice_pos[0], size, data);
         slot_right_img = std::make_shared<Img>(choice_pos[1], size, data);
         inventory_img = std::make_shared<Img>(glm::vec2(0, 592), "UI/inventory.png");
-        imgs= {slot_left_img, slot_right_img, inventory_bt_img, interact_bt_img, enter_bt_img, inventory_img, alarm_img};
+        imgs= {slot_left_img, slot_right_img, inventory_bt_img, interact_bt_img, enter_bt_img, inventory_img, alarm_img, restart_bt_img};
         
 
         // Create slots for inventory
@@ -218,4 +228,6 @@ struct UI {
     void hide_notification();
 
     void set_alarm(bool hide);
+
+    void set_restart_button(bool hide);
 };

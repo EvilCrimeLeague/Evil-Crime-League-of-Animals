@@ -323,6 +323,7 @@ void UI::show_description(std::string description, std::string choice1, std::str
 }
 
 void UI::hide_description() {
+    set_restart_button(/*hide=*/false);
     showing_description = false;
 
     description_text->hide = true;
@@ -388,6 +389,7 @@ void UI::reset() {
     manual_text->text = "Press <- or -> to select, press 'return' to continue";
 
     set_inventory_button(/*hide=*/false);
+    set_restart_button(/*hide=*/false);
 
     need_update_texture = true;
 }
@@ -490,5 +492,12 @@ void UI::hide_notification() {
 void UI::set_alarm(bool hide) {
     alarm_img->hide = hide;
     showing_alarm = !hide;
+    need_update_texture = true;
+}
+
+void UI::set_restart_button(bool hide) {
+    restart_bt_img->hide = hide;
+    restart_bt_manual_text->hide = hide;
+
     need_update_texture = true;
 }
