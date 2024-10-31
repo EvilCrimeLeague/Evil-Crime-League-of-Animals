@@ -36,7 +36,7 @@ void Driver::animate(const float deltaTime){
             transform->scale = glm::mix(values3d[frame_idx], values3d[frame_idx+1], t);
         } else if (channel==CHANEL_TRANSLATION){
             transform->position = glm::mix(values3d[frame_idx], values3d[frame_idx+1], t);
-        } else if(channel != CHANEL_ROTATION) {
+        } else if(channel == CHANEL_ROTATION) {
             transform->rotation = glm::slerp(values4d[frame_idx], values4d[frame_idx+1], t);
         }
     }

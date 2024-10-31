@@ -36,6 +36,11 @@ Load< WalkMesh > level1_walkmesh(LoadTagDefault, []() -> WalkMesh const * {
 	return walkmesh;
 });
 
+Load< Animation > level1_animations(LoadTagDefault, []() -> Animation const * {
+	Animation *anim = new Animation(data_path("level1.anim"));
+	return anim;
+});
+
 Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
     scene = *level1_scene;
     walkmesh = level1_walkmesh;
@@ -84,10 +89,15 @@ Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
     guard_dogs.push_back(guardDog_ptr);
 
     // initialize drivers
-    driver_guardDog_walk = std::make_shared<Driver>("guardDog", CHANEL_TRANSLATION);
+    driver_guardDog_walk = std::make_shared<Driver>("GuardDog-walk", CHANEL_TRANSLATION);
     driver_guardDog_walk->transform = guardDog;
     driver_guardDog_walk->loop = false;
     drivers.push_back(driver_guardDog_walk);
+
+    driver_guardDog_rotate = std::make_shared<Driver>(level1_animations->animations.at("GuardDog-rotation"));
+    driver_guardDog_rotate->transform = guardDog;
+    driver_guardDog_rotate->start();
+    drivers.push_back(driver_guardDog_rotate);
 }
 
 void Level1::handle_enter_key() {

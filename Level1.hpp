@@ -8,6 +8,7 @@ struct Level1 : Level {
 	Scene::Transform *fov = nullptr;
 
     std::shared_ptr<Driver> driver_guardDog_walk = nullptr;
+    std::shared_ptr<Driver> driver_guardDog_rotate = nullptr;
 
     Level1(std::shared_ptr<UI> ui_);
     virtual ~Level1() {}

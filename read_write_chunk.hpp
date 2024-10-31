@@ -24,10 +24,10 @@ void read_chunk(std::istream &from, std::string const &magic, std::vector< T > *
 
 	ChunkHeader header;
 	if (!from.read(reinterpret_cast< char * >(&header), sizeof(header))) {
-		throw std::runtime_error("Failed to read chunk header");
+		throw std::runtime_error("Failed to read chunk header "+magic);
 	}
 	if (std::string(header.magic,4) != magic) {
-		throw std::runtime_error("Unexpected magic number in chunk");
+		throw std::runtime_error("Unexpected magic number in chunk - "+std::string(header.magic,4)+" (expected "+magic+")");
 	}
 
 	if (header.size % sizeof(T) != 0) {
