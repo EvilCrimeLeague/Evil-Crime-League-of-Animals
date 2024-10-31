@@ -501,3 +501,14 @@ void UI::set_restart_button(bool hide) {
 
     need_update_texture = true;
 }
+
+void UI::show_interact_bt_msg(std::string msg) {
+    interact_bt_manual_text->text = msg;
+    interact_bt_manual_text->hide = false;
+    need_update_texture = true;
+}
+
+void UI::hide_interact_bt_msg() {
+    interact_bt_manual_text->hide = true;
+    need_update_texture = true;
+}

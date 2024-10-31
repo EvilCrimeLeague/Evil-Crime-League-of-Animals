@@ -40,6 +40,7 @@ struct UI {
     std::shared_ptr<Text> inventory_manual_text = nullptr;
     std::shared_ptr<Text> notification_text = nullptr;
     std::shared_ptr<Text> restart_bt_manual_text = nullptr;
+    std::shared_ptr<Text> interact_bt_manual_text = nullptr;
 
     std::shared_ptr<Box> description_box = nullptr;
     std::shared_ptr<Box> game_over_box = nullptr;
@@ -147,9 +148,14 @@ struct UI {
                             /*line length*/85, 
                             /*start pos*/glm::vec2(120, 60),
                             font_manual);
+        interact_bt_manual_text = std::make_shared<Text>("", 
+                            /*line length*/85, 
+                            /*start pos*/glm::vec2(880, 340),
+                            font_manual);
+        interact_bt_manual_text->color = glm::vec3(0, 32.8, 73.8);
         restart_bt_manual_text->hide = false;
         restart_bt_manual_text->color = glm::vec3(0, 32.8, 73.8);
-        texts = {description_text, choice1_text, choice2_text, game_over_text, manual_text, inventory_bt_manual_text, inventory_manual_text, notification_text, restart_bt_manual_text};
+        texts = {description_text, choice1_text, choice2_text, game_over_text, manual_text, inventory_bt_manual_text, inventory_manual_text, notification_text, restart_bt_manual_text, interact_bt_manual_text};
 
         // Create boxes
         description_box = std::make_shared<Box>(glm::vec4(20, 480, 1260, 700), glm::u8vec4(100, 100, 100, 200));
@@ -230,4 +236,7 @@ struct UI {
     void set_alarm(bool hide);
 
     void set_restart_button(bool hide);
+
+    void show_interact_bt_msg(std::string msg);
+    void hide_interact_bt_msg();
 };

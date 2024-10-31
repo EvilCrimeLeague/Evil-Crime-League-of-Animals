@@ -65,8 +65,7 @@ Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
     // initialize items
     auto bone_ptr = std::make_shared<Item>();
     bone_ptr->name = "Bone";
-    bone_ptr->interaction_description = "You found a bone. Do you want to collect it?";
-    bone_ptr->interaction_choices = {"Yes", "No"};
+    bone_ptr->interaction_description = "Collect it";
     bone_ptr->inventory_description = "Do you want to use the bone to distract the guard?";
     bone_ptr->inventory_choices = {"Yes", "No"};
     bone_ptr->transform = bone;
@@ -95,10 +94,12 @@ void Level1::handle_enter_key() {
     if(ui->showing_inventory_description) {
         // Interact with inventory item
         handle_inventory_choice(ui->choice_id);
-    } else if (ui->showing_description) {
-        // Interact with item
-        handle_description_choice(ui->choice_id);
-    } else if (ui->showing_inventory && ui->inventory_items.size() > 0) {
+    } 
+    // else if (ui->showing_description) {
+    //     // Interact with item
+    //     handle_description_choice(ui->choice_id);
+    // } 
+    else if (ui->showing_inventory && ui->inventory_items.size() > 0) {
         std::string item_name = ui->get_selected_inventory_item_name();
         if(item_name == "Bone") {
             ui->show_description(items[item_name]->inventory_description, items[item_name]->inventory_choices[0], items[item_name]->inventory_choices[1]);
@@ -110,7 +111,10 @@ void Level1::handle_enter_key() {
 
 void Level1::handle_interact_key() {
     if(ui->showing_interactable_button) {
-        ui->show_description(curr_item->interaction_description, curr_item->interaction_choices[0], curr_item->interaction_choices[1]);
+        // ui->show_description(curr_item->interaction_description, curr_item->interaction_choices[0], curr_item->interaction_choices[1]);
+        ui->add_inventory_item(curr_item->name, curr_item->img_path);
+        // hide item
+        curr_item->transform->position.x = -1000.0f;
     }
 }
 
@@ -138,16 +142,16 @@ void Level1::handle_inventory_choice(uint32_t choice_id) {
 }
 
 void Level1::handle_description_choice(uint32_t choice_id) {
-    ui->hide_description();
-    ui->set_inventory_button(/*hide=*/false);
-    if(ui->choice_id ==0) {
-        ui->add_inventory_item(curr_item->name, curr_item->img_path);
-        // hide item
-        curr_item->transform->position.x = -1000.0f;
-    } else {
-        // show iteractable button again
-        ui->set_interactable_button(/*hide=*/false);
-    }
+    // ui->hide_description();
+    // ui->set_inventory_button(/*hide=*/false);
+    // if(ui->choice_id ==0) {
+    //     ui->add_inventory_item(curr_item->name, curr_item->img_path);
+    //     // hide item
+    //     curr_item->transform->position.x = -1000.0f;
+    // } else {
+    //     // show iteractable button again
+    //     ui->set_interactable_button(/*hide=*/false);
+    // }
 }
 
 void Level1::restart() {
