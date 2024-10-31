@@ -144,10 +144,9 @@ void Level1::handle_inventory_choice(uint32_t choice_id) {
                 driver_guardDog_walk->start();
             }
         }
-    } else {
-        // show inventory again
-        ui->set_inventory(false);
-    }
+    } 
+    // show inventory again
+    ui->set_inventory(false);
     ui->showing_inventory_description = false;
 }
 

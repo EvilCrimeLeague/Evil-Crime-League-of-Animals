@@ -451,6 +451,8 @@ void UI::add_inventory_item(std::string item_name, std::string img_path) {
     imgs.push_back(img_ptr);
     InventoryItem item = {item_name, img_ptr, static_cast<uint32_t>(inventory_items.size())};
     inventory_items.push_back(item);
+    img_ptr->hide = inventory_img->hide;
+    need_update_texture = true;
 }
 
 void UI::remove_inventory_item() {
