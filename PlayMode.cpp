@@ -274,8 +274,6 @@ void PlayMode::update(float elapsed) {
 		}
 	}
 
-	
-
 	//reset button press counters:
 	left.downs = 0;
 	right.downs = 0;
