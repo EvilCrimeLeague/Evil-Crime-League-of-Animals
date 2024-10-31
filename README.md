@@ -17,7 +17,7 @@ what you can!
 Will you be an Artful Dog-dger or will you be caught Red Panded?
 
 Sources:
-All assets were created by our group.
+Except Open Sans which is a font asset downloaded from Google Font (https://fonts.google.com/specimen/Open+Sans), all other assets were created by our group.
 
 This game was built with [NEST](NEST.md).
 

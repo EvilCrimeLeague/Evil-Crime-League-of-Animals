@@ -62,7 +62,6 @@ struct Animation {
             }
 
             animations[anim.name]=anim;
-            std::cout<< anim.name << " " << anim.channel << " " << anim.times.size() << " " << anim.values3d.size() << " " << anim.values4d.size() << std::endl;
         }
     }
 };

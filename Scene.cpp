@@ -275,7 +275,7 @@ void Scene::load(std::string const &filename,
 		cameras.emplace_back(hierarchy_transforms[c.transform]);
 		Camera *camera = &cameras.back();
 		camera->fovy = c.data / 180.0f * 3.1415926f; //FOV is stored in degrees; convert to radians.
-		camera->scale = c.data;
+		camera->scale = c.data / 2;
 		camera->near = c.clip_near;
 		//N.b. far plane is ignored because cameras use infinite perspective matrices.
 	}
