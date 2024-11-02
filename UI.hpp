@@ -41,6 +41,7 @@ struct UI {
     std::shared_ptr<Text> notification_text = nullptr;
     std::shared_ptr<Text> restart_bt_manual_text = nullptr;
     std::shared_ptr<Text> interact_bt_manual_text = nullptr;
+    std::shared_ptr<Text> menu_bt_manual_text = nullptr;
 
     std::shared_ptr<Box> description_box = nullptr;
     std::shared_ptr<Box> game_over_box = nullptr;
@@ -55,6 +56,10 @@ struct UI {
     std::shared_ptr<Img> slot_selected_img = nullptr;
     std::shared_ptr<Img> alarm_img = nullptr;
     std::shared_ptr<Img> restart_bt_img = nullptr;
+    std::shared_ptr<Img> menu_img = nullptr;
+    std::shared_ptr<Img> menu_bt_img = nullptr;
+    std::shared_ptr<Img> level_1_img = nullptr;
+    std::shared_ptr<Img> level_2_img = nullptr;
 
     unsigned int text_texture = -1U;
     unsigned int box_texture = -1U;
@@ -77,11 +82,17 @@ struct UI {
         std::shared_ptr<Img> img;
         uint32_t inventory_slot_id;
     };
-    std::vector<glm::vec2> item_pos = {};
+    std::vector<glm::vec2> inventory_item_pos = {};
     uint32_t inventory_slot_id_start; // index of the first slot in imgs
     uint32_t inventory_slot_selected_id = 0; // index of the selected slot in the inventory
     const uint32_t inventory_slot_num = 10;
     std::vector<InventoryItem> inventory_items;
+
+    // menu
+    std::vector<glm::vec2> menu_item_pos = {};
+    uint32_t menu_slot_id_start;
+    uint32_t menu_slot_selected_id = 0;
+    const uint32_t menu_slot_num = 4;
 
     bool showing_inventory = false;
     bool showing_inventory_description = false;
@@ -89,6 +100,7 @@ struct UI {
     bool showing_description = false;
     bool showing_interactable_button = false;
     bool showing_alarm = false;
+    bool showing_menu = false; // when menu is showing, disable other UI elements
 
     bool need_update_texture = true;
 
@@ -155,7 +167,13 @@ struct UI {
         interact_bt_manual_text->color = glm::vec3(0, 32.8, 73.8);
         restart_bt_manual_text->hide = false;
         restart_bt_manual_text->color = glm::vec3(0, 32.8, 73.8);
-        texts = {description_text, choice1_text, choice2_text, game_over_text, manual_text, inventory_bt_manual_text, inventory_manual_text, notification_text, restart_bt_manual_text, interact_bt_manual_text};
+        menu_bt_manual_text = std::make_shared<Text>("Show/hide menu", 
+                            /*line length*/85, 
+                            /*start pos*/glm::vec2(1040, 60),
+                            font_manual);
+        menu_bt_manual_text->hide = false;
+        menu_bt_manual_text->color = glm::vec3(0, 32.8, 73.8);
+        texts = {description_text, choice1_text, choice2_text, game_over_text, manual_text, inventory_bt_manual_text, inventory_manual_text, notification_text, restart_bt_manual_text, interact_bt_manual_text, menu_bt_manual_text};
 
         // Create boxes
         description_box = std::make_shared<Box>(glm::vec4(20, 480, 1260, 700), glm::u8vec4(100, 100, 100, 200));
@@ -171,24 +189,47 @@ struct UI {
         alarm_img = std::make_shared<Img>(glm::vec2(600, 300), "UI/!.png");
         restart_bt_img = std::make_shared<Img>(glm::vec2(40, 20), "UI/R.png");
         restart_bt_img->hide = false;
+        inventory_img = std::make_shared<Img>(glm::vec2(0, 592), "UI/inventory.png");
+        menu_img = std::make_shared<Img>(glm::vec2(440, 160), "UI/menu.png");
+        menu_bt_img = std::make_shared<Img>(glm::vec2(960, 20), "UI/Q.png");
+        menu_bt_img->hide = false;
+        level_1_img = std::make_shared<Img>(glm::vec2(0, 0), "UI/1.png");
+        level_2_img = std::make_shared<Img>(glm::vec2(0, 0), "UI/2.png");
 
         glm::uvec2 size;
         std::shared_ptr<std::vector< glm::u8vec4 > > data = std::make_shared<std::vector< glm::u8vec4 >>();
         load_png(data_path("UI/Slot.png"), &size, data.get(), UpperLeftOrigin);
         slot_left_img = std::make_shared<Img>(choice_pos[0], size, data);
         slot_right_img = std::make_shared<Img>(choice_pos[1], size, data);
-        inventory_img = std::make_shared<Img>(glm::vec2(0, 592), "UI/inventory.png");
-        imgs= {slot_left_img, slot_right_img, inventory_bt_img, interact_bt_img, enter_bt_img, inventory_img, alarm_img, restart_bt_img};
+        
+        imgs= {slot_left_img, slot_right_img, inventory_bt_img, interact_bt_img, enter_bt_img, inventory_img, alarm_img, restart_bt_img, menu_img, menu_bt_img};
         
 
         // Create slots for inventory
         inventory_slot_id_start = (uint32_t)imgs.size();
         for (uint32_t i = 0; i < inventory_slot_num; i++) {
             glm::vec2 pos = glm::vec2(260 + 78 * i, 626);
-            item_pos.push_back(pos);
+            inventory_item_pos.push_back(pos);
             imgs.push_back(std::make_shared<Img>(pos, size, data));
         }
-        slot_selected_img = std::make_shared<Img>(item_pos[inventory_slot_selected_id], "UI/slot_selected.png");
+
+        // Create slots for menu
+        menu_slot_id_start = (uint32_t)imgs.size();
+        glm::vec2 pivot = menu_img->pos + glm::vec2(100,150);
+        for (uint32_t i = 0; i < menu_slot_num; i++) {
+            uint32_t row = static_cast<uint32_t>(i / 2);
+            uint32_t col = i % 2;
+
+            glm::vec2 pos = pivot + glm::vec2(col*120, row*100);
+            menu_item_pos.push_back(pos);
+            imgs.push_back(std::make_shared<Img>(pos, size, data));
+        }
+        level_1_img->pos = menu_item_pos[0];
+        level_2_img->pos = menu_item_pos[1];
+        imgs[menu_slot_id_start] = level_1_img;
+        imgs[menu_slot_id_start+1] = level_2_img;
+
+        slot_selected_img = std::make_shared<Img>(inventory_item_pos[inventory_slot_selected_id], "UI/slot_selected.png");
         imgs.push_back(slot_selected_img);
 
         glGenTextures(1, &box_texture);
@@ -239,4 +280,8 @@ struct UI {
 
     void show_interact_bt_msg(std::string msg);
     void hide_interact_bt_msg();
+
+    void set_menu_button(bool hide);
+    void set_menu(bool hide);
+    void update_menu_selection(bool left);
 };

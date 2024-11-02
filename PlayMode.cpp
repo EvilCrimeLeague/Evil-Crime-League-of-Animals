@@ -84,6 +84,10 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			key_r.downs += 1;
 			key_r.pressed = true;
 			return true;
+		} else if (evt.key.keysym.sym == SDLK_q) {
+			key_q.downs += 1;
+			key_q.pressed = true;
+			return true;
 		}
 	} else if (evt.type == SDL_KEYUP) {
 		if (evt.key.keysym.sym == SDLK_a) {
@@ -108,19 +112,32 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_f) {
 			key_f.pressed = false;
-			level->handle_interact_key();
+			if(!ui->showing_menu) level->handle_interact_key();
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_RETURN) {
 			enter.pressed = false;
-			level->handle_enter_key();
+			if (ui->showing_menu) {
+				std::cout<<"level selected: "<<ui->menu_slot_selected_id<<"\n";
+				if (ui->menu_slot_selected_id == 0) {
+					// restart game
+					std::cout << "Restarting game\n";
+					restart();
+				}
+			} else {
+				level->handle_enter_key();
+			}
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_e) {
 			key_e.pressed = false;
-			ui->set_inventory(ui->showing_inventory);
+			if(!ui->showing_menu) ui->set_inventory(ui->showing_inventory);
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_r) {
 			key_r.pressed = false;
-			restart();
+			if(!ui->showing_menu) restart();
+			return true;
+		} else if (evt.key.keysym.sym == SDLK_q) {
+			key_q.pressed = false;
+			ui->set_menu(ui->showing_menu);
 			return true;
 		}
 	}
@@ -130,7 +147,7 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 
 void PlayMode::update(float elapsed) {
 	//player walking:
-	paused = ui->showing_inventory_description || ui->showing_description;
+	paused = ui->showing_inventory_description || ui->showing_description || ui->showing_menu;
 	if(game_over || paused) 
 		return;
 
