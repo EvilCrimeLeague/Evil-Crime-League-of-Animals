@@ -17,7 +17,7 @@ std::shared_ptr<Level::Item> Level::get_closest_item(glm::vec3 player_position) 
     return closest_item;
 }
 
-void Level::update_guard() {
+void Level::update_guard_detection() {
 	for (auto &item: guard_detectables) {
         item.second = false;
     }
