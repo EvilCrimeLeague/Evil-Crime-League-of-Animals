@@ -66,6 +66,7 @@ Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
 
     if (scene.cameras.size() != 1) throw std::runtime_error("Expecting scene to have exactly one camera, but it has " + std::to_string(scene.cameras.size()));
     camera = &scene.cameras.front();
+    guard_detectables["Floor"] = false;
 
     // initialize items
     auto bone_ptr = std::make_shared<Item>();

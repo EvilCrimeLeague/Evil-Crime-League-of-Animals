@@ -84,10 +84,6 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			key_r.downs += 1;
 			key_r.pressed = true;
 			return true;
-		} else if (evt.key.keysym.sym == SDLK_q) {
-			key_q.downs += 1;
-			key_q.pressed = true;
-			return true;
 		}
 	} else if (evt.type == SDL_KEYUP) {
 		if (evt.key.keysym.sym == SDLK_a) {
@@ -112,32 +108,19 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_f) {
 			key_f.pressed = false;
-			if(!ui->showing_menu) level->handle_interact_key();
+			level->handle_interact_key();
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_RETURN) {
 			enter.pressed = false;
-			if (ui->showing_menu) {
-				std::cout<<"level selected: "<<ui->menu_slot_selected_id<<"\n";
-				if (ui->menu_slot_selected_id == 0) {
-					// restart game
-					std::cout << "Restarting game\n";
-					restart();
-				}
-			} else {
-				level->handle_enter_key();
-			}
+			level->handle_enter_key();
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_e) {
 			key_e.pressed = false;
-			if(!ui->showing_menu) ui->set_inventory(ui->showing_inventory);
+			ui->set_inventory(ui->showing_inventory);
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_r) {
 			key_r.pressed = false;
-			if(!ui->showing_menu) restart();
-			return true;
-		} else if (evt.key.keysym.sym == SDLK_q) {
-			key_q.pressed = false;
-			ui->set_menu(ui->showing_menu);
+			restart();
 			return true;
 		}
 	}
@@ -147,7 +130,7 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 
 void PlayMode::update(float elapsed) {
 	//player walking:
-	paused = ui->showing_inventory_description || ui->showing_description || ui->showing_menu;
+	paused = ui->showing_inventory_description || ui->showing_description;
 	if(game_over || paused) 
 		return;
 
@@ -269,6 +252,7 @@ void PlayMode::update(float elapsed) {
 			}
 			seen_by_guard_timer += elapsed;
 		} else {
+			
 			ui->set_alarm(/*hide=*/true);
 			seen_by_guard_timer = 0.0f;
 		}
@@ -279,9 +263,7 @@ void PlayMode::update(float elapsed) {
 		curr_item = level->get_closest_item(player.transform->position);
 		if(!ui->showing_interactable_button && curr_item!=nullptr) {
 			ui->set_interactable_button(/*hide=*/false);
-			ui->show_interact_bt_msg(curr_item->interaction_description);
 		} else if (ui->showing_interactable_button && curr_item==nullptr) {
-			ui->hide_interact_bt_msg();
 			ui->set_interactable_button(/*hide=*/true);
 		}
 
@@ -290,6 +272,8 @@ void PlayMode::update(float elapsed) {
 			ui->show_game_over(true);
 		}
 	}
+
+	
 
 	//reset button press counters:
 	left.downs = 0;
