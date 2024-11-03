@@ -30,11 +30,11 @@ struct Animation {
         std::cout<<filename<<std::endl;
         std::ifstream file(filename, std::ios::binary);
 
-        std::vector<uint> num_animations_v;
+        std::vector<uint32_t> num_animations_v;
 	    read_chunk(file, "int0", &num_animations_v);
         uint32_t num_animations = num_animations_v[0];
 
-        for(int i=0; i<num_animations; ++i) {
+        for(uint32_t i=0; i<num_animations; ++i) {
             AnimationData anim;
 
             std::vector< char > names;
