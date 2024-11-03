@@ -413,6 +413,7 @@ void UI::set_inventory(bool hide){
     set_inventory_button(!hide);
     inventory_img->hide = hide;
     slot_selected_img->hide = hide;
+    slot_selected_img->pos = inventory_item_pos[inventory_slot_selected_id];
     inventory_manual_text->hide = hide;
     for(uint32_t i = inventory_slot_id_start; i <inventory_slot_id_start+inventory_slot_num; ++i) {
         imgs[i]->hide = hide;
