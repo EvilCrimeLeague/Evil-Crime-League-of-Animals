@@ -137,7 +137,7 @@ void Level1::handle_inventory_choice(uint32_t choice_id) {
         if(item_name == "Bone") {
 		    glm::vec3 playerDirectionWorld = glm::normalize(player_transform->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
             bone->position = player_transform->position + playerDirectionWorld*2.0f + glm::vec3(0,0,0.5);
-            update_guard();
+            update_guard_detection();
             if (guard_detectables["Bone"]) {
                 glm::vec3 guardDirectionWorld = glm::normalize(guardDog->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
                 driver_guardDog_walk->add_walk_in_straight_line_anim(guardDog->position, bone->position - guardDirectionWorld, 5.0f, 5);
@@ -181,7 +181,17 @@ void Level1::restart() {
         item.second = false;
     }
 
-    driver_guardDog_walk->playing = false;
+    driver_guardDog_rotate->stop();
     driver_guardDog_walk->times.clear();
     driver_guardDog_walk->values3d.clear();
+
+    driver_guardDog_rotate->start();
+}
+
+void Level1::update_guard() {
+    update_guard_detection();
+    if(guard_detectables["RedPanda"]) {
+        // stop guard animation
+        driver_guardDog_rotate->stop();
+    }
 }

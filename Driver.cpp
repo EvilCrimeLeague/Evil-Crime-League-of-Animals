@@ -53,3 +53,7 @@ void Driver::setPlaybackTime(float time) {
 void Driver::start(){
     playing = true;
 }
+
+void Driver::stop(){
+    playing = false;
+}

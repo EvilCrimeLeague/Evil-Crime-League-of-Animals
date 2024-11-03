@@ -69,8 +69,9 @@ struct Level {
 
     virtual void handle_enter_key() = 0;
     virtual void handle_interact_key() = 0;
-
-    void update_guard(); // return seen_by_guard
+    virtual void update_guard() = 0;
+    
+    void update_guard_detection();
     void update_animation(const float deltaTime);
 
     virtual void restart() = 0;

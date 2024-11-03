@@ -107,4 +107,6 @@ struct Driver {
             values3d.push_back(start + t*(end-start));
         }
     }
+
+    void stop();
 };
