@@ -116,7 +116,7 @@ void Level1::handle_enter_key() {
             ui->showing_inventory_description = true;
         }
         
-    }	
+    }
 }
 
 void Level1::handle_interact_key() {

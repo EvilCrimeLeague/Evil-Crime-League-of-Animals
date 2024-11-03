@@ -375,6 +375,7 @@ void UI::hide_all() {
     showing_notification = false;
     showing_alarm = false;
     showing_inventory_description = false;
+    showing_menu = false;
 }
 
 void UI::reset() {
@@ -390,6 +391,7 @@ void UI::reset() {
 
     set_inventory_button(/*hide=*/false);
     set_restart_button(/*hide=*/false);
+    set_menu_button(/*hide=*/false);
 
     need_update_texture = true;
 }
@@ -432,7 +434,7 @@ void UI::update_inventory_selection(bool left) {
     } else {
         inventory_slot_selected_id = (inventory_slot_selected_id + 1) % inventory_slot_num;
     }
-    slot_selected_img->pos = item_pos[inventory_slot_selected_id];
+    slot_selected_img->pos = inventory_item_pos[inventory_slot_selected_id];
     need_update_texture = true;
 }
 
@@ -441,13 +443,13 @@ void UI::arrow_key_callback(bool left) {
         update_choice(left);
     } else if(showing_inventory) {
         update_inventory_selection(left);
-    } else {
-        // do nothing
+    } else if (showing_menu){
+        update_menu_selection(left);
     }
 }
 
 void UI::add_inventory_item(std::string item_name, std::string img_path) {
-    auto img_ptr = std::make_shared<Img>(item_pos[inventory_items.size()], img_path);
+    auto img_ptr = std::make_shared<Img>(inventory_item_pos[inventory_items.size()], img_path);
     imgs.push_back(img_ptr);
     InventoryItem item = {item_name, img_ptr, static_cast<uint32_t>(inventory_items.size())};
     inventory_items.push_back(item);
@@ -465,7 +467,7 @@ void UI::remove_inventory_item() {
     // Reassign inventory slot
     for (uint32_t i = 0; i < inventory_items.size(); i++) {
         inventory_items[i].inventory_slot_id = i;
-        inventory_items[i].img->pos = item_pos[i];
+        inventory_items[i].img->pos = inventory_item_pos[i];
     }
 }
 
@@ -512,5 +514,44 @@ void UI::show_interact_bt_msg(std::string msg) {
 
 void UI::hide_interact_bt_msg() {
     interact_bt_manual_text->hide = true;
+    need_update_texture = true;
+}
+
+void UI::set_menu(bool hide) {
+    if(hide) {
+        set_menu_button(false);
+        set_restart_button(false);
+        set_inventory_button(false);
+        showing_menu = false;
+    } else {
+        // show menu, hide other UI elements
+        hide_all();
+        showing_menu = true;
+        slot_selected_img->pos = menu_item_pos[menu_slot_selected_id];
+    }
+    menu_img->hide = hide;
+    slot_selected_img->hide = hide;
+    for(uint32_t i = menu_slot_id_start; i <menu_slot_id_start+menu_slot_num; ++i) {
+        imgs[i]->hide = hide;
+    }
+
+    need_update_texture = true;
+}
+
+void UI::update_menu_selection(bool left) {
+    if(!showing_menu) return;
+    if(left) {
+        menu_slot_selected_id = uint32_t(std::max(0, (int)menu_slot_selected_id - 1));
+    } else {
+        menu_slot_selected_id = uint32_t(std::min((int)menu_slot_selected_id+1, (int)(menu_slot_num-1)));
+    }
+    slot_selected_img->pos = menu_item_pos[menu_slot_selected_id];
+
+    need_update_texture = true;
+}
+
+void UI::set_menu_button(bool hide) {
+    menu_bt_img->hide = hide;
+    menu_bt_manual_text->hide = hide;
     need_update_texture = true;
 }
