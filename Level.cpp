@@ -24,8 +24,8 @@ void Level::update_guard_detection() {
     for (auto guardDog: guard_dogs) {
         constexpr float guardDogVerticalFov = 120.0f;
 		constexpr float guardDogHorizontalFov = 120.0f;
-		constexpr uint32_t horizontalRays = 20;
-		constexpr uint32_t verticalRays = 20;
+		constexpr uint32_t horizontalRays = 15;
+		constexpr uint32_t verticalRays = 15;
 		float horizontalStep = guardDogHorizontalFov / horizontalRays;
 		float verticalStep = guardDogVerticalFov / verticalRays;
 		float visionDistance = 5.0f;
