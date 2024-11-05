@@ -153,7 +153,7 @@ void Level1::handle_inventory_choice(uint32_t choice_id) {
 		    glm::vec3 playerDirectionWorld = glm::normalize(player_transform->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
             glm::vec3 bone_target_pos = player_transform->position + playerDirectionWorld*2.0f + glm::vec3(0,0,0.5);
             driver_bone_move->clear();
-            driver_bone_move->add_walk_in_straight_line_anim(player_transform->position, bone_target_pos, 5.0f, 5);
+            driver_bone_move->add_walk_in_straight_line_anim(player_transform->position, bone_target_pos, 3.0f, 5);
 
             // reset bone rotation animation
             driver_bone_rotate->values4d = level1_animations->animations.at("Bone-rotation").values4d;
@@ -216,13 +216,19 @@ void Level1::restart() {
 void Level1::update() {
     // Field of view collisions
     update_guard_detection();
+    if(guard_detectables["RedPanda"]) {
+        // stop guard animation
+        driver_guardDog_rotate->stop();
+    } else {
+        driver_guardDog_rotate->start();
+    }
     if (guard_detectables["Bone"]) {
         float dist = glm::distance(guardDog->position, bone->position);
         if(!driver_guardDog_walk->playing && dist > 0.5f) {
             driver_guardDog_rotate->stop();
             glm::vec3 guardDirectionWorld = glm::normalize(guardDog->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
             driver_guardDog_walk->clear();
-            driver_guardDog_walk->add_walk_in_straight_line_anim(guardDog->position, bone->position - guardDirectionWorld, 3.0f, 5);
+            driver_guardDog_walk->add_walk_in_straight_line_anim(guardDog->position, bone->position - guardDirectionWorld, 5.0f, 5);
             driver_guardDog_walk->restart();
         } 
         if(driver_guardDog_walk->playing && dist <= 0.5f) {
@@ -232,12 +238,9 @@ void Level1::update() {
             driver_bone_rotate->stop();
         }
         
-    } else if(guard_detectables["RedPanda"]) {
-        // stop guard animation
-        driver_guardDog_rotate->stop();
-    } else {
-        driver_guardDog_rotate->start();
     }
+    
+    
     // animation
     if(driver_bone_move->finished) {
         driver_bone_rotate->stop();
