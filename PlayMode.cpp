@@ -236,9 +236,9 @@ void PlayMode::update(float elapsed) {
 		level->update_animation(elapsed);
 	}
 
-	// Field of view collisions
+	
 	{
-		level->update_guard();
+		level->update();
 	}
 
 	{
@@ -263,8 +263,10 @@ void PlayMode::update(float elapsed) {
 		curr_item = level->get_closest_item(player.transform->position);
 		if(!ui->showing_interactable_button && curr_item!=nullptr) {
 			ui->set_interactable_button(/*hide=*/false);
+			ui->show_interact_bt_msg(curr_item->interaction_description);
 		} else if (ui->showing_interactable_button && curr_item==nullptr) {
 			ui->set_interactable_button(/*hide=*/true);
+			ui->hide_interact_bt_msg();
 		}
 
 		if(get_distance(player.transform->position, level->target_transform->position) < 2.0f) {

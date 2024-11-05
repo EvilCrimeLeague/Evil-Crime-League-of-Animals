@@ -99,6 +99,15 @@ Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
     driver_guardDog_rotate->transform = guardDog;
     driver_guardDog_rotate->start();
     drivers.push_back(driver_guardDog_rotate);
+
+    driver_bone_move = std::make_shared<Driver>("Bone-move", CHANEL_TRANSLATION);
+    driver_bone_move->transform = bone;
+    driver_bone_move->loop = false;
+    drivers.push_back(driver_bone_move);
+
+    driver_bone_rotate = std::make_shared<Driver>(level1_animations->animations.at("Bone-rotation"));
+    driver_bone_rotate->transform = bone;
+    drivers.push_back(driver_bone_rotate);
 }
 
 void Level1::handle_enter_key() {
@@ -123,6 +132,10 @@ void Level1::handle_enter_key() {
 void Level1::handle_interact_key() {
     if(ui->showing_interactable_button) {
         // ui->show_description(curr_item->interaction_description, curr_item->interaction_choices[0], curr_item->interaction_choices[1]);
+        if(curr_item->name == "Bone") {
+            driver_bone_move->stop();
+            driver_bone_rotate->stop();
+        }
         ui->add_inventory_item(curr_item->name, curr_item->img_path);
         // hide item
         curr_item->transform->position.x = -1000.0f;
@@ -136,14 +149,21 @@ void Level1::handle_inventory_choice(uint32_t choice_id) {
         std::string item_name = ui->get_selected_inventory_item_name();
         ui->remove_inventory_item();
         if(item_name == "Bone") {
+            // create bone move animation
 		    glm::vec3 playerDirectionWorld = glm::normalize(player_transform->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
-            bone->position = player_transform->position + playerDirectionWorld*2.0f + glm::vec3(0,0,0.5);
-            update_guard_detection();
-            if (guard_detectables["Bone"]) {
-                glm::vec3 guardDirectionWorld = glm::normalize(guardDog->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
-                driver_guardDog_walk->add_walk_in_straight_line_anim(guardDog->position, bone->position - guardDirectionWorld, 5.0f, 5);
-                driver_guardDog_walk->start();
+            glm::vec3 bone_target_pos = player_transform->position + playerDirectionWorld*2.0f + glm::vec3(0,0,0.5);
+            driver_bone_move->clear();
+            driver_bone_move->add_walk_in_straight_line_anim(player_transform->position, bone_target_pos, 5.0f, 5);
+
+            // reset bone rotation animation
+            driver_bone_rotate->values4d = level1_animations->animations.at("Bone-rotation").values4d;
+            bone->rotation = player_transform->rotation;
+            for(int i=0; i<driver_bone_rotate->values4d.size(); i++){
+                driver_bone_rotate->values4d[i] = bone->rotation * driver_bone_rotate->values4d[i];
             }
+
+            driver_bone_move->restart();
+            driver_bone_rotate->restart();
         }
     } 
     // show inventory again
@@ -176,25 +196,50 @@ void Level1::restart() {
 
     for(auto &driver: drivers) {
         driver->restart();
+        driver->stop();
     }
 
     for(auto &item: guard_detectables) {
         item.second = false;
     }
 
-    driver_guardDog_rotate->stop();
-    driver_guardDog_walk->times.clear();
-    driver_guardDog_walk->values3d.clear();
+    driver_guardDog_walk->clear();
 
     driver_guardDog_rotate->start();
+
+    driver_bone_move->clear();
+
+    driver_bone_rotate->values4d = level1_animations->animations.at("Bone-rotation").values4d;
+
 }
 
-void Level1::update_guard() {
+void Level1::update() {
+    // Field of view collisions
     update_guard_detection();
-    if(guard_detectables["RedPanda"]) {
+    if (guard_detectables["Bone"]) {
+        float dist = glm::distance(guardDog->position, bone->position);
+        if(!driver_guardDog_walk->playing && dist > 0.5f) {
+            driver_guardDog_rotate->stop();
+            glm::vec3 guardDirectionWorld = glm::normalize(guardDog->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
+            driver_guardDog_walk->clear();
+            driver_guardDog_walk->add_walk_in_straight_line_anim(guardDog->position, bone->position - guardDirectionWorld, 3.0f, 5);
+            driver_guardDog_walk->restart();
+        } 
+        if(driver_guardDog_walk->playing && dist <= 0.5f) {
+            // stop guard when close to bone
+            driver_guardDog_walk->stop();
+            driver_bone_move->stop();
+            driver_bone_rotate->stop();
+        }
+        
+    } else if(guard_detectables["RedPanda"]) {
         // stop guard animation
         driver_guardDog_rotate->stop();
     } else {
         driver_guardDog_rotate->start();
+    }
+    // animation
+    if(driver_bone_move->finished) {
+        driver_bone_rotate->stop();
     }
 }

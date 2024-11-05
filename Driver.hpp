@@ -109,4 +109,6 @@ struct Driver {
     }
 
     void stop();
+
+    void clear();
 };

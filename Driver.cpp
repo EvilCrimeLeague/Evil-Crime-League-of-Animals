@@ -4,6 +4,7 @@ void Driver::restart(){
     finished = false;
     frame_time = 0.0f;
     frame_idx = 0;
+    playing = true;
 }
 
 bool Driver::isFinished(const float t){
@@ -56,4 +57,10 @@ void Driver::start(){
 
 void Driver::stop(){
     playing = false;
+}
+
+void Driver::clear() {
+    times.clear();
+    values3d.clear();
+    values4d.clear();
 }
