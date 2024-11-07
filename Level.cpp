@@ -163,7 +163,7 @@ void Level::update_player_dist_infront() {
 				Ray r = Ray(point, direction, glm::vec2(0.0f, 5.0f), (uint32_t)0);
 				// loop through primitives 
 				for (Scene::Drawable &d : scene.drawables) {
-					if (d.transform->name != "Floor" & d.transform->name != "RedPanda" & d.transform->name != "WalkMesh") {
+					if (d.transform->name != "Floor" && d.transform->name != "RedPanda" && d.transform->name != "WalkMesh") {
 
 					GLuint start = d.mesh->start;
 					GLuint count = d.mesh->count;
