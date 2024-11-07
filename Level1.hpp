@@ -17,7 +17,7 @@ struct Level1 : Level {
     std::shared_ptr<Driver> driver_bone_rotate = nullptr;
     std::shared_ptr<Driver> driver_bone_move = nullptr;
 
-    const float guard_dog_speed = 2.0f;
+    const float guard_dog_speed = 1.0f;
 
     Level1(std::shared_ptr<UI> ui_);
     virtual ~Level1() {}

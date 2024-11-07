@@ -71,6 +71,7 @@ struct PlayingSample {
 	bool loop = false; //should playback loop after data runs out?
 	bool stopping = false; //is playing stopping?
 	bool stopped = false; //was playback stopped (either by running out of sample, or by stop())?
+	bool paused = false;
 
 	Ramp< float > volume = Ramp< float >(1.0f);
 

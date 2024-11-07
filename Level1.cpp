@@ -154,6 +154,10 @@ Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
     driver_fov_move->transform = fov;
     driver_fov_move->loop = false;
     drivers.push_back(driver_fov_move);
+
+    // sound
+    rolling_loop = Sound::loop(*rolling_sample, 0.07f, 0.0f);
+    rolling_loop->paused = true;
 }
 
 void Level1::handle_enter_key() {
@@ -210,7 +214,7 @@ void Level1::handle_inventory_choice(uint32_t choice_id) {
         std::string item_name = ui->get_selected_inventory_item_name();
         ui->remove_inventory_item();
         if(item_name == "Bone") {
-            rolling_loop = Sound::loop(*rolling_sample, 0.07f, 0.0f);
+            rolling_loop->paused = false;
             // create bone move animation
 		    glm::vec3 playerDirectionWorld = glm::normalize(player_transform->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
             glm::vec3 bone_target_pos = player_transform->position + playerDirectionWorld*2.0f + glm::vec3(0,0,0.5);
@@ -277,6 +281,9 @@ void Level1::restart() {
     fov->position.x = guardDog->position.x;
     fov->position.y = guardDog->position.y;
 
+    rolling_loop = Sound::loop(*rolling_sample, 0.07f, 0.0f);
+    rolling_loop->paused = true;
+
 }
 
 void Level1::update() {
@@ -307,6 +314,7 @@ void Level1::update() {
             driver_guardDog_walk->stop();
             driver_fov_move->stop();
             driver_bone_move->stop();
+            driver_bone_move->finished = true;
             driver_bone_rotate->stop();
         }
         
@@ -315,6 +323,6 @@ void Level1::update() {
     // animation
     if(driver_bone_move->finished) {
         driver_bone_rotate->stop();
-        rolling_loop->stop();
+        rolling_loop->paused = true;
     }
 }
