@@ -99,6 +99,10 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			key_r.downs += 1;
 			key_r.pressed = true;
 			return true;
+		} else if (evt.key.keysym.sym == SDLK_q) {
+			key_q.downs += 1;
+			key_q.pressed = true;
+			return true;
 		}
 	} else if (evt.type == SDL_KEYUP) {
 		if (evt.key.keysym.sym == SDLK_a) {
@@ -127,6 +131,12 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_RETURN) {
 			enter.pressed = false;
+			if(ui->showing_menu) {
+				if(ui->menu_slot_selected_id == 0) {
+					// resume
+					restart();
+				}
+			}
 			level->handle_enter_key();
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_e) {
@@ -137,6 +147,10 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 		} else if (evt.key.keysym.sym == SDLK_r) {
 			key_r.pressed = false;
 			restart();
+			return true;
+		} else if (evt.key.keysym.sym == SDLK_q) {
+			key_q.pressed = false;
+			ui->set_menu(ui->showing_menu);
 			return true;
 		}
 	}

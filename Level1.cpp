@@ -102,6 +102,7 @@ Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
     bone_ptr->inventory_choices = {};
     vase_ptr->transform = vase;
     vase_ptr->show_description_box = true;
+    vase_ptr->spawn_point = vase->position;
     items["Vase"] = vase_ptr;
 
     auto painting_1_ptr = std::make_shared<Item>();
@@ -109,6 +110,7 @@ Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
     painting_1_ptr->interaction_description = "It's an unhappy face.";
     painting_1_ptr->transform = painting_1;
     painting_1_ptr->show_description_box = true;
+    painting_1_ptr->spawn_point = painting_1->position;
     items["Painting1"] = painting_1_ptr;
 
     auto painting_2_ptr = std::make_shared<Item>();
@@ -116,6 +118,7 @@ Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
     painting_2_ptr->interaction_description = "It's a crying face.";
     painting_2_ptr->transform = painting_2;
     painting_2_ptr->show_description_box = true;
+    painting_2_ptr->spawn_point = painting_2->position;
     items["Painting2"] = painting_2_ptr;
     
     // initialize guard dogs
