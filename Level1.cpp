@@ -1,6 +1,19 @@
 #include "Level1.hpp"
+#include "Sound.hpp"
 
 #include <iostream>
+
+Load< Sound::Sample > collect_sample(LoadTagDefault, []() -> Sound::Sample const * {
+	return new Sound::Sample(data_path("collect.wav"));
+});
+
+Load< Sound::Sample > pop_sample(LoadTagDefault, []() -> Sound::Sample const * {
+	return new Sound::Sample(data_path("pop.wav"));
+});
+
+Load< Sound::Sample > rolling_sample(LoadTagDefault, []() -> Sound::Sample const * {
+	return new Sound::Sample(data_path("rolling.wav"));
+});
 
 GLuint level1_meshes_for_lit_color_texture_program = 0;
 Load< MeshBuffer > level1_meshes(LoadTagDefault, []() -> MeshBuffer const * {
@@ -121,6 +134,7 @@ void Level1::handle_enter_key() {
     // } 
     else if (ui->showing_inventory && ui->inventory_items.size() > 0) {
         std::string item_name = ui->get_selected_inventory_item_name();
+        Sound::play(*pop_sample, 0.1f, 0.0f);
         if(item_name == "Bone") {
             ui->show_description(items[item_name]->inventory_description, items[item_name]->inventory_choices[0], items[item_name]->inventory_choices[1]);
             ui->showing_inventory_description = true;
@@ -139,6 +153,7 @@ void Level1::handle_interact_key() {
         ui->add_inventory_item(curr_item->name, curr_item->img_path);
         // hide item
         curr_item->transform->position.x = -1000.0f;
+        Sound::play(*pop_sample, 0.05f, 0.0f);
     }
 }
 
@@ -149,6 +164,7 @@ void Level1::handle_inventory_choice(uint32_t choice_id) {
         std::string item_name = ui->get_selected_inventory_item_name();
         ui->remove_inventory_item();
         if(item_name == "Bone") {
+            rolling_loop = Sound::loop(*rolling_sample, 0.07f, 0.0f);
             // create bone move animation
 		    glm::vec3 playerDirectionWorld = glm::normalize(player_transform->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
             glm::vec3 bone_target_pos = player_transform->position + playerDirectionWorld*2.0f + glm::vec3(0,0,0.5);
@@ -216,6 +232,7 @@ void Level1::restart() {
 void Level1::update() {
     // Field of view collisions
     update_guard_detection();
+    update_player_dist_infront();
     if(guard_detectables["RedPanda"] || driver_guardDog_walk->playing) {
         // stop guard animation
         driver_guardDog_rotate->stop();
@@ -244,5 +261,6 @@ void Level1::update() {
     // animation
     if(driver_bone_move->finished) {
         driver_bone_rotate->stop();
+        rolling_loop->stop();
     }
 }

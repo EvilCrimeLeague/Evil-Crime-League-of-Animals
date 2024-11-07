@@ -1,6 +1,12 @@
 #include "UI.hpp"
 #include "TextTextureProgram.hpp"
 #include "gl_errors.hpp"
+#include "Sound.hpp"
+
+
+Load< Sound::Sample > pop2_sample(LoadTagDefault, []() -> Sound::Sample const * {
+	return new Sound::Sample(data_path("pop2.wav"));
+});
 
 void UI::draw_texture(unsigned int texture) {
 	glDisable(GL_DEPTH_TEST);
@@ -442,10 +448,13 @@ void UI::update_inventory_selection(bool left) {
 void UI::arrow_key_callback(bool left) {
     if(showing_description) {
         update_choice(left);
+        Sound::play(*pop2_sample, 0.1f, 0.0f);
     } else if(showing_inventory) {
         update_inventory_selection(left);
+        Sound::play(*pop2_sample, 0.1f, 0.0f);
     } else if (showing_menu){
         update_menu_selection(left);
+        Sound::play(*pop2_sample, 0.1f, 0.0f);
     }
 }
 

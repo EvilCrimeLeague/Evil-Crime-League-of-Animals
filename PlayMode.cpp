@@ -10,11 +10,20 @@
 #include "data_path.hpp"
 #include "Ray.hpp"
 #include "Level.hpp"
+#include "Sound.hpp"
 
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/quaternion.hpp>
 
 #include <random>
+
+Load< Sound::Sample > footstep_sample(LoadTagDefault, []() -> Sound::Sample const * {
+	return new Sound::Sample(data_path("footstep.wav"));
+});
+
+Load< Sound::Sample > toggle_inventory_sample(LoadTagDefault, []() -> Sound::Sample const * {
+	return new Sound::Sample(data_path("toggle_inventory.wav"));
+});
 
 PlayMode::PlayMode() {
 	ui = std::make_shared<UI>();
@@ -44,6 +53,12 @@ PlayMode::~PlayMode() {
 bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size) {
 
 	if (evt.type == SDL_KEYDOWN) {
+		// std::cout<<level->closest_dist_infront<<std::endl;
+		// glm::vec3 playerPositionWorld = player.transform->make_local_to_world() * glm::vec4(0.0, 0.0, 0.0, 1.0f);
+		// std::cout<<playerPositionWorld.x<<" "<<playerPositionWorld.y<<" "<<playerPositionWorld.z<<std::endl;
+		// std::cout<<player.transform->position.x<<" "<<player.transform->position.y<<" "<<player.transform->position.z<<std::endl;
+		// glm::vec3 playerDirectionWorld = glm::normalize(player.transform->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
+		// std::cout<<playerDirectionWorld.x<<" "<<playerDirectionWorld.y<<" "<<playerDirectionWorld.z<<std::endl;
 		if (evt.key.keysym.sym == SDLK_a) {
 			left.downs += 1;
 			left.pressed = true;
@@ -116,6 +131,7 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_e) {
 			key_e.pressed = false;
+			Sound::play(*toggle_inventory_sample, 0.2f, 0.0f);
 			ui->set_inventory(ui->showing_inventory);
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_r) {
@@ -133,10 +149,24 @@ void PlayMode::update(float elapsed) {
 	paused = ui->showing_inventory_description || ui->showing_description;
 	if(game_over || paused) 
 		return;
+	
+	constexpr float playerSpeed = 20.0f;
+
+	{
+		// play footstep sounds
+		if (left.pressed || right.pressed || down.pressed || up.pressed ) {
+			if (walk_timer == 0.0) {
+				Sound::play(*footstep_sample, 0.05f, 0.0f);
+			}
+			walk_timer += elapsed;
+			if (walk_timer >= (playerSpeed / 60)) walk_timer = 0;
+		} else {
+			walk_timer = 0;
+		}
+	}
 
 	{
 		//combine inputs into a move:
-		constexpr float playerSpeed = 20.0f;
 		glm::vec2 move = glm::vec2(0.0f);
 		if (left.pressed && !right.pressed) {
 			move.x =-1.0f;

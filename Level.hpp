@@ -10,6 +10,7 @@
 #include "LitColorTextureProgram.hpp"
 #include "TextTextureProgram.hpp"
 #include "Driver.hpp"
+#include "Sound.hpp"
 
 #include <glm/glm.hpp>
 #include <string>
@@ -72,7 +73,10 @@ struct Level {
     virtual void update() = 0; // any update particular to that level
     
     void update_guard_detection();
+    void update_player_dist_infront();
     void update_animation(const float deltaTime);
 
     virtual void restart() = 0;
+    std::shared_ptr< Sound::PlayingSample > rolling_loop;
+    float closest_dist_infront;
 };
