@@ -82,7 +82,7 @@ Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
 
     if (scene.cameras.size() != 1) throw std::runtime_error("Expecting scene to have exactly one camera, but it has " + std::to_string(scene.cameras.size()));
     camera = &scene.cameras.front();
-    guard_detectables["Floor"] = false;
+    guard_detectables["Wall"] = false;
 
     // initialize items
     auto bone_ptr = std::make_shared<Item>();
@@ -181,6 +181,9 @@ void Level1::handle_interact_key() {
         if(curr_item->name == "Bone") {
             driver_bone_move->stop();
             driver_bone_rotate->stop();
+            if (rolling_loop) {
+                rolling_loop->stop();
+            }
             ui->add_inventory_item(curr_item->name, curr_item->img_path);
             // hide item
             curr_item->transform->position.x = -1000.0f;
@@ -208,7 +211,7 @@ void Level1::handle_inventory_choice(uint32_t choice_id) {
             rolling_loop = Sound::loop(*rolling_sample, 0.07f, 0.0f);
             // create bone move animation
 		    glm::vec3 playerDirectionWorld = glm::normalize(player_transform->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
-            glm::vec3 bone_target_pos = player_transform->position + playerDirectionWorld*2.0f + glm::vec3(0,0,0.5);
+            glm::vec3 bone_target_pos = player_transform->position + (closest_dist_infront * playerDirectionWorld) + glm::vec3(0.0, 0.0, 0.5);//playerDirectionWorld*2.0f + glm::vec3(0,0,0.5);
             driver_bone_move->clear();
             driver_bone_move->add_walk_in_straight_line_anim(player_transform->position, bone_target_pos, 3.0f, 5);
 

@@ -65,4 +65,6 @@ struct PlayMode : Mode {
 
 	void restart();
 	float walk_timer = 0;
+	float speed_percent = 0;
+	float playerSpeed = 0;
 };

@@ -163,12 +163,13 @@ void PlayMode::update(float elapsed) {
 	paused = ui->showing_inventory_description || ui->showing_description;
 	if(game_over || paused) 
 		return;
-	
-	constexpr float playerSpeed = 20.0f;
+	constexpr float player_speed = 20.0f;
 
 	{
 		// play footstep sounds
 		if (left.pressed || right.pressed || down.pressed || up.pressed ) {
+			if (speed_percent <= 0.25) speed_percent += elapsed;
+			playerSpeed = player_speed * (speed_percent / 0.24);
 			if (walk_timer == 0.0) {
 				Sound::play(*footstep_sample, 0.05f, 0.0f);
 			}
@@ -176,6 +177,7 @@ void PlayMode::update(float elapsed) {
 			if (walk_timer >= (playerSpeed / 60)) walk_timer = 0;
 		} else {
 			walk_timer = 0;
+			speed_percent = 0;
 		}
 	}
 
@@ -318,7 +320,7 @@ void PlayMode::update(float elapsed) {
 			ui->hide_interact_bt_msg();
 		}
 
-		if(get_distance(player.transform->position, level->target_transform->position) < 2.0f) {
+		if(get_distance(player.transform->position, level->target_transform->position) < 1.5f) {
 			game_over = true;
 			ui->show_game_over(true);
 		}

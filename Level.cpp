@@ -24,8 +24,8 @@ void Level::update_guard_detection() {
     for (auto guardDog: guard_dogs) {
         constexpr float guardDogVerticalFov = 120.0f;
 		constexpr float guardDogHorizontalFov = 120.0f;
-		constexpr uint32_t horizontalRays = 15;
-		constexpr uint32_t verticalRays = 15;
+		constexpr uint32_t horizontalRays = 20;
+		constexpr uint32_t verticalRays = 20;
 		float horizontalStep = guardDogHorizontalFov / horizontalRays;
 		float verticalStep = guardDogVerticalFov / verticalRays;
 		float visionDistance = 5.0f;
@@ -141,27 +141,29 @@ void Level::update_player_dist_infront() {
 	// 				}
 	// 	}
 	{
-		constexpr float playerVerticalFov = 90.0f;
-		constexpr float playerHorizontalFov = 120.0f;
-		constexpr uint32_t horizontalRays = 30;
-		constexpr uint32_t verticalRays = 20;
+		constexpr float playerVerticalFov = 10.0f;
+		constexpr float playerHorizontalFov = 10.0f;
+		constexpr uint32_t horizontalRays = 2;
+		constexpr uint32_t verticalRays = 2;
 		float horizontalStep = playerHorizontalFov / horizontalRays;
 		float verticalStep = playerVerticalFov / verticalRays;
-		float visionDistance = 2.0f;
-		glm::vec3 playerPositionWorld = player_transform->make_local_to_world() * glm::vec4(0, 0, 0, 1);
-		glm::vec3 playerDirectionWorld = glm::normalize(player_transform->make_local_to_world() * glm::vec4(glm::vec3(0.0, -1.0, 0.0) - playerPositionWorld, 1));
+		closest_dist_infront = 5.0;
+		glm::vec3 playerDirectionWorld = glm::normalize(player_transform->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
 		for (uint32_t x = 0; x < horizontalRays; x++) {
 			float horizontalAngle = - (playerHorizontalFov / 2) + (x * horizontalStep);
 			glm::vec3 horizontalDirection = glm::angleAxis(glm::radians(horizontalAngle), glm::vec3(0.0f, 0.0f, 1.0f)) * playerDirectionWorld;
+
 			for (uint32_t z = 0; z < verticalRays; z++) {
 				float verticalAngle = - (playerVerticalFov / 2) + (z * verticalStep);
 				glm::vec3 direction = glm::angleAxis(glm::radians(verticalAngle), glm::vec3(1.0f, 0.0f, 0.0f)) * horizontalDirection;
-				glm::vec3 point = player_transform->position + glm::vec3(0.0f, 0.0f, 1.8f);
-				Ray r = Ray(point, direction, glm::vec2(0.0f, 2.0f), (uint32_t)0);
+				// if (playerDirectionWorld.x <= 0.00001 || playerDirectionWorld.y >= 0.00001) {
+				// 	direction = -direction;
+				// }
+				glm::vec3 point = player_transform->position;
+				Ray r = Ray(point, direction, glm::vec2(0.0f, 5.0f), (uint32_t)0);
 				// loop through primitives 
 				for (Scene::Drawable &d : scene.drawables) {
-					float closest_t = 1000000;
-					if (d.transform->name != "RedPanda") {
+					if (d.transform->name != "Floor" & d.transform->name != "RedPanda" & d.transform->name != "WalkMesh") {
 
 					GLuint start = d.mesh->start;
 					GLuint count = d.mesh->count;
@@ -181,7 +183,7 @@ void Level::update_player_dist_infront() {
 						if (glm::abs(denominator) > 0.00001f) {
 							float t = glm::dot(a - r.point, normal) / denominator;
 							// if the ray intersects the abc plane
-							if (t >= 0.00001f && t <= visionDistance) {
+							if (t >= 0.00001f) {
 								glm::vec3 p = r.at(t);
 								glm::vec3 ap = a - p;
 								glm::vec3 bp = b - p;
@@ -189,12 +191,8 @@ void Level::update_player_dist_infront() {
 								if (glm::dot(glm::cross(ac, ab), glm::cross(ac, ap)) > 0 && 
 									glm::dot(glm::cross(cb, ca), glm::cross(cb, cp)) > 0 &&
 									glm::dot(glm::cross(ba, bc), glm::cross(ba, bp)) > 0) {
-										//std::cout<<d.transform->name;
- 										closest_t = std::min(t, closest_t);
- 										if (t <= closest_t) {
- 											//std::cout<<d.transform->name<<std::endl;
- 										}
- 										closest_dist_infront = closest_t;
+										// std::cout<<d.transform->name<<std::endl;
+ 										closest_dist_infront = std::min(t, closest_dist_infront);
 									}
 							}
 						}
