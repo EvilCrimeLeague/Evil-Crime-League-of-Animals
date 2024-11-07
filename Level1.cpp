@@ -308,13 +308,16 @@ void Level1::update() {
     if(guard_detectables["RedPanda"] || driver_guardDog_walk->playing) {
         // stop guard animation
         driver_guardDog_rotate->stop();
+        driver_fov_rotate->stop();
     } else {
         driver_guardDog_rotate->start();
+        driver_fov_rotate->start();
     }
     if (guard_detectables["Bone"]) {
         float dist = glm::distance(guardDog->position, bone->position);
         if(dist > 1.25f) {
             driver_guardDog_rotate->stop();
+            driver_fov_rotate->stop();
             glm::vec3 guardDirectionWorld = glm::normalize(guardDog->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
             driver_guardDog_walk->clear();
             float duration = dist/guard_dog_speed;
