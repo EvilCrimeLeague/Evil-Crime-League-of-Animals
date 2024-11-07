@@ -155,6 +155,17 @@ Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
     driver_fov_move->loop = false;
     drivers.push_back(driver_fov_move);
 
+    driver_fov_rotate = std::make_shared<Driver>("FOV-rotation", CHANEL_ROTATION);
+    driver_fov_rotate->transform = fov;
+    driver_fov_rotate->times = driver_guardDog_rotate->times;
+    driver_fov_rotate->values4d = driver_guardDog_rotate->values4d;
+    glm::quat rotate_90 = glm::angleAxis(glm::radians(-90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    for(int i=0; i<driver_fov_rotate->values4d.size(); i++){
+        driver_fov_rotate->values4d[i] = driver_fov_rotate->values4d[i] * rotate_90;
+    }
+    driver_fov_rotate->start();
+    drivers.push_back(driver_fov_rotate);
+
     // sound
     rolling_loop = Sound::loop(*rolling_sample, 0.07f, 0.0f);
     rolling_loop->paused = true;
