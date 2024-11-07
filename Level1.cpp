@@ -228,6 +228,7 @@ void Level1::handle_inventory_choice(uint32_t choice_id) {
         std::string item_name = ui->get_selected_inventory_item_name();
         ui->remove_inventory_item();
         if(item_name == "Bone") {
+            update_player_dist_infront();
             rolling_loop->paused = false;
             // create bone move animation
 		    glm::vec3 playerDirectionWorld = glm::normalize(player_transform->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
@@ -247,8 +248,6 @@ void Level1::handle_inventory_choice(uint32_t choice_id) {
         }
     } 
     // show inventory again
-    ui->set_inventory(false);
-    ui->set_menu_button(false);
     ui->showing_inventory_description = false;
 }
 
@@ -305,7 +304,7 @@ void Level1::restart() {
 void Level1::update() {
     // Field of view collisions
     update_guard_detection();
-    update_player_dist_infront();
+    
     if(guard_detectables["RedPanda"] || driver_guardDog_walk->playing) {
         // stop guard animation
         driver_guardDog_rotate->stop();

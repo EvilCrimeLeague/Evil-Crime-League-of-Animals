@@ -346,6 +346,9 @@ void UI::hide_description() {
     choice2_text->hide = true;
     manual_text->hide = true;
 
+    set_menu_button(false);
+    set_inventory_button(false);
+
     need_update_texture = true;
 }
 
