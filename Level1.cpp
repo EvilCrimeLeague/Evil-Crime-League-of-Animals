@@ -149,6 +149,11 @@ Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
     driver_bone_rotate = std::make_shared<Driver>(level1_animations->animations.at("Bone-rotation"));
     driver_bone_rotate->transform = bone;
     drivers.push_back(driver_bone_rotate);
+
+    driver_fov_move = std::make_shared<Driver>("FOV-move", CHANEL_TRANSLATION);
+    driver_fov_move->transform = fov;
+    driver_fov_move->loop = false;
+    drivers.push_back(driver_fov_move);
 }
 
 void Level1::handle_enter_key() {
@@ -261,12 +266,16 @@ void Level1::restart() {
     }
 
     driver_guardDog_walk->clear();
+    driver_fov_move->clear();
 
     driver_guardDog_rotate->start();
 
     driver_bone_move->clear();
 
     driver_bone_rotate->values4d = level1_animations->animations.at("Bone-rotation").values4d;
+
+    fov->position.x = guardDog->position.x;
+    fov->position.y = guardDog->position.y;
 
 }
 
@@ -289,16 +298,19 @@ void Level1::update() {
             float duration = dist/guard_dog_speed;
             driver_guardDog_walk->add_walk_in_straight_line_anim(guardDog->position, bone->position - guardDirectionWorld, duration, std::max(static_cast<int>(duration),1));
             driver_guardDog_walk->restart();
+            driver_fov_move->clear();
+            driver_fov_move->add_walk_in_straight_line_anim(fov->position, bone->position - guardDirectionWorld, duration, std::max(static_cast<int>(duration),1));
+            driver_fov_move->restart();
         } 
         if(dist <= 1.5f && driver_guardDog_walk->playing) {
             // stop guard when close to bone
             driver_guardDog_walk->stop();
+            driver_fov_move->stop();
             driver_bone_move->stop();
             driver_bone_rotate->stop();
         }
         
     }
-    
     
     // animation
     if(driver_bone_move->finished) {
