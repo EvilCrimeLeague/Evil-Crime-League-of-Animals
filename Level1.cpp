@@ -287,6 +287,7 @@ void Level1::restart() {
     driver_fov_move->clear();
 
     driver_guardDog_rotate->start();
+    driver_fov_rotate->start();
 
     driver_bone_move->clear();
 
