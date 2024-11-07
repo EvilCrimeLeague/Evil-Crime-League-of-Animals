@@ -323,6 +323,9 @@ void UI::show_description(std::string description, std::string choice1, std::str
         choice1_text->text = choice1;
         choice2_text->hide = false;
         choice2_text->text = choice2;
+        showing_choices = true;
+    } else {
+        showing_choices = false;
     }
 
     need_update_texture = true;
@@ -376,6 +379,7 @@ void UI::hide_all() {
     } 
 
     showing_description = false;
+    showing_choices = false;
     showing_inventory = false;
     showing_interactable_button = false;
     showing_notification = false;

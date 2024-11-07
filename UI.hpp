@@ -98,6 +98,7 @@ struct UI {
     bool showing_inventory_description = false;
     bool showing_notification = false;
     bool showing_description = false;
+    bool showing_choices = false;
     bool showing_interactable_button = false;
     bool showing_alarm = false;
     bool showing_menu = false; // when menu is showing, disable other UI elements

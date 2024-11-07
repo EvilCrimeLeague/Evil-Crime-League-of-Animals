@@ -23,11 +23,12 @@ struct Level {
 		std::string name;
 		Scene::Transform * transform;
 		glm::vec3 spawn_point;
-		std::string interaction_description;
-		std::vector<std::string> interaction_choices;
-		std::string inventory_description;
-		std::vector<std::string> inventory_choices;
+		std::string interaction_description = "";
+		std::vector<std::string> interaction_choices = {};
+		std::string inventory_description = "";
+		std::vector<std::string> inventory_choices = {};
         std::string img_path;
+        bool show_description_box = false;
 	};
 
     struct GuardDog {

@@ -64,6 +64,9 @@ Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
 		else if (transform.name == "Bone") bone = &transform;
 		else if (transform.name == "GuardDog") guardDog = &transform;
 		else if (transform.name == "FOV") fov = &transform;
+        else if (transform.name == "Vase.001") vase = &transform;
+        else if (transform.name == "Painting.002") painting_1 = &transform;
+        else if (transform.name == "Painting.003") painting_2 = &transform;
 	}
 
     if (target_transform == nullptr) throw std::runtime_error("Target not found.");
@@ -93,6 +96,28 @@ Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
     guard_detectables["Bone"] = false;
     items["Bone"] = bone_ptr;
 
+    auto vase_ptr = std::make_shared<Item>();
+    vase_ptr->name = "Vase";
+    vase_ptr->interaction_description = "It's a bizarre vase. You may want to leave it alone.";
+    bone_ptr->inventory_choices = {};
+    vase_ptr->transform = vase;
+    vase_ptr->show_description_box = true;
+    items["Vase"] = vase_ptr;
+
+    auto painting_1_ptr = std::make_shared<Item>();
+    painting_1_ptr->name = "Painting1";
+    painting_1_ptr->interaction_description = "It's an unhappy face.";
+    painting_1_ptr->transform = painting_1;
+    painting_1_ptr->show_description_box = true;
+    items["Painting1"] = painting_1_ptr;
+
+    auto painting_2_ptr = std::make_shared<Item>();
+    painting_2_ptr->name = "Painting2";
+    painting_2_ptr->interaction_description = "It's a crying face.";
+    painting_2_ptr->transform = painting_2;
+    painting_2_ptr->show_description_box = true;
+    items["Painting2"] = painting_2_ptr;
+    
     // initialize guard dogs
     auto guardDog_ptr = std::make_shared<GuardDog>();
     guardDog_ptr->name = "GuardDog";
@@ -128,10 +153,14 @@ void Level1::handle_enter_key() {
         // Interact with inventory item
         handle_inventory_choice(ui->choice_id);
     } 
-    // else if (ui->showing_description) {
-    //     // Interact with item
-    //     handle_description_choice(ui->choice_id);
-    // } 
+    else if (ui->showing_description) {
+        // Interact with item
+        if(ui->showing_choices) {
+            handle_description_choice(ui->choice_id);
+        } else {
+            ui->hide_description();
+        }
+    } 
     else if (ui->showing_inventory && ui->inventory_items.size() > 0) {
         std::string item_name = ui->get_selected_inventory_item_name();
         Sound::play(*pop_sample, 0.1f, 0.0f);
@@ -149,11 +178,20 @@ void Level1::handle_interact_key() {
         if(curr_item->name == "Bone") {
             driver_bone_move->stop();
             driver_bone_rotate->stop();
+            ui->add_inventory_item(curr_item->name, curr_item->img_path);
+            // hide item
+            curr_item->transform->position.x = -1000.0f;
+            Sound::play(*pop_sample, 0.05f, 0.0f);
+        } else {
+            // show description box
+            if(curr_item->interaction_choices.size() > 0) {
+                // show choices
+                ui->show_description(curr_item->interaction_description, curr_item->interaction_choices[0], curr_item->interaction_choices[1]);
+            } else {
+                // do not show choices since there are none
+                ui->show_description(curr_item->interaction_description);
+            }
         }
-        ui->add_inventory_item(curr_item->name, curr_item->img_path);
-        // hide item
-        curr_item->transform->position.x = -1000.0f;
-        Sound::play(*pop_sample, 0.05f, 0.0f);
     }
 }
 

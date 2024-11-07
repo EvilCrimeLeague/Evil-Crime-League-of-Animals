@@ -293,7 +293,12 @@ void PlayMode::update(float elapsed) {
 		curr_item = level->get_closest_item(player.transform->position);
 		if(!ui->showing_interactable_button && curr_item!=nullptr) {
 			ui->set_interactable_button(/*hide=*/false);
-			ui->show_interact_bt_msg(curr_item->interaction_description);
+			if(!curr_item->show_description_box) {
+				// show short interaction message next to the button
+				ui->show_interact_bt_msg(curr_item->interaction_description);
+			} else {
+				ui->show_interact_bt_msg("Interact");
+			}
 		} else if (ui->showing_interactable_button && curr_item==nullptr) {
 			ui->set_interactable_button(/*hide=*/true);
 			ui->hide_interact_bt_msg();
