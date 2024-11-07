@@ -217,7 +217,7 @@ void Level1::handle_inventory_choice(uint32_t choice_id) {
             rolling_loop->paused = false;
             // create bone move animation
 		    glm::vec3 playerDirectionWorld = glm::normalize(player_transform->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
-            glm::vec3 bone_target_pos = player_transform->position + playerDirectionWorld*2.0f + glm::vec3(0,0,0.5);
+            glm::vec3 bone_target_pos = player_transform->position + playerDirectionWorld*2.0f + glm::vec3(0,0,0.75);
             driver_bone_move->clear();
             driver_bone_move->add_walk_in_straight_line_anim(player_transform->position, bone_target_pos, 3.0f, 5);
 
@@ -298,7 +298,7 @@ void Level1::update() {
     }
     if (guard_detectables["Bone"]) {
         float dist = glm::distance(guardDog->position, bone->position);
-        if(dist > 1.5f) {
+        if(dist > 1.25f) {
             driver_guardDog_rotate->stop();
             glm::vec3 guardDirectionWorld = glm::normalize(guardDog->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
             driver_guardDog_walk->clear();
@@ -309,7 +309,7 @@ void Level1::update() {
             driver_fov_move->add_walk_in_straight_line_anim(fov->position, bone->position - guardDirectionWorld, duration, std::max(static_cast<int>(duration),1));
             driver_fov_move->restart();
         } 
-        if(dist <= 1.5f && driver_guardDog_walk->playing) {
+        if(dist <= 1.25f && driver_guardDog_walk->playing) {
             // stop guard when close to bone
             driver_guardDog_walk->stop();
             driver_fov_move->stop();
