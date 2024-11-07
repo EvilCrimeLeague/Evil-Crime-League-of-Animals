@@ -324,8 +324,10 @@ void UI::show_description(std::string description, std::string choice1, std::str
         choice2_text->hide = false;
         choice2_text->text = choice2;
         showing_choices = true;
+        manual_text->text = "Press <- or -> to select, press 'return' to continue";
     } else {
         showing_choices = false;
+        manual_text->text = "Press 'return' to continue";
     }
 
     need_update_texture = true;

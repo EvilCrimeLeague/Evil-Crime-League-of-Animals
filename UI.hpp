@@ -177,7 +177,7 @@ struct UI {
         texts = {description_text, choice1_text, choice2_text, game_over_text, manual_text, inventory_bt_manual_text, inventory_manual_text, notification_text, restart_bt_manual_text, interact_bt_manual_text, menu_bt_manual_text};
 
         // Create boxes
-        description_box = std::make_shared<Box>(glm::vec4(20, 480, 1260, 700), glm::u8vec4(100, 100, 100, 200));
+        description_box = std::make_shared<Box>(glm::vec4(20, 480, 1260, 700), glm::u8vec4(0, 0, 0, 200));
         game_over_box = std::make_shared<Box>(glm::vec4(0, 0, 1280, 720), glm::u8vec4(0, 0, 0, 255));
         notification_box = std::make_shared<Box>(glm::vec4(40, 480, 1240, 560), glm::u8vec4(0, 0, 0, 200));
         boxes = {description_box, game_over_box, notification_box};
