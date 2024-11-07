@@ -272,7 +272,7 @@ void PlayMode::update(float elapsed) {
 	}
 
 	{
-		if(seen_by_guard_timer > 1.0f) {
+		if(seen_by_guard_timer > 0.5f) {
 			// player caught, restart game
 			restart();
 		}
