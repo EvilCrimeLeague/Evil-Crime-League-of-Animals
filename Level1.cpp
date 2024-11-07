@@ -248,6 +248,7 @@ void Level1::handle_inventory_choice(uint32_t choice_id) {
     } 
     // show inventory again
     ui->set_inventory(false);
+    ui->set_menu_button(false);
     ui->showing_inventory_description = false;
 }
 
