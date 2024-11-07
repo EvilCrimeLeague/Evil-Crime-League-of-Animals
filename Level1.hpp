@@ -7,6 +7,10 @@ struct Level1 : Level {
 	Scene::Transform *bone = nullptr;
 	Scene::Transform *fov = nullptr;
 
+    Scene::Transform *vase = nullptr;
+    Scene::Transform *painting_1 = nullptr;
+    Scene::Transform *painting_2 = nullptr;
+
     std::shared_ptr<Driver> driver_guardDog_walk = nullptr;
     std::shared_ptr<Driver> driver_guardDog_rotate = nullptr;
     std::shared_ptr<Driver> driver_bone_rotate = nullptr;

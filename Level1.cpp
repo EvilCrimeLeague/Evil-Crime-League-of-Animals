@@ -250,7 +250,6 @@ void Level1::update() {
             driver_guardDog_walk->restart();
         } 
         if(dist <= 1.5f && driver_guardDog_walk->playing) {
-            std::cout<<"close to bone"<<std::endl;
             // stop guard when close to bone
             driver_guardDog_walk->stop();
             driver_bone_move->stop();
