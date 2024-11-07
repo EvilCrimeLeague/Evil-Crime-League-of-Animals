@@ -344,6 +344,10 @@ void mix_audio(void *, Uint8 *buffer_, int len) {
 	//add audio from each playing sample into the buffer:
 	for (auto si = playing_samples.begin(); si != playing_samples.end(); /* later */) {
 		Sound::PlayingSample &playing_sample = **si; //much more convenient than writing ** everywhere.
+		if(playing_sample.paused) {
+			++si;
+			continue;
+		}
 
 		//Figure out sample panning/volume at start...
 		LR start_pan;

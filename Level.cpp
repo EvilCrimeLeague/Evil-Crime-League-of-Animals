@@ -140,6 +140,7 @@ void Level::update_player_dist_infront() {
 	// 					}
 	// 				}
 	// 	}
+<<<<<<< HEAD
 	{
 		constexpr float playerVerticalFov = 10.0f;
 		constexpr float playerHorizontalFov = 10.0f;
@@ -202,6 +203,72 @@ void Level::update_player_dist_infront() {
 			}
 		}
 	}
+=======
+	// {
+	// 	constexpr float playerVerticalFov = 90.0f;
+	// 	constexpr float playerHorizontalFov = 120.0f;
+	// 	constexpr uint32_t horizontalRays = 30;
+	// 	constexpr uint32_t verticalRays = 20;
+	// 	float horizontalStep = playerHorizontalFov / horizontalRays;
+	// 	float verticalStep = playerVerticalFov / verticalRays;
+	// 	float visionDistance = 2.0f;
+	// 	glm::vec3 playerPositionWorld = player_transform->make_local_to_world() * glm::vec4(0, 0, 0, 1);
+	// 	glm::vec3 playerDirectionWorld = glm::normalize(player_transform->make_local_to_world() * glm::vec4(glm::vec3(0.0, -1.0, 0.0) - playerPositionWorld, 1));
+	// 	for (uint32_t x = 0; x < horizontalRays; x++) {
+	// 		float horizontalAngle = - (playerHorizontalFov / 2) + (x * horizontalStep);
+	// 		glm::vec3 horizontalDirection = glm::angleAxis(glm::radians(horizontalAngle), glm::vec3(0.0f, 0.0f, 1.0f)) * playerDirectionWorld;
+	// 		for (uint32_t z = 0; z < verticalRays; z++) {
+	// 			float verticalAngle = - (playerVerticalFov / 2) + (z * verticalStep);
+	// 			glm::vec3 direction = glm::angleAxis(glm::radians(verticalAngle), glm::vec3(1.0f, 0.0f, 0.0f)) * horizontalDirection;
+	// 			glm::vec3 point = player_transform->position + glm::vec3(0.0f, 0.0f, 1.8f);
+	// 			Ray r = Ray(point, direction, glm::vec2(0.0f, 2.0f), (uint32_t)0);
+	// 			// loop through primitives 
+	// 			for (Scene::Drawable &d : scene.drawables) {
+	// 				float closest_t = 1000000;
+	// 				if (d.transform->name != "RedPanda") {
+
+	// 				GLuint start = d.mesh->start;
+	// 				GLuint count = d.mesh->count;
+	// 				glm::mat4x3 transform = d.transform->make_local_to_world();
+	// 				for (GLuint i = start; i < start + count; i+=3) {
+	// 					glm::vec3 a = transform * glm::vec4(d.meshBuffer->data[i].Position, 1);
+	// 					glm::vec3 b = transform * glm::vec4(d.meshBuffer->data[i + 1].Position, 1);
+	// 					glm::vec3 c = transform * glm::vec4(d.meshBuffer->data[i + 2].Position, 1);
+	// 					glm::vec3 ab = a - b;
+	// 					glm::vec3 ac = a - c;
+	// 					glm::vec3 cb = c - b;
+	// 					glm::vec3 ca = c - a;
+	// 					glm::vec3 ba = b - a;
+	// 					glm::vec3 bc = b - c;
+	// 					glm::vec3 normal = glm::cross(ba, cb);
+	// 					float denominator = glm::dot(normal, r.dir);
+	// 					if (glm::abs(denominator) > 0.00001f) {
+	// 						float t = glm::dot(a - r.point, normal) / denominator;
+	// 						// if the ray intersects the abc plane
+	// 						if (t >= 0.00001f && t <= visionDistance) {
+	// 							glm::vec3 p = r.at(t);
+	// 							glm::vec3 ap = a - p;
+	// 							glm::vec3 bp = b - p;
+	// 							glm::vec3 cp = c - p;
+	// 							if (glm::dot(glm::cross(ac, ab), glm::cross(ac, ap)) > 0 && 
+	// 								glm::dot(glm::cross(cb, ca), glm::cross(cb, cp)) > 0 &&
+	// 								glm::dot(glm::cross(ba, bc), glm::cross(ba, bp)) > 0) {
+	// 									//std::cout<<d.transform->name;
+ 	// 									closest_t = std::min(t, closest_t);
+ 	// 									if (t <= closest_t) {
+ 	// 										//std::cout<<d.transform->name<<std::endl;
+ 	// 									}
+ 	// 									closest_dist_infront = closest_t;
+	// 								}
+	// 						}
+	// 					}
+	// 				}
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// }
+>>>>>>> 2227716b2d36e89b89bc742ef312698e75115c40
 }
 
 void Level::update_animation(const float deltaTime) {

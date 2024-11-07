@@ -149,6 +149,15 @@ Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
     driver_bone_rotate = std::make_shared<Driver>(level1_animations->animations.at("Bone-rotation"));
     driver_bone_rotate->transform = bone;
     drivers.push_back(driver_bone_rotate);
+
+    driver_fov_move = std::make_shared<Driver>("FOV-move", CHANEL_TRANSLATION);
+    driver_fov_move->transform = fov;
+    driver_fov_move->loop = false;
+    drivers.push_back(driver_fov_move);
+
+    // sound
+    rolling_loop = Sound::loop(*rolling_sample, 0.07f, 0.0f);
+    rolling_loop->paused = true;
 }
 
 void Level1::handle_enter_key() {
@@ -208,10 +217,14 @@ void Level1::handle_inventory_choice(uint32_t choice_id) {
         std::string item_name = ui->get_selected_inventory_item_name();
         ui->remove_inventory_item();
         if(item_name == "Bone") {
-            rolling_loop = Sound::loop(*rolling_sample, 0.07f, 0.0f);
+            rolling_loop->paused = false;
             // create bone move animation
 		    glm::vec3 playerDirectionWorld = glm::normalize(player_transform->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
+<<<<<<< HEAD
             glm::vec3 bone_target_pos = player_transform->position + (closest_dist_infront * playerDirectionWorld) + glm::vec3(0.0, 0.0, 0.5);//playerDirectionWorld*2.0f + glm::vec3(0,0,0.5);
+=======
+            glm::vec3 bone_target_pos = player_transform->position + playerDirectionWorld*2.0f + glm::vec3(0,0,0.75);
+>>>>>>> 2227716b2d36e89b89bc742ef312698e75115c40
             driver_bone_move->clear();
             driver_bone_move->add_walk_in_straight_line_anim(player_transform->position, bone_target_pos, 3.0f, 5);
 
@@ -264,12 +277,19 @@ void Level1::restart() {
     }
 
     driver_guardDog_walk->clear();
+    driver_fov_move->clear();
 
     driver_guardDog_rotate->start();
 
     driver_bone_move->clear();
 
     driver_bone_rotate->values4d = level1_animations->animations.at("Bone-rotation").values4d;
+
+    fov->position.x = guardDog->position.x;
+    fov->position.y = guardDog->position.y;
+
+    rolling_loop = Sound::loop(*rolling_sample, 0.07f, 0.0f);
+    rolling_loop->paused = true;
 
 }
 
@@ -285,27 +305,31 @@ void Level1::update() {
     }
     if (guard_detectables["Bone"]) {
         float dist = glm::distance(guardDog->position, bone->position);
-        if(dist > 1.5f) {
+        if(dist > 1.25f) {
             driver_guardDog_rotate->stop();
             glm::vec3 guardDirectionWorld = glm::normalize(guardDog->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
             driver_guardDog_walk->clear();
             float duration = dist/guard_dog_speed;
             driver_guardDog_walk->add_walk_in_straight_line_anim(guardDog->position, bone->position - guardDirectionWorld, duration, std::max(static_cast<int>(duration),1));
             driver_guardDog_walk->restart();
+            driver_fov_move->clear();
+            driver_fov_move->add_walk_in_straight_line_anim(fov->position, bone->position - guardDirectionWorld, duration, std::max(static_cast<int>(duration),1));
+            driver_fov_move->restart();
         } 
-        if(dist <= 1.5f && driver_guardDog_walk->playing) {
+        if(dist <= 1.25f && driver_guardDog_walk->playing) {
             // stop guard when close to bone
             driver_guardDog_walk->stop();
+            driver_fov_move->stop();
             driver_bone_move->stop();
+            driver_bone_move->finished = true;
             driver_bone_rotate->stop();
         }
         
     }
     
-    
     // animation
     if(driver_bone_move->finished) {
         driver_bone_rotate->stop();
-        rolling_loop->stop();
+        rolling_loop->paused = true;
     }
 }

@@ -12,11 +12,12 @@ struct Level1 : Level {
     Scene::Transform *painting_2 = nullptr;
 
     std::shared_ptr<Driver> driver_guardDog_walk = nullptr;
+    std::shared_ptr<Driver> driver_fov_move = nullptr;
     std::shared_ptr<Driver> driver_guardDog_rotate = nullptr;
     std::shared_ptr<Driver> driver_bone_rotate = nullptr;
     std::shared_ptr<Driver> driver_bone_move = nullptr;
 
-    const float guard_dog_speed = 2.0f;
+    const float guard_dog_speed = 1.0f;
 
     Level1(std::shared_ptr<UI> ui_);
     virtual ~Level1() {}
