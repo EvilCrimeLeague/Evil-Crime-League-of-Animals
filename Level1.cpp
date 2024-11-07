@@ -220,11 +220,7 @@ void Level1::handle_inventory_choice(uint32_t choice_id) {
             rolling_loop->paused = false;
             // create bone move animation
 		    glm::vec3 playerDirectionWorld = glm::normalize(player_transform->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
-<<<<<<< HEAD
             glm::vec3 bone_target_pos = player_transform->position + (closest_dist_infront * playerDirectionWorld) + glm::vec3(0.0, 0.0, 0.5);//playerDirectionWorld*2.0f + glm::vec3(0,0,0.5);
-=======
-            glm::vec3 bone_target_pos = player_transform->position + playerDirectionWorld*2.0f + glm::vec3(0,0,0.75);
->>>>>>> 2227716b2d36e89b89bc742ef312698e75115c40
             driver_bone_move->clear();
             driver_bone_move->add_walk_in_straight_line_anim(player_transform->position, bone_target_pos, 3.0f, 5);
 
