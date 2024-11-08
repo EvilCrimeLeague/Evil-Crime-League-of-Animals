@@ -1,16 +1,17 @@
-#include "Level1.hpp"
+#include "Level2.hpp"
 
 #include <iostream>
 
-GLuint level1_meshes_for_lit_color_texture_program = 0;
+
+GLuint level2_meshes_for_lit_color_texture_program = 0;
 Load< MeshBuffer > level1_meshes(LoadTagDefault, []() -> MeshBuffer const * {
-	MeshBuffer const *ret = new MeshBuffer(data_path("level1.pnct"));
+	MeshBuffer const *ret = new MeshBuffer(data_path("level2.pnct"));
 	level1_meshes_for_lit_color_texture_program = ret->make_vao_for_program(lit_color_texture_program->program);
 	return ret;
 });
 
-Load< Scene > level1_scene(LoadTagDefault, []() -> Scene const * {
-	return new Scene(data_path("level1.scene"), [&](Scene &scene, Scene::Transform *transform, std::string const &mesh_name){
+Load< Scene > level2_scene(LoadTagDefault, []() -> Scene const * {
+	return new Scene(data_path("level2.scene"), [&](Scene &scene, Scene::Transform *transform, std::string const &mesh_name){
 		Mesh const &mesh = level1_meshes->lookup(mesh_name);
 
 		scene.drawables.emplace_back(transform);
