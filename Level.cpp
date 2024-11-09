@@ -24,7 +24,7 @@ std::shared_ptr<Level::Item> Level::get_closest_item(glm::vec3 player_position) 
             closest_item = itr->second;
         }
     }
-    // std::cout<<"closet distance: "<<closest_distance<<"\n";
+
     curr_item = closest_item;
     return closest_item;
 }

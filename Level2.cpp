@@ -4,47 +4,47 @@
 
 
 GLuint level2_meshes_for_lit_color_texture_program = 0;
-Load< MeshBuffer > level1_meshes(LoadTagDefault, []() -> MeshBuffer const * {
-	MeshBuffer const *ret = new MeshBuffer(data_path("level2.pnct"));
-	level1_meshes_for_lit_color_texture_program = ret->make_vao_for_program(lit_color_texture_program->program);
+Load< MeshBuffer > level2_meshes(LoadTagDefault, []() -> MeshBuffer const * {
+	MeshBuffer const *ret = new MeshBuffer(data_path("level1.pnct"));
+	level2_meshes_for_lit_color_texture_program = ret->make_vao_for_program(lit_color_texture_program->program);
 	return ret;
 });
 
 Load< Scene > level2_scene(LoadTagDefault, []() -> Scene const * {
-	return new Scene(data_path("level2.scene"), [&](Scene &scene, Scene::Transform *transform, std::string const &mesh_name){
-		Mesh const &mesh = level1_meshes->lookup(mesh_name);
+	return new Scene(data_path("level1.scene"), [&](Scene &scene, Scene::Transform *transform, std::string const &mesh_name){
+		Mesh const &mesh = level2_meshes->lookup(mesh_name);
 
 		scene.drawables.emplace_back(transform);
 		Scene::Drawable &drawable = scene.drawables.back();
 
 		drawable.pipeline = lit_color_texture_program_pipeline;
 
-		drawable.pipeline.vao = level1_meshes_for_lit_color_texture_program;
+		drawable.pipeline.vao = level2_meshes_for_lit_color_texture_program;
 		drawable.pipeline.type = mesh.type;
 		drawable.pipeline.start = mesh.start;
 		drawable.pipeline.count = mesh.count;
 
 		// if this doenst work, ask on discord, ping Jim
-		drawable.meshBuffer = &(*level1_meshes);
+		drawable.meshBuffer = &(*level2_meshes);
 		drawable.mesh = &mesh;
 
 	});
 });
 
-Load< WalkMesh > level1_walkmesh(LoadTagDefault, []() -> WalkMesh const * {
+Load< WalkMesh > level2_walkmesh(LoadTagDefault, []() -> WalkMesh const * {
 	WalkMeshes *ret = new WalkMeshes(data_path("level1.w"));
 	WalkMesh const *walkmesh = &ret->lookup("WalkMesh");
 	return walkmesh;
 });
 
-Load< Animation > level1_animations(LoadTagDefault, []() -> Animation const * {
+Load< Animation > level2_animations(LoadTagDefault, []() -> Animation const * {
 	Animation *anim = new Animation(data_path("level1.anim"));
 	return anim;
 });
 
-Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
-    scene = *level1_scene;
-    walkmesh = level1_walkmesh;
+Level2::Level2(std::shared_ptr<UI> ui_): Level(ui_) {
+    scene = *level2_scene;
+    walkmesh = level2_walkmesh;
 
     for (auto &transform : scene.transforms) {
         if (transform.name == "RedPanda") player_transform = &transform;
@@ -62,7 +62,6 @@ Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
     else if (bone == nullptr) throw std::runtime_error("Bone not found.");
 	else if (guardDog == nullptr) throw std::runtime_error("GuardDog not found.");
 	else if (fov == nullptr) throw std::runtime_error("FOV not found.");
-	std::cout<<guardDog->position.y - fov->position.y<<std::endl;
 
     // fov->parent = guardDog;
 
@@ -70,6 +69,7 @@ Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
 
     if (scene.cameras.size() != 1) throw std::runtime_error("Expecting scene to have exactly one camera, but it has " + std::to_string(scene.cameras.size()));
     camera = &scene.cameras.front();
+    camera_spawn_point = camera->transform->position;
     guard_detectables["Wall"] = false;
 
     // initialize items
@@ -124,7 +124,7 @@ Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
     driver_guardDog_walk->loop = false;
     drivers.push_back(driver_guardDog_walk);
 
-    driver_guardDog_rotate = std::make_shared<Driver>(level1_animations->animations.at("GuardDog-rotation"));
+    driver_guardDog_rotate = std::make_shared<Driver>(level2_animations->animations.at("GuardDog-rotation"));
     driver_guardDog_rotate->transform = guardDog;
     driver_guardDog_rotate->start();
     drivers.push_back(driver_guardDog_rotate);
@@ -134,7 +134,7 @@ Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
     driver_bone_move->loop = false;
     drivers.push_back(driver_bone_move);
 
-    driver_bone_rotate = std::make_shared<Driver>(level1_animations->animations.at("Bone-rotation"));
+    driver_bone_rotate = std::make_shared<Driver>(level2_animations->animations.at("Bone-rotation"));
     driver_bone_rotate->transform = bone;
     drivers.push_back(driver_bone_rotate);
 
@@ -159,7 +159,7 @@ Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
     rolling_loop->paused = true;
 }
 
-void Level1::handle_enter_key() {
+void Level2::handle_enter_key() {
     if(ui->showing_inventory_description) {
         // Interact with inventory item
         handle_inventory_choice(ui->choice_id);
@@ -183,7 +183,7 @@ void Level1::handle_enter_key() {
     }
 }
 
-void Level1::handle_interact_key() {
+void Level2::handle_interact_key() {
     if(ui->showing_interactable_button) {
         // ui->show_description(curr_item->interaction_description, curr_item->interaction_choices[0], curr_item->interaction_choices[1]);
         if(curr_item->name == "Bone") {
@@ -209,7 +209,7 @@ void Level1::handle_interact_key() {
     }
 }
 
-void Level1::handle_inventory_choice(uint32_t choice_id) {
+void Level2::handle_inventory_choice(uint32_t choice_id) {
     ui->hide_description();
     if(ui->choice_id == 0) {
         // use item
@@ -225,7 +225,7 @@ void Level1::handle_inventory_choice(uint32_t choice_id) {
             driver_bone_move->add_walk_in_straight_line_anim(player_transform->position, bone_target_pos, static_cast<int>(glm::distance(player_transform->position, bone_target_pos)), 3);
 
             // reset bone rotation animation
-            driver_bone_rotate->values4d = level1_animations->animations.at("Bone-rotation").values4d;
+            driver_bone_rotate->values4d = level2_animations->animations.at("Bone-rotation").values4d;
             bone->rotation = player_transform->rotation;
             for(int i=0; i<driver_bone_rotate->values4d.size(); i++){
                 driver_bone_rotate->values4d[i] = bone->rotation * driver_bone_rotate->values4d[i];
@@ -239,7 +239,7 @@ void Level1::handle_inventory_choice(uint32_t choice_id) {
     ui->showing_inventory_description = false;
 }
 
-void Level1::handle_description_choice(uint32_t choice_id) {
+void Level2::handle_description_choice(uint32_t choice_id) {
     // ui->hide_description();
     // ui->set_inventory_button(/*hide=*/false);
     // if(ui->choice_id ==0) {
@@ -252,7 +252,7 @@ void Level1::handle_description_choice(uint32_t choice_id) {
     // }
 }
 
-void Level1::restart() {
+void Level2::restart() {
     for(auto &item: items) {
         item.second->transform->position = item.second->spawn_point;
     }
@@ -279,7 +279,7 @@ void Level1::restart() {
 
     driver_bone_move->clear();
 
-    driver_bone_rotate->values4d = level1_animations->animations.at("Bone-rotation").values4d;
+    driver_bone_rotate->values4d = level2_animations->animations.at("Bone-rotation").values4d;
 
     fov->position.x = guardDog->position.x;
     fov->position.y = guardDog->position.y;
@@ -289,7 +289,7 @@ void Level1::restart() {
 
 }
 
-void Level1::update() {
+void Level2::update() {
     // Field of view collisions
     update_guard_detection();
     

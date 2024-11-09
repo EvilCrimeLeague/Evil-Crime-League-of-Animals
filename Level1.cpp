@@ -61,7 +61,6 @@ Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
     else if (bone == nullptr) throw std::runtime_error("Bone not found.");
 	else if (guardDog == nullptr) throw std::runtime_error("GuardDog not found.");
 	else if (fov == nullptr) throw std::runtime_error("FOV not found.");
-	std::cout<<guardDog->position.y - fov->position.y<<std::endl;
 
     // fov->parent = guardDog;
 
@@ -69,6 +68,7 @@ Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
 
     if (scene.cameras.size() != 1) throw std::runtime_error("Expecting scene to have exactly one camera, but it has " + std::to_string(scene.cameras.size()));
     camera = &scene.cameras.front();
+    camera_spawn_point = camera->transform->position;
     guard_detectables["Wall"] = false;
 
     // initialize items

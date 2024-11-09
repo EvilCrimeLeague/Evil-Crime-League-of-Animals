@@ -30,6 +30,8 @@ PlayMode::PlayMode() {
 
 	auto level1 = std::make_shared<Level1>(ui);
 	levels.push_back(level1);
+	auto level2 = std::make_shared<Level2>(ui);
+	levels.push_back(level2);
 	level = level1;
 
 	player.transform = level->player_transform;
@@ -38,8 +40,7 @@ PlayMode::PlayMode() {
 	level->guard_detectables["RedPanda"] = false;
 
 	//create a player camera attached to a child of the player transform:
-	camera = level->camera;
-	player.camera = camera;
+	player.camera = level->camera;
 
 	camera_transform = player.camera->transform->position - player.transform->position;
 
@@ -131,26 +132,39 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_RETURN) {
 			enter.pressed = false;
-			if(ui->showing_menu) {
-				if(ui->menu_slot_selected_id == 0) {
-					// resume
-					restart();
+			if(game_over && level_id < levels.size() - 1) {
+				++level_id;
+				level = levels[level_id];
+				restart(true);
+			} else if(ui->showing_menu) {
+				if(ui->menu_slot_selected_id == 0 || ui->menu_slot_selected_id == 1) {
+					level_id = ui->menu_slot_selected_id;
+					level = levels[level_id];
+					restart(true);
 				}
+			} else {
+				level->handle_enter_key();
 			}
-			level->handle_enter_key();
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_e) {
 			key_e.pressed = false;
-			Sound::play(*toggle_inventory_sample, 0.2f, 0.0f);
-			ui->set_inventory(ui->showing_inventory);
+			if(!game_over) {
+				Sound::play(*toggle_inventory_sample, 0.2f, 0.0f);
+				ui->set_inventory(ui->showing_inventory);
+			}
+			
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_r) {
 			key_r.pressed = false;
-			restart();
+			if(!game_over) {
+				restart();
+			}
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_q) {
 			key_q.pressed = false;
-			ui->set_menu(ui->showing_menu);
+			if(!game_over) {
+				ui->set_menu(ui->showing_menu);
+			}
 			return true;
 		}
 	}
@@ -404,12 +418,37 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 
 }
 
-void PlayMode::restart(){
+void PlayMode::restart(bool new_level){
 	ui->reset();
 	seen_by_guard_timer = 0.0f;
 	game_over = false;
 	paused = false;
-	player.transform->position = level->player_spawn_point;
-	player.at = level->walkmesh->nearest_walk_point(player.transform->position);
+
 	level->restart();
+
+	if(new_level) {
+		std::cout<<"restart new level "<<level_id<<std::endl;
+		player.transform = level->player_transform;
+		player.transform->position = level->player_spawn_point;
+		player.rotation_euler = glm::eulerAngles(player.transform->rotation) / float(M_PI) * 180.0f;
+		player.rotation = player.transform->rotation;
+		level->guard_detectables["RedPanda"] = false;
+
+		//create a player camera attached to a child of the player transform:
+		player.camera = level->camera;
+		player.camera->transform->position = level->camera_spawn_point;
+
+		camera_transform = player.camera->transform->position - player.transform->position;
+
+		//start player walking at nearest walk point:
+		player.at = level->walkmesh->nearest_walk_point(player.transform->position);
+	} else {
+		std::cout<<"restart current level "<<level_id<<std::endl;
+		player.transform->position = level->player_spawn_point;
+		player.at = level->walkmesh->nearest_walk_point(player.transform->position);
+	}
+
+	
+
+	
 }

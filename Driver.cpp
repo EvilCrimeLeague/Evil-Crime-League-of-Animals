@@ -29,7 +29,6 @@ void Driver::animate(const float deltaTime){
     if(finished || !playing)
         return;
     if(isFinished(deltaTime)){
-        // std::cout<<name<<" animation finished\n";
         return;
     } else {
         float t = (frame_time-times[frame_idx])/(times[frame_idx+1]-times[frame_idx]);

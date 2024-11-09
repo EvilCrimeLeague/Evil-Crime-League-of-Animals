@@ -51,6 +51,7 @@ struct Level {
     const WalkMesh* walkmesh;
 
     Scene::Camera *camera = nullptr;
+    glm::vec3 camera_spawn_point;
     Scene::Transform *player_transform = nullptr;
     glm::vec3 player_spawn_point;
     Scene::Transform *target_transform = nullptr;
