@@ -471,12 +471,13 @@ void UI::arrow_key_callback(bool left) {
     }
 }
 
-void UI::add_inventory_item(std::string item_name, std::string img_path, std::string description_img_path, glm::vec2 description_img_pos) {
+void UI::add_inventory_item(std::string item_name, std::string img_path, std::string description_img_path) {
     auto img_ptr = std::make_shared<Img>(inventory_item_pos[inventory_items.size()], img_path);
     imgs.push_back(img_ptr);
     InventoryItem item = {item_name, img_ptr, static_cast<uint32_t>(inventory_items.size()), nullptr};
     if(description_img_path != "") {
-        item.description_img = std::make_shared<Img>(description_img_pos, description_img_path);
+        item.description_img = std::make_shared<Img>(glm::vec2(0,0), description_img_path);
+        item.description_img->pos = glm::vec2(width/2-item.description_img->size.x/2, height/2-item.description_img->size.y/2);
         imgs.push_back(item.description_img);
     }
     inventory_items.push_back(item);
@@ -507,6 +508,7 @@ std::string UI::get_selected_inventory_item_name() {
 void UI::show_inventory_description_img(uint32_t slot_id){
     hide_all();
     inventory_items[slot_id].description_img->hide = false;
+    description_img_box->hide = false;
     showing_inventory_description = true;
 
     need_update_texture = true;
@@ -514,6 +516,7 @@ void UI::show_inventory_description_img(uint32_t slot_id){
 
 void UI::hide_inventory_description_img() {
     showing_inventory_description = false;
+    description_img_box->hide = true;
     for(auto& item: inventory_items) {
         if(item.description_img != nullptr) {
             item.description_img->hide = true;

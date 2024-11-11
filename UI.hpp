@@ -47,6 +47,7 @@ struct UI {
     std::shared_ptr<Box> description_box = nullptr;
     std::shared_ptr<Box> game_over_box = nullptr;
     std::shared_ptr<Box> notification_box = nullptr;
+    std::shared_ptr<Box> description_img_box = nullptr;
 
     std::shared_ptr<Img> interact_bt_img = nullptr; // F
     std::shared_ptr<Img> enter_bt_img = nullptr; // enter
@@ -188,7 +189,8 @@ struct UI {
         description_box = std::make_shared<Box>(glm::vec4(20, 480, 1260, 700), glm::u8vec4(0, 0, 0, 200));
         game_over_box = std::make_shared<Box>(glm::vec4(0, 0, 1280, 720), glm::u8vec4(0, 0, 0, 255));
         notification_box = std::make_shared<Box>(glm::vec4(40, 480, 1240, 560), glm::u8vec4(0, 0, 0, 200));
-        boxes = {description_box, game_over_box, notification_box};
+        description_img_box = std::make_shared<Box>(glm::vec4(200, 100, 1080, 620), glm::u8vec4(0, 0, 0, 200));
+        boxes = {description_box, game_over_box, notification_box, description_img_box};
 
         // Create images
         interact_bt_img = std::make_shared<Img>(glm::vec2(800, 300), "UI/F.png");
@@ -276,7 +278,7 @@ struct UI {
     // Callback functions for left and right arrow keys
     void arrow_key_callback(bool left);
 
-    void add_inventory_item(std::string item_name, std::string img_path, std::string description_img_path = "", glm::vec2 description_img_pos=glm::vec2(512,232));
+    void add_inventory_item(std::string item_name, std::string img_path, std::string description_img_path = "");
     void remove_inventory_item(); // remove selected inventory item
     std::string get_selected_inventory_item_name();
     void show_inventory_description_img(uint32_t slot_id);
