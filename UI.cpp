@@ -348,6 +348,8 @@ void UI::hide_description() {
 
     set_menu_button(false);
     set_inventory_button(false);
+    set_restart_button(false);
+    title_text->hide = false;
 
     need_update_texture = true;
 }
@@ -407,6 +409,8 @@ void UI::reset() {
     set_inventory_button(/*hide=*/false);
     set_restart_button(/*hide=*/false);
     set_menu_button(/*hide=*/false);
+
+    title_text->hide = false;
 
     need_update_texture = true;
 }
@@ -541,6 +545,7 @@ void UI::set_menu(bool hide) {
         set_menu_button(false);
         set_restart_button(false);
         set_inventory_button(false);
+        title_text->hide = false;
         showing_menu = false;
     } else {
         // show menu, hide other UI elements
@@ -573,4 +578,8 @@ void UI::set_menu_button(bool hide) {
     menu_bt_img->hide = hide;
     menu_bt_manual_text->hide = hide;
     need_update_texture = true;
+}
+
+void UI::set_title(std::string title) {
+    title_text->text = title;
 }

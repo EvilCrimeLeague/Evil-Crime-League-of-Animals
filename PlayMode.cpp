@@ -46,6 +46,9 @@ PlayMode::PlayMode() {
 
 	//start player walking at nearest walk point:
 	player.at = level->walkmesh->nearest_walk_point(player.transform->position);
+
+	game_info = GameInfo();
+	ui->set_title("Level 1");
 }
 
 PlayMode::~PlayMode() {
@@ -132,12 +135,11 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_RETURN) {
 			enter.pressed = false;
-			if(game_over && level_id < levels.size() - 1) {
-				++level_id;
+			if(game_over && level_id < levels.size()) {
 				level = levels[level_id];
 				restart(true);
 			} else if(ui->showing_menu) {
-				if(ui->menu_slot_selected_id == 0 || ui->menu_slot_selected_id == 1) {
+				if(ui->menu_slot_selected_id <= game_info.highest_level) {
 					level_id = ui->menu_slot_selected_id;
 					level = levels[level_id];
 					restart(true);
@@ -335,7 +337,12 @@ void PlayMode::update(float elapsed) {
 		}
 
 		if(get_distance(player.transform->position, level->target_transform->position) < 1.5f) {
+			// TODO: add exit door
 			game_over = true;
+			++level_id; 
+			if(level_id > game_info.highest_level) {
+				game_info.update_highest_level(level_id);
+			}
 			ui->show_game_over(true);
 		}
 	}
@@ -427,9 +434,11 @@ void PlayMode::restart(bool new_level){
 	level->restart();
 
 	if(new_level) {
+		ui->set_title("Level " + std::to_string(level_id + 1));
 		std::cout<<"restart new level "<<level_id<<std::endl;
 		player.transform = level->player_transform;
 		player.transform->position = level->player_spawn_point;
+		player.transform->rotation = level->player_spawn_rotation;
 		player.rotation_euler = glm::eulerAngles(player.transform->rotation) / float(M_PI) * 180.0f;
 		player.rotation = player.transform->rotation;
 		level->guard_detectables["RedPanda"] = false;

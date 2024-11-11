@@ -65,6 +65,7 @@ Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
     // fov->parent = guardDog;
 
     player_spawn_point = player_transform->position;
+    player_spawn_rotation = player_transform->rotation;
 
     if (scene.cameras.size() != 1) throw std::runtime_error("Expecting scene to have exactly one camera, but it has " + std::to_string(scene.cameras.size()));
     camera = &scene.cameras.front();

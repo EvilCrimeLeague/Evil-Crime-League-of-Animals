@@ -42,6 +42,7 @@ struct UI {
     std::shared_ptr<Text> restart_bt_manual_text = nullptr;
     std::shared_ptr<Text> interact_bt_manual_text = nullptr;
     std::shared_ptr<Text> menu_bt_manual_text = nullptr;
+    std::shared_ptr<Text> title_text = nullptr;
 
     std::shared_ptr<Box> description_box = nullptr;
     std::shared_ptr<Box> game_over_box = nullptr;
@@ -174,7 +175,13 @@ struct UI {
                             font_manual);
         menu_bt_manual_text->hide = false;
         menu_bt_manual_text->color = glm::vec3(0, 32.8, 73.8);
-        texts = {description_text, choice1_text, choice2_text, game_over_text, manual_text, inventory_bt_manual_text, inventory_manual_text, notification_text, restart_bt_manual_text, interact_bt_manual_text, menu_bt_manual_text};
+        title_text = std::make_shared<Text>("", 
+                            /*line length*/85, 
+                            /*start pos*/glm::vec2(540, 80),
+                            font_title);
+        title_text->hide = false;
+        title_text->color = glm::vec3(0, 32.8, 73.8);
+        texts = {description_text, choice1_text, choice2_text, game_over_text, manual_text, inventory_bt_manual_text, inventory_manual_text, notification_text, restart_bt_manual_text, interact_bt_manual_text, menu_bt_manual_text, title_text};
 
         // Create boxes
         description_box = std::make_shared<Box>(glm::vec4(20, 480, 1260, 700), glm::u8vec4(0, 0, 0, 200));
@@ -285,4 +292,6 @@ struct UI {
     void set_menu_button(bool hide);
     void set_menu(bool hide);
     void update_menu_selection(bool left);
+
+    void set_title(std::string title);
 };

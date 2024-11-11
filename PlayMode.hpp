@@ -68,4 +68,6 @@ struct PlayMode : Mode {
 	float walk_timer = 0;
 	float speed_percent = 0;
 	float playerSpeed = 0;
+
+	GameInfo game_info;
 };
