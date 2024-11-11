@@ -82,6 +82,7 @@ struct UI {
         std::string name;
         std::shared_ptr<Img> img;
         uint32_t inventory_slot_id;
+        std::shared_ptr<Img> description_img = nullptr;
     };
     std::vector<glm::vec2> inventory_item_pos = {};
     uint32_t inventory_slot_id_start; // index of the first slot in imgs
@@ -275,9 +276,12 @@ struct UI {
     // Callback functions for left and right arrow keys
     void arrow_key_callback(bool left);
 
-    void add_inventory_item(std::string item_name, std::string img_path);
+    void add_inventory_item(std::string item_name, std::string img_path, std::string description_img_path = "", glm::vec2 description_img_pos=glm::vec2(512,232));
     void remove_inventory_item(); // remove selected inventory item
     std::string get_selected_inventory_item_name();
+    void show_inventory_description_img(uint32_t slot_id);
+    void hide_inventory_description_img();
+    uint32_t get_inventory_item_id(std::string item_name);
 
     void show_notification(std::string notification);
     void hide_notification();

@@ -49,7 +49,6 @@ Level2::Level2(std::shared_ptr<UI> ui_): Level(ui_) {
     for (auto &transform : scene.transforms) {
         if (transform.name == "RedPanda") player_transform = &transform;
         else if (transform.name == "Jewel") target_transform = &transform;
-		else if (transform.name == "Bone") bone = &transform;
 		else if (transform.name == "GuardDog") guardDog = &transform;
 		else if (transform.name == "FOV") fov = &transform;
         else if (transform.name == "Vase.001") vase = &transform;
@@ -59,7 +58,6 @@ Level2::Level2(std::shared_ptr<UI> ui_): Level(ui_) {
 
     if (target_transform == nullptr) throw std::runtime_error("Target not found.");
     else if (player_transform == nullptr) throw std::runtime_error("Player not found.");
-    else if (bone == nullptr) throw std::runtime_error("Bone not found.");
 	else if (guardDog == nullptr) throw std::runtime_error("GuardDog not found.");
 	else if (fov == nullptr) throw std::runtime_error("FOV not found.");
 
@@ -74,41 +72,14 @@ Level2::Level2(std::shared_ptr<UI> ui_): Level(ui_) {
     guard_detectables["Wall"] = false;
 
     // initialize items
-    auto bone_ptr = std::make_shared<Item>();
-    bone_ptr->name = "Bone";
-    bone_ptr->interaction_description = "Collect it";
-    bone_ptr->inventory_description = "Do you want to use the bone to distract the guard?";
-    bone_ptr->inventory_choices = {"Yes", "No"};
-    bone_ptr->transform = bone;
-    bone_ptr->img_path = "UI/bone.png";
-    bone_ptr->spawn_point = bone->position;
-    guard_detectables["Bone"] = false;
-    items["Bone"] = bone_ptr;
-
-    auto vase_ptr = std::make_shared<Item>();
-    vase_ptr->name = "Vase";
-    vase_ptr->interaction_description = "It's a bizarre vase. You may want to leave it alone.";
-    bone_ptr->inventory_choices = {};
-    vase_ptr->transform = vase;
-    vase_ptr->show_description_box = true;
-    vase_ptr->spawn_point = vase->position;
-    items["Vase"] = vase_ptr;
-
     auto painting_1_ptr = std::make_shared<Item>();
     painting_1_ptr->name = "Painting1";
-    painting_1_ptr->interaction_description = "It's an unhappy face.";
+    painting_1_ptr->interaction_description = "Look at it";
     painting_1_ptr->transform = painting_1;
-    painting_1_ptr->show_description_box = true;
+    painting_1_ptr->img_path = "UI/Level2/painting.png";
+    painting_1_ptr->description_img_path = "UI/Level2/256test.png";
     painting_1_ptr->spawn_point = painting_1->position;
     items["Painting1"] = painting_1_ptr;
-
-    auto painting_2_ptr = std::make_shared<Item>();
-    painting_2_ptr->name = "Painting2";
-    painting_2_ptr->interaction_description = "It's a crying face.";
-    painting_2_ptr->transform = painting_2;
-    painting_2_ptr->show_description_box = true;
-    painting_2_ptr->spawn_point = painting_2->position;
-    items["Painting2"] = painting_2_ptr;
     
     // initialize guard dogs
     auto guardDog_ptr = std::make_shared<GuardDog>();
@@ -125,39 +96,12 @@ Level2::Level2(std::shared_ptr<UI> ui_): Level(ui_) {
     driver_guardDog_walk->loop = false;
     drivers.push_back(driver_guardDog_walk);
 
-    driver_guardDog_rotate = std::make_shared<Driver>(level2_animations->animations.at("GuardDog-rotation"));
-    driver_guardDog_rotate->transform = guardDog;
-    driver_guardDog_rotate->start();
-    drivers.push_back(driver_guardDog_rotate);
-
-    driver_bone_move = std::make_shared<Driver>("Bone-move", CHANEL_TRANSLATION);
-    driver_bone_move->transform = bone;
-    driver_bone_move->loop = false;
-    drivers.push_back(driver_bone_move);
-
-    driver_bone_rotate = std::make_shared<Driver>(level2_animations->animations.at("Bone-rotation"));
-    driver_bone_rotate->transform = bone;
-    drivers.push_back(driver_bone_rotate);
-
     driver_fov_move = std::make_shared<Driver>("FOV-move", CHANEL_TRANSLATION);
     driver_fov_move->transform = fov;
     driver_fov_move->loop = false;
     drivers.push_back(driver_fov_move);
 
-    driver_fov_rotate = std::make_shared<Driver>("FOV-rotation", CHANEL_ROTATION);
-    driver_fov_rotate->transform = fov;
-    driver_fov_rotate->times = driver_guardDog_rotate->times;
-    driver_fov_rotate->values4d = driver_guardDog_rotate->values4d;
-    glm::quat rotate_90 = glm::angleAxis(glm::radians(-90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    for(int i=0; i<driver_fov_rotate->values4d.size(); i++){
-        driver_fov_rotate->values4d[i] = driver_fov_rotate->values4d[i] * rotate_90;
-    }
-    driver_fov_rotate->start();
-    drivers.push_back(driver_fov_rotate);
-
     // sound
-    rolling_loop = Sound::loop(*rolling_sample, 0.07f, 0.0f);
-    rolling_loop->paused = true;
 }
 
 void Level2::handle_enter_key() {
@@ -174,12 +118,11 @@ void Level2::handle_enter_key() {
         }
     } 
     else if (ui->showing_inventory && ui->inventory_items.size() > 0) {
-        std::string item_name = ui->get_selected_inventory_item_name();
         Sound::play(*pop_sample, 0.1f, 0.0f);
-        if(item_name == "Bone") {
-            ui->show_description(items[item_name]->inventory_description, items[item_name]->inventory_choices[0], items[item_name]->inventory_choices[1]);
-            ui->showing_inventory_description = true;
+        if(ui->inventory_slot_selected_id < ui->inventory_items.size()) {
+            ui->show_inventory_description_img(ui->inventory_slot_selected_id);
         }
+        
         
     }
 }
@@ -187,15 +130,14 @@ void Level2::handle_enter_key() {
 void Level2::handle_interact_key() {
     if(ui->showing_interactable_button) {
         // ui->show_description(curr_item->interaction_description, curr_item->interaction_choices[0], curr_item->interaction_choices[1]);
-        if(curr_item->name == "Bone") {
-            driver_bone_move->stop();
-            driver_bone_rotate->stop();
-            if (rolling_loop) {
-                rolling_loop->stop();
+        
+        if(curr_item->name == "Paper" || curr_item->name.find("Painting") != std::string::npos) {
+            if (!curr_item->added) {
+                curr_item->added = true;
+                ui->add_inventory_item(curr_item->name, curr_item->img_path, curr_item->description_img_path);
             }
-            ui->add_inventory_item(curr_item->name, curr_item->img_path);
-            // hide item
-            curr_item->transform->position.x = -1000.0f;
+            uint32_t id = ui->get_inventory_item_id(curr_item->name);
+            ui->show_inventory_description_img(id);
             Sound::play(*pop_sample, 0.05f, 0.0f);
         } else {
             // show description box
@@ -207,37 +149,15 @@ void Level2::handle_interact_key() {
                 ui->show_description(curr_item->interaction_description);
             }
         }
+        if(curr_item->name == "Paper") {
+            // hide item
+            curr_item->transform->position.x = -1000.0f;
+        } 
     }
 }
 
 void Level2::handle_inventory_choice(uint32_t choice_id) {
-    ui->hide_description();
-    if(ui->choice_id == 0) {
-        // use item
-        std::string item_name = ui->get_selected_inventory_item_name();
-        ui->remove_inventory_item();
-        if(item_name == "Bone") {
-            update_player_dist_infront();
-            rolling_loop->paused = false;
-            // create bone move animation
-		    glm::vec3 playerDirectionWorld = glm::normalize(player_transform->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
-            glm::vec3 bone_target_pos = player_transform->position + (std::min(closest_dist_infront,1.5f) * playerDirectionWorld) + glm::vec3(0.0, 0.0, 0.5);//playerDirectionWorld*2.0f + glm::vec3(0,0,0.5);
-            driver_bone_move->clear();
-            driver_bone_move->add_walk_in_straight_line_anim(player_transform->position, bone_target_pos, static_cast<int>(glm::distance(player_transform->position, bone_target_pos)), 3);
-
-            // reset bone rotation animation
-            driver_bone_rotate->values4d = level2_animations->animations.at("Bone-rotation").values4d;
-            bone->rotation = player_transform->rotation;
-            for(int i=0; i<driver_bone_rotate->values4d.size(); i++){
-                driver_bone_rotate->values4d[i] = bone->rotation * driver_bone_rotate->values4d[i];
-            }
-
-            driver_bone_move->restart();
-            driver_bone_rotate->restart();
-        }
-    } 
-    // show inventory again
-    ui->showing_inventory_description = false;
+    ui->hide_inventory_description_img();
 }
 
 void Level2::handle_description_choice(uint32_t choice_id) {
@@ -275,18 +195,8 @@ void Level2::restart() {
     driver_guardDog_walk->clear();
     driver_fov_move->clear();
 
-    driver_guardDog_rotate->start();
-    driver_fov_rotate->start();
-
-    driver_bone_move->clear();
-
-    driver_bone_rotate->values4d = level2_animations->animations.at("Bone-rotation").values4d;
-
     fov->position.x = guardDog->position.x;
     fov->position.y = guardDog->position.y;
-
-    rolling_loop = Sound::loop(*rolling_sample, 0.07f, 0.0f);
-    rolling_loop->paused = true;
 
 }
 
@@ -294,42 +204,6 @@ void Level2::update() {
     // Field of view collisions
     update_guard_detection();
     
-    if(guard_detectables["RedPanda"] || driver_guardDog_walk->playing) {
-        // stop guard animation
-        driver_guardDog_rotate->stop();
-        driver_fov_rotate->stop();
-    } else {
-        driver_guardDog_rotate->start();
-        driver_fov_rotate->start();
-    }
-    if (guard_detectables["Bone"]) {
-        float dist = glm::distance(guardDog->position, bone->position);
-        if(dist > 1.25f) {
-            driver_guardDog_rotate->stop();
-            driver_fov_rotate->stop();
-            glm::vec3 guardDirectionWorld = glm::normalize(guardDog->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
-            driver_guardDog_walk->clear();
-            float duration = dist/guard_dog_speed;
-            driver_guardDog_walk->add_walk_in_straight_line_anim(guardDog->position, bone->position - guardDirectionWorld, duration, std::max(static_cast<int>(duration),1));
-            driver_guardDog_walk->restart();
-            driver_fov_move->clear();
-            driver_fov_move->add_walk_in_straight_line_anim(fov->position, bone->position - guardDirectionWorld, duration, std::max(static_cast<int>(duration),1));
-            driver_fov_move->restart();
-        } 
-        if(dist <= 1.25f && driver_guardDog_walk->playing) {
-            // stop guard when close to bone
-            driver_guardDog_walk->stop();
-            driver_fov_move->stop();
-            driver_bone_move->stop();
-            driver_bone_move->finished = true;
-            driver_bone_rotate->stop();
-        }
-        
-    }
     
     // animation
-    if(driver_bone_move->finished) {
-        driver_bone_rotate->stop();
-        rolling_loop->paused = true;
-    }
 }

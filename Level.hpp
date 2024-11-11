@@ -28,8 +28,10 @@ struct Level {
 		std::vector<std::string> interaction_choices = {};
 		std::string inventory_description = "";
 		std::vector<std::string> inventory_choices = {};
-        std::string img_path;
+        std::string img_path; //inventory slot mini image 64x64
+        std::string description_img_path; //description image 256x256
         bool show_description_box = false;
+        bool added = false;//added to inventory
 	};
 
     struct GuardDog {

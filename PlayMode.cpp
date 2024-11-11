@@ -435,7 +435,6 @@ void PlayMode::restart(bool new_level){
 
 	if(new_level) {
 		ui->set_title("Level " + std::to_string(level_id + 1));
-		std::cout<<"restart new level "<<level_id<<std::endl;
 		player.transform = level->player_transform;
 		player.transform->position = level->player_spawn_point;
 		player.transform->rotation = level->player_spawn_rotation;
@@ -452,7 +451,6 @@ void PlayMode::restart(bool new_level){
 		//start player walking at nearest walk point:
 		player.at = level->walkmesh->nearest_walk_point(player.transform->position);
 	} else {
-		std::cout<<"restart current level "<<level_id<<std::endl;
 		player.transform->position = level->player_spawn_point;
 		player.at = level->walkmesh->nearest_walk_point(player.transform->position);
 	}

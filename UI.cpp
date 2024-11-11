@@ -471,12 +471,17 @@ void UI::arrow_key_callback(bool left) {
     }
 }
 
-void UI::add_inventory_item(std::string item_name, std::string img_path) {
+void UI::add_inventory_item(std::string item_name, std::string img_path, std::string description_img_path, glm::vec2 description_img_pos) {
     auto img_ptr = std::make_shared<Img>(inventory_item_pos[inventory_items.size()], img_path);
     imgs.push_back(img_ptr);
-    InventoryItem item = {item_name, img_ptr, static_cast<uint32_t>(inventory_items.size())};
+    InventoryItem item = {item_name, img_ptr, static_cast<uint32_t>(inventory_items.size()), nullptr};
+    if(description_img_path != "") {
+        item.description_img = std::make_shared<Img>(description_img_pos, description_img_path);
+        imgs.push_back(item.description_img);
+    }
     inventory_items.push_back(item);
     img_ptr->hide = inventory_img->hide;
+    inventory_slot_selected_id = inventory_items.size()-1;
     need_update_texture = true;
 }
 
@@ -497,6 +502,37 @@ void UI::remove_inventory_item() {
 std::string UI::get_selected_inventory_item_name() {
     if(inventory_slot_selected_id > inventory_items.size()) return "";
     return inventory_items[inventory_slot_selected_id].name;
+}
+
+void UI::show_inventory_description_img(uint32_t slot_id){
+    hide_all();
+    inventory_items[slot_id].description_img->hide = false;
+    showing_inventory_description = true;
+
+    need_update_texture = true;
+}
+
+void UI::hide_inventory_description_img() {
+    showing_inventory_description = false;
+    for(auto& item: inventory_items) {
+        if(item.description_img != nullptr) {
+            item.description_img->hide = true;
+        }
+    }
+    set_menu_button(false);
+    set_inventory_button(false);
+    set_restart_button(false);
+    title_text->hide = false;
+    need_update_texture = true;
+}
+
+uint32_t UI::get_inventory_item_id(std::string item_name) {
+    for(auto& item: inventory_items) {
+        if(item.name == item_name) {
+            return item.inventory_slot_id;
+        }
+    }
+    throw std::runtime_error("Item "+item_name+" not found in inventory");
 }
 
 void UI::show_notification(std::string notification) {
