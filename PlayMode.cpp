@@ -348,7 +348,7 @@ void PlayMode::update(float elapsed) {
 			// TODO: add exit door
 			game_over = true;
 			++level_id; 
-			if(level_id > game_info.highest_level) {
+			if((uint32_t)level_id > game_info.highest_level) {
 				game_info.update_highest_level(level_id);
 			}
 			ui->show_game_over(true);

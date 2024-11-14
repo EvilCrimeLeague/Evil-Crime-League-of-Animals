@@ -119,6 +119,13 @@ struct GameInfo {
 
 };
 
+struct Triangle {
+    glm::vec3 a;
+    glm::vec3 b;
+    glm::vec3 c;
+    std::string name;
+};
+
 extern Load< Sound::Sample > collect_sample;
 extern Load< Sound::Sample > pop_sample;
 extern Load< Sound::Sample > rolling_sample;
