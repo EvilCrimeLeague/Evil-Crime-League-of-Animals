@@ -32,6 +32,8 @@ PlayMode::PlayMode() {
 
 	auto level1 = std::make_shared<Level1>(ui);
 	levels.push_back(level1);
+	auto level2 = std::make_shared<Level2>(ui);
+	levels.push_back(level2);
 	level = level1;
 
 	player.transform = level->player_transform;
@@ -40,13 +42,15 @@ PlayMode::PlayMode() {
 	level->guard_detectables["RedPanda"] = false;
 
 	//create a player camera attached to a child of the player transform:
-	camera = level->camera;
-	player.camera = camera;
+	player.camera = level->camera;
 
 	camera_transform = player.camera->transform->position - player.transform->position;
 
 	//start player walking at nearest walk point:
 	player.at = level->walkmesh->nearest_walk_point(player.transform->position);
+
+	game_info = GameInfo();
+	ui->set_title("Level 1");
 }
 
 PlayMode::~PlayMode() {
@@ -139,26 +143,38 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			float elapsed = std::chrono::duration< float >(after_time - before_time).count();
 			std::cout<<"update guard detection took "<<elapsed * 1000 / 10<<"milliseconds"<<std::endl;
 			enter.pressed = false;
-			if(ui->showing_menu) {
-				if(ui->menu_slot_selected_id == 0) {
-					// resume
-					restart();
+			if(game_over && level_id < levels.size()) {
+				level = levels[level_id];
+				restart(true);
+			} else if(ui->showing_menu) {
+				if(ui->menu_slot_selected_id <= game_info.highest_level) {
+					level_id = ui->menu_slot_selected_id;
+					level = levels[level_id];
+					restart(true);
 				}
+			} else {
+				level->handle_enter_key();
 			}
-			level->handle_enter_key();
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_e) {
 			key_e.pressed = false;
-			Sound::play(*toggle_inventory_sample, 0.2f, 0.0f);
-			ui->set_inventory(ui->showing_inventory);
+			if(!game_over) {
+				Sound::play(*toggle_inventory_sample, 0.2f, 0.0f);
+				ui->set_inventory(ui->showing_inventory);
+			}
+			
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_r) {
 			key_r.pressed = false;
-			restart();
+			if(!game_over) {
+				restart();
+			}
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_q) {
 			key_q.pressed = false;
-			ui->set_menu(ui->showing_menu);
+			if(!game_over) {
+				ui->set_menu(ui->showing_menu);
+			}
 			return true;
 		}
 	}
@@ -329,7 +345,12 @@ void PlayMode::update(float elapsed) {
 		}
 
 		if(get_distance(player.transform->position, level->target_transform->position) < 1.5f) {
+			// TODO: add exit door
 			game_over = true;
+			++level_id; 
+			if(level_id > game_info.highest_level) {
+				game_info.update_highest_level(level_id);
+			}
 			ui->show_game_over(true);
 		}
 	}
@@ -416,12 +437,37 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 
 }
 
-void PlayMode::restart(){
+void PlayMode::restart(bool new_level){
 	ui->reset();
 	seen_by_guard_timer = 0.0f;
 	game_over = false;
 	paused = false;
-	player.transform->position = level->player_spawn_point;
-	player.at = level->walkmesh->nearest_walk_point(player.transform->position);
+
 	level->restart();
+
+	if(new_level) {
+		ui->set_title("Level " + std::to_string(level_id + 1));
+		player.transform = level->player_transform;
+		player.transform->position = level->player_spawn_point;
+		player.transform->rotation = level->player_spawn_rotation;
+		player.rotation_euler = glm::eulerAngles(player.transform->rotation) / float(M_PI) * 180.0f;
+		player.rotation = player.transform->rotation;
+		level->guard_detectables["RedPanda"] = false;
+
+		//create a player camera attached to a child of the player transform:
+		player.camera = level->camera;
+		player.camera->transform->position = level->camera_spawn_point;
+
+		camera_transform = player.camera->transform->position - player.transform->position;
+
+		//start player walking at nearest walk point:
+		player.at = level->walkmesh->nearest_walk_point(player.transform->position);
+	} else {
+		player.transform->position = level->player_spawn_point;
+		player.at = level->walkmesh->nearest_walk_point(player.transform->position);
+	}
+
+	
+
+	
 }

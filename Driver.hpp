@@ -27,7 +27,6 @@ struct Animation {
 
     Animation(const std::string  &filename) {
         // load animation data from file
-        std::cout<<filename<<std::endl;
         std::ifstream file(filename, std::ios::binary);
 
         std::vector<uint32_t> num_animations_v;

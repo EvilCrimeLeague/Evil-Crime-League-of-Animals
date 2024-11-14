@@ -4,18 +4,6 @@
 
 #include <iostream>
 
-Load< Sound::Sample > collect_sample(LoadTagDefault, []() -> Sound::Sample const * {
-	return new Sound::Sample(data_path("collect.wav"));
-});
-
-Load< Sound::Sample > pop_sample(LoadTagDefault, []() -> Sound::Sample const * {
-	return new Sound::Sample(data_path("pop.wav"));
-});
-
-Load< Sound::Sample > rolling_sample(LoadTagDefault, []() -> Sound::Sample const * {
-	return new Sound::Sample(data_path("rolling.wav"));
-});
-
 GLuint level1_meshes_for_lit_color_texture_program = 0;
 Load< MeshBuffer > level1_meshes(LoadTagDefault, []() -> MeshBuffer const * {
 	MeshBuffer const *ret = new MeshBuffer(data_path("level1.pnct"));
@@ -79,9 +67,11 @@ Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
     // fov->parent = guardDog;
 
     player_spawn_point = player_transform->position;
+    player_spawn_rotation = player_transform->rotation;
 
     if (scene.cameras.size() != 1) throw std::runtime_error("Expecting scene to have exactly one camera, but it has " + std::to_string(scene.cameras.size()));
     camera = &scene.cameras.front();
+    camera_spawn_point = camera->transform->position;
     guard_detectables["Wall"] = false;
 
     // initialize items

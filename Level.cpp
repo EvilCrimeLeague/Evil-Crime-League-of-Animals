@@ -1,5 +1,17 @@
 #include "Level.hpp"
 
+Load< Sound::Sample > collect_sample(LoadTagDefault, []() -> Sound::Sample const * {
+	return new Sound::Sample(data_path("collect.wav"));
+});
+
+Load< Sound::Sample > pop_sample(LoadTagDefault, []() -> Sound::Sample const * {
+	return new Sound::Sample(data_path("pop.wav"));
+});
+
+Load< Sound::Sample > rolling_sample(LoadTagDefault, []() -> Sound::Sample const * {
+	return new Sound::Sample(data_path("rolling.wav"));
+});
+
 Level::Level(std::shared_ptr<UI> ui_): ui(ui_) {};
 
 std::shared_ptr<Level::Item> Level::get_closest_item(glm::vec3 player_position) {
@@ -12,7 +24,7 @@ std::shared_ptr<Level::Item> Level::get_closest_item(glm::vec3 player_position) 
             closest_item = itr->second;
         }
     }
-    // std::cout<<"closet distance: "<<closest_distance<<"\n";
+
     curr_item = closest_item;
     return closest_item;
 }

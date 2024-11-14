@@ -7,6 +7,7 @@
 #include "Mesh.hpp"
 #include "Load.hpp"
 #include "data_path.hpp"
+#include "read_write_chunk.hpp"
 #include "LitColorTextureProgram.hpp"
 #include "TextTextureProgram.hpp"
 #include "Driver.hpp"
@@ -27,8 +28,10 @@ struct Level {
 		std::vector<std::string> interaction_choices = {};
 		std::string inventory_description = "";
 		std::vector<std::string> inventory_choices = {};
-        std::string img_path;
+        std::string img_path; //inventory slot mini image 64x64
+        std::string description_img_path; //description image 256x256
         bool show_description_box = false;
+        bool added = false;//added to inventory
 	};
 
     struct GuardDog {
@@ -51,8 +54,10 @@ struct Level {
     const WalkMesh* walkmesh;
 
     Scene::Camera *camera = nullptr;
+    glm::vec3 camera_spawn_point;
     Scene::Transform *player_transform = nullptr;
     glm::vec3 player_spawn_point;
+    glm::quat player_spawn_rotation;
     Scene::Transform *target_transform = nullptr;
 
     // ui
@@ -81,3 +86,39 @@ struct Level {
     std::shared_ptr< Sound::PlayingSample > rolling_loop;
     float closest_dist_infront = 5.0f;
 };
+
+struct GameInfo {
+    std::string file_path;
+    uint32_t highest_level;
+
+    GameInfo() {
+        file_path = data_path("game.info");
+        // if file does not exist, create it
+        std::ifstream file(file_path, std::ios::binary);
+        std::vector<uint32_t> highest_level_v;
+        if(!file.good()) {
+            std::ofstream new_file(file_path, std::ios::binary);
+            highest_level_v = {0};
+            highest_level = 0;
+            write_chunk("int0", highest_level_v, &new_file);
+            new_file.close();
+        } else {
+            read_chunk(file, "int0", &highest_level_v);
+            highest_level = highest_level_v[0];
+        }
+	    file.close();
+    }
+
+    void update_highest_level(int level) {
+        highest_level = level;
+        std::ofstream file(file_path, std::ios::binary);
+        std::vector<uint32_t> highest_level_v = {highest_level};
+        write_chunk("int0", highest_level_v, &file);
+        file.close();
+    }
+
+};
+
+extern Load< Sound::Sample > collect_sample;
+extern Load< Sound::Sample > pop_sample;
+extern Load< Sound::Sample > rolling_sample;

@@ -5,6 +5,7 @@
 #include "UI.hpp"
 #include "Level.hpp"
 #include "Level1.hpp"
+#include "Level2.hpp"
 
 #include <glm/glm.hpp>
 
@@ -26,7 +27,6 @@ struct PlayMode : Mode {
 	} left, right, down, up, left_arrow, right_arrow, key_f/*interact*/, enter/*make choice*/, key_e/*show inventory*/, key_r/*restart*/, key_q/*show menu*/;
 
 	//camera:
-	Scene::Camera *camera = nullptr;
 	glm::vec3 camera_transform;
 
 	//player info:
@@ -46,6 +46,7 @@ struct PlayMode : Mode {
 	// levels:
 	std::vector<std::shared_ptr<Level> > levels;
 	std::shared_ptr<Level> level;
+	int level_id = 0;
 
 	// game status:
 	std::shared_ptr<Level::Item> curr_item;
@@ -63,8 +64,10 @@ struct PlayMode : Mode {
 		return glm::distance(a, b);
 	}
 
-	void restart();
+	void restart(bool new_level=false);
 	float walk_timer = 0;
 	float speed_percent = 0;
 	float playerSpeed = 0;
+
+	GameInfo game_info;
 };
