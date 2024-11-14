@@ -1,5 +1,6 @@
 #include "Level1.hpp"
 #include "Sound.hpp"
+#include <glm/gtx/norm.hpp>
 
 #include <iostream>
 
@@ -74,7 +75,6 @@ Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
     else if (bone == nullptr) throw std::runtime_error("Bone not found.");
 	else if (guardDog == nullptr) throw std::runtime_error("GuardDog not found.");
 	else if (fov == nullptr) throw std::runtime_error("FOV not found.");
-	std::cout<<guardDog->position.y - fov->position.y<<std::endl;
 
     // fov->parent = guardDog;
 
@@ -204,6 +204,7 @@ void Level1::handle_interact_key() {
             if (rolling_loop) {
                 rolling_loop->stop();
             }
+            guard_detectables["Bone"] = false;
             ui->add_inventory_item(curr_item->name, curr_item->img_path);
             // hide item
             curr_item->transform->position.x = -1000.0f;
@@ -226,26 +227,32 @@ void Level1::handle_inventory_choice(uint32_t choice_id) {
     if(ui->choice_id == 0) {
         // use item
         std::string item_name = ui->get_selected_inventory_item_name();
-        ui->remove_inventory_item();
         if(item_name == "Bone") {
-            update_player_dist_infront();
             rolling_loop->paused = false;
             // create bone move animation
-		    glm::vec3 playerDirectionWorld = glm::normalize(player_transform->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
-            glm::vec3 bone_target_pos = player_transform->position + (std::min(closest_dist_infront,1.5f) * playerDirectionWorld) + glm::vec3(0.0, 0.0, 0.5);//playerDirectionWorld*2.0f + glm::vec3(0,0,0.5);
-            driver_bone_move->clear();
-            driver_bone_move->add_walk_in_straight_line_anim(player_transform->position, bone_target_pos, static_cast<int>(glm::distance(player_transform->position, bone_target_pos)), 3);
+            float dist = update_bone_dist_infront();
+            if (dist < 1.0f) {
+                ui->show_description("There is not enough room to throw the bone");
+            } else {
+                ui->remove_inventory_item();
+                glm::vec3 playerDirectionWorld = glm::normalize(player_transform->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
+                glm::vec3 bone_target_pos = player_transform->position + (dist * playerDirectionWorld);//playerDirectionWorld*2.0f + glm::vec3(0,0,0.5);
+                driver_bone_move->clear();
+                driver_bone_move->add_walk_in_straight_line_anim(player_transform->position, bone_target_pos, static_cast<int>(glm::distance(player_transform->position, bone_target_pos)), 3);
+                driver_bone_rotate->values4d = level1_animations->animations.at("Bone-rotation").values4d;
+                bone->rotation = player_transform->rotation;
+                for(int i=0; i<driver_bone_rotate->values4d.size(); i++){
+                    driver_bone_rotate->values4d[i] = bone->rotation * driver_bone_rotate->values4d[i];
+                }
 
-            // reset bone rotation animation
-            driver_bone_rotate->values4d = level1_animations->animations.at("Bone-rotation").values4d;
-            bone->rotation = player_transform->rotation;
-            for(int i=0; i<driver_bone_rotate->values4d.size(); i++){
-                driver_bone_rotate->values4d[i] = bone->rotation * driver_bone_rotate->values4d[i];
+
+                driver_bone_move->restart();
+                driver_bone_rotate->restart();
             }
-
-            driver_bone_move->restart();
-            driver_bone_rotate->restart();
+            
         }
+            // reset bone rotation animation
+
     } 
     // show inventory again
     ui->showing_inventory_description = false;
@@ -343,4 +350,54 @@ void Level1::update() {
         driver_bone_rotate->stop();
         rolling_loop->paused = true;
     }
+}
+
+
+float Level1::update_bone_dist_infront() {
+	// level1 = std::make_shared<Level1>;
+	auto barycentric_weights = [&](glm::vec3 const &a, glm::vec3 const &b, glm::vec3 const &c, glm::vec3 const &pt) {
+		// Reference: https://gamedev.stackexchange.com/questions/23743/whats-the-most-efficient-way-to-find-barycentric-coordinates
+		glm::vec3 v0 = b - a, v1 = c - a, v2 = pt - a;
+		float d00 = glm::dot(v0, v0);
+		float d01 = glm::dot(v0, v1);
+		float d11 = glm::dot(v1, v1);
+		float d20 = glm::dot(v2, v0);
+		float d21 = glm::dot(v2, v1);
+		float denom = d00 * d11 - d01 * d01;
+		float v = (d11 * d20 - d01 * d21) / denom;
+		float w = (d00 * d21 - d01 * d20) / denom;
+		float u = 1.0f - v - w;
+		return glm::vec3(u,v,w);
+	};
+	glm::vec3 position = player_transform->make_local_to_world() * glm::vec4(0.0, 0.0, 0.0, 1.0f);
+	float radius = 0.25;
+	glm::vec3 dir = glm::normalize(player_transform->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
+    float distance = 0.76f;
+    while (distance < 2.1f) {
+        for (Scene::Drawable &d: scene.drawables) {
+            if (d.transform->name != "Floor" && d.transform->name != "WalkMesh" && d.transform->name != "RedPanda" && d.transform->name != "Bone" && d.transform->name != "FOV") {
+                GLuint start = d.mesh->start;
+                GLuint count = d.mesh->count;
+                glm::mat4x3 transform = d.transform->make_local_to_world();
+                glm::vec3 target_pos = position + glm::vec3(dir.x * distance, dir.y * distance, dir.z * distance);
+                for (GLuint i = start; i < start + count; i += 3) {
+                    glm::vec3 const &a = transform * glm::vec4(d.meshBuffer->data[i].Position, 1);
+                    glm::vec3 const &b = transform * glm::vec4(d.meshBuffer->data[i + 1].Position, 1);
+                    glm::vec3 const &c = transform * glm::vec4(d.meshBuffer->data[i + 2].Position, 1);
+                    glm::vec3 coords = barycentric_weights(a, b, c, target_pos);
+                    glm::vec3 worldCoords = coords.x * a + coords.y * b + coords.z * c;
+
+                    if (coords.x >= 0 && coords.y >= 0 && coords.z >= 0) {
+                        float dist = glm::length2(target_pos - worldCoords);
+                        if (dist < radius) {
+                            return distance;
+                        }
+                        
+                    }
+                }
+            }
+        }
+        distance += radius;
+    }
+	return distance;
 }

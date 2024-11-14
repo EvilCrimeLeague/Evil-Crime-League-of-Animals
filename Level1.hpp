@@ -27,6 +27,7 @@ struct Level1 : Level {
     void handle_interact_key();
     void handle_inventory_choice(uint32_t choice_id);
     void handle_description_choice(uint32_t choice_id);
+    float update_bone_dist_infront();
     void update();
 
     void restart();

@@ -74,7 +74,7 @@ struct Level {
     virtual void update() = 0; // any update particular to that level
     
     void update_guard_detection();
-    void update_player_dist_infront();
+    void update_guard_fov();
     void update_animation(const float deltaTime);
 
     virtual void restart() = 0;

@@ -10,10 +10,12 @@
 #include "data_path.hpp"
 #include "Ray.hpp"
 #include "Level.hpp"
+#include "Level1.hpp"
 #include "Sound.hpp"
 
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <chrono>
 
 #include <random>
 
@@ -58,7 +60,6 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 		// std::cout<<playerPositionWorld.x<<" "<<playerPositionWorld.y<<" "<<playerPositionWorld.z<<std::endl;
 		// std::cout<<player.transform->position.x<<" "<<player.transform->position.y<<" "<<player.transform->position.z<<std::endl;
 		// glm::vec3 playerDirectionWorld = glm::normalize(player.transform->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
-		// std::cout<<playerDirectionWorld.x<<" "<<playerDirectionWorld.y<<" "<<playerDirectionWorld.z<<std::endl;
 		if (evt.key.keysym.sym == SDLK_a) {
 			left.downs += 1;
 			left.pressed = true;
@@ -130,6 +131,13 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			level->handle_interact_key();
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_RETURN) {
+			auto before_time = std::chrono::high_resolution_clock::now();
+			for (uint32_t i = 0; i < 10; i++) {
+				level->update_guard_detection();
+			}
+			auto after_time = std::chrono::high_resolution_clock::now();
+			float elapsed = std::chrono::duration< float >(after_time - before_time).count();
+			std::cout<<"update guard detection took "<<elapsed * 1000 / 10<<"milliseconds"<<std::endl;
 			enter.pressed = false;
 			if(ui->showing_menu) {
 				if(ui->menu_slot_selected_id == 0) {
@@ -359,11 +367,15 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 	glDepthFunc(GL_LESS); //this is the default depth comparison function, but FYI you can change it.
 
 	level->scene.draw(*player.camera);
+	// DrawLines lines(player.camera->make_projection() * glm::mat4(player.camera->transform->make_world_to_local()));
+	// lines.draw(player.transform->position, level->first, glm::u8vec4(0x88, 0x00, 0xff, 0xff));
+	// lines.draw(player.transform->position, level->second, glm::u8vec4(0x88, 0x00, 0xff, 0xff));
+	// lines.draw(player.transform->position, level->third, glm::u8vec4(0x88, 0x00, 0xff, 0xff));
+	// lines.draw(player.transform->position, level->fourth, glm::u8vec4(0x88, 0x00, 0xff, 0xff));
 
 	/* In case you are wondering if your walkmesh is lining up with your scene, try:
 	{
 		glDisable(GL_DEPTH_TEST);
-		DrawLines lines(player.camera->make_projection() * glm::mat4(player.camera->transform->make_world_to_local()));
 		for (auto const &tri : walkmesh->triangles) {
 			lines.draw(walkmesh->vertices[tri.x], walkmesh->vertices[tri.y], glm::u8vec4(0x88, 0x00, 0xff, 0xff));
 			lines.draw(walkmesh->vertices[tri.y], walkmesh->vertices[tri.z], glm::u8vec4(0x88, 0x00, 0xff, 0xff));
