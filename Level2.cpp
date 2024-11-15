@@ -108,8 +108,9 @@ void Level2::handle_enter_key() {
     if(ui->showing_inventory_description) {
         // Interact with inventory item
         handle_inventory_choice(ui->choice_id);
-    } 
-    else if (ui->showing_description) {
+    } else if (ui->showing_image) {
+        ui->hide_img();
+    } else if (ui->showing_description) {
         // Interact with item
         if(ui->showing_choices) {
             handle_description_choice(ui->choice_id);
@@ -131,7 +132,7 @@ void Level2::handle_interact_key() {
     if(ui->showing_interactable_button) {
         // ui->show_description(curr_item->interaction_description, curr_item->interaction_choices[0], curr_item->interaction_choices[1]);
         
-        if(curr_item->name == "Paper" || curr_item->name.find("Painting") != std::string::npos) {
+        if(curr_item->name == "Paper") {
             if (!curr_item->added) {
                 curr_item->added = true;
                 ui->add_inventory_item(curr_item->name, curr_item->img_path, curr_item->description_img_path);
@@ -139,6 +140,12 @@ void Level2::handle_interact_key() {
             uint32_t id = ui->get_inventory_item_id(curr_item->name);
             ui->show_inventory_description_img(id);
             Sound::play(*pop_sample, 0.05f, 0.0f);
+        } else if (curr_item->name.find("Painting") != std::string::npos) {
+            if (!curr_item->added) {
+                curr_item->img = ui->add_img(curr_item->description_img_path);
+                curr_item->added = true;
+            }
+            ui->show_img(curr_item->img);
         } else {
             // show description box
             if(curr_item->interaction_choices.size() > 0) {

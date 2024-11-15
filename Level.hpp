@@ -29,7 +29,8 @@ struct Level {
 		std::string inventory_description = "";
 		std::vector<std::string> inventory_choices = {};
         std::string img_path; //inventory slot mini image 64x64
-        std::string description_img_path; //description image 256x256
+        std::string description_img_path; //description image
+        std::shared_ptr<UI::Img> img = nullptr;
         bool show_description_box = false;
         bool added = false;//added to inventory
 	};

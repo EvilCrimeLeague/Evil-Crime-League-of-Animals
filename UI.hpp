@@ -105,8 +105,11 @@ struct UI {
     bool showing_interactable_button = false;
     bool showing_alarm = false;
     bool showing_menu = false; // when menu is showing, disable other UI elements
+    bool showing_image = false;
 
     bool need_update_texture = true;
+
+    std::vector<std::shared_ptr<Img>> extra_imgs = {};
 
     UI() {
         // Load font
@@ -300,4 +303,10 @@ struct UI {
     void update_menu_selection(bool left);
 
     void set_title(std::string title);
+
+    std::shared_ptr<Img> add_img(std::string path);
+    void show_img(std::shared_ptr<Img> img);
+    void hide_img();
+
+    bool should_pause();
 };

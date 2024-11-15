@@ -132,7 +132,9 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_f) {
 			key_f.pressed = false;
-			level->handle_interact_key();
+			if(!game_over && !paused) {
+				level->handle_interact_key();
+			}
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_RETURN) {
 			auto before_time = std::chrono::high_resolution_clock::now();
@@ -158,7 +160,7 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_e) {
 			key_e.pressed = false;
-			if(!game_over) {
+			if(!game_over && !paused) {
 				Sound::play(*toggle_inventory_sample, 0.2f, 0.0f);
 				ui->set_inventory(ui->showing_inventory);
 			}
@@ -166,7 +168,7 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_r) {
 			key_r.pressed = false;
-			if(!game_over) {
+			if(!game_over && !paused) {
 				restart();
 			}
 			return true;
@@ -184,7 +186,7 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 
 void PlayMode::update(float elapsed) {
 	//player walking:
-	paused = ui->showing_inventory_description || ui->showing_description;
+	paused = ui->should_pause();
 	if(game_over || paused) 
 		return;
 	constexpr float player_speed = 20.0f;
