@@ -361,7 +361,7 @@ void PlayMode::update(float elapsed) {
 			ui->hide_interact_bt_msg();
 		}
 
-		if(get_distance(player.transform->position, level->target_transform->position) < 1.5f) {
+		if(level->target_obtained && get_distance(player.transform->position, level->exit_transform->position) < 1.5f) {
 			// TODO: add exit door
 			game_over = true;
 			++level_id; 

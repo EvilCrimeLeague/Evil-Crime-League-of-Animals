@@ -49,20 +49,23 @@ Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
 
     for (auto &transform : scene.transforms) {
         if (transform.name == "RedPanda") player_transform = &transform;
-        else if (transform.name == "Jewel") target_transform = &transform;
+        else if (transform.name == "Jewel") head = &transform;
 		else if (transform.name == "Bone") bone = &transform;
 		else if (transform.name == "GuardDog") guardDog = &transform;
 		else if (transform.name == "FOV") fov = &transform;
         else if (transform.name == "Vase.001") vase = &transform;
         else if (transform.name == "Painting.002") painting_1 = &transform;
         else if (transform.name == "Painting.003") painting_2 = &transform;
+        else if (transform.name == "Exit") exit_transform = &transform;
 	}
 
-    if (target_transform == nullptr) throw std::runtime_error("Target not found.");
+    if (head == nullptr) throw std::runtime_error("Target not found.");
     else if (player_transform == nullptr) throw std::runtime_error("Player not found.");
     else if (bone == nullptr) throw std::runtime_error("Bone not found.");
 	else if (guardDog == nullptr) throw std::runtime_error("GuardDog not found.");
 	else if (fov == nullptr) throw std::runtime_error("FOV not found.");
+    else if (exit_transform == nullptr) throw std::runtime_error("Exit not found.");
+
 
     // fov->parent = guardDog;
 
@@ -110,6 +113,16 @@ Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
     painting_2_ptr->show_description_box = true;
     painting_2_ptr->spawn_point = painting_2->position;
     items["Painting2"] = painting_2_ptr;
+
+    auto head_ptr = std::make_shared<Item>();
+    head_ptr->name = "Head";
+    head_ptr->interaction_description = "Collect it.";
+    head_ptr->transform = head;
+    head_ptr->img_path = "UI/dog.png";
+    head_ptr->spawn_point = bone->position;
+    head_ptr->inventory_description = "This is the copper head of Dog";
+    head_ptr->inventory_choices = {};
+    items["Head"] = head_ptr;
     
     // initialize guard dogs
     auto guardDog_ptr = std::make_shared<GuardDog>();
@@ -199,7 +212,12 @@ void Level1::handle_interact_key() {
             // hide item
             curr_item->transform->position.x = -1000.0f;
             Sound::play(*pop_sample, 0.05f, 0.0f);
-        } else {
+        } else if (curr_item->name == "Head") {
+            ui->add_inventory_item(curr_item->name, curr_item->img_path);
+            curr_item->transform->position.x = -1000.0f;
+            Sound::play(*pop_sample, 0.05f, 0.0f);
+            target_obtained = true;
+        }else {
             // show description box
             if(curr_item->interaction_choices.size() > 0) {
                 // show choices

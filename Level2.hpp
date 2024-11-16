@@ -3,6 +3,7 @@
 #include "Level.hpp"
 
 struct Level2 : Level {
+    Scene::Transform *head = nullptr;
 	Scene::Transform *guardDog = nullptr;
 	Scene::Transform *fov = nullptr;
 

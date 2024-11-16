@@ -48,17 +48,19 @@ Level2::Level2(std::shared_ptr<UI> ui_): Level(ui_) {
 
     for (auto &transform : scene.transforms) {
         if (transform.name == "RedPanda") player_transform = &transform;
-        else if (transform.name == "Head") target_transform = &transform;
+        else if (transform.name == "Head") head = &transform;
 		else if (transform.name == "GuardDog") guardDog = &transform;
         else if (transform.name == "Painting") painting_1 = &transform;
         else if (transform.name == "Painting.001") painting_2 = &transform;
         else if (transform.name == "ControlPanel") control_panel = &transform;
         else if (transform.name == "Paper") paper = &transform;
+        else if (transform.name == "Exit") exit_transform = &transform;
 	}
 
-    if (target_transform == nullptr) throw std::runtime_error("Target not found.");
+    if (head == nullptr) throw std::runtime_error("Target not found.");
     else if (player_transform == nullptr) throw std::runtime_error("Player not found.");
 	else if (guardDog == nullptr) throw std::runtime_error("GuardDog not found.");
+    else if (exit_transform == nullptr) throw std::runtime_error("Exit not found.");
 
     // fov->parent = guardDog;
 
@@ -270,7 +272,7 @@ void Level2::handle_numeric_key(uint32_t key) {
         if(control_panel_inputs.size() < 6) {
             player_input += std::to_string(key);
             uint32_t i = control_panel_inputs.size();
-            auto img = ui->add_img("UI/"+std::to_string(key)+".png");
+            auto img = ui->add_img("UI/Level2"+std::to_string(key)+".png");
             img->pos = control_panel_slots[i]->pos;
             img->hide = false;
             control_panel_inputs.push_back(img);

@@ -60,7 +60,9 @@ struct Level {
     Scene::Transform *player_transform = nullptr;
     glm::vec3 player_spawn_point;
     glm::quat player_spawn_rotation;
-    Scene::Transform *target_transform = nullptr;
+    Scene::Transform *exit_transform = nullptr;
+
+    bool target_obtained = false;
 
     // ui
     std::shared_ptr<UI> ui;
