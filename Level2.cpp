@@ -5,13 +5,13 @@
 
 GLuint level2_meshes_for_lit_color_texture_program = 0;
 Load< MeshBuffer > level2_meshes(LoadTagDefault, []() -> MeshBuffer const * {
-	MeshBuffer const *ret = new MeshBuffer(data_path("level1.pnct"));
+	MeshBuffer const *ret = new MeshBuffer(data_path("level2.pnct"));
 	level2_meshes_for_lit_color_texture_program = ret->make_vao_for_program(lit_color_texture_program->program);
 	return ret;
 });
 
 Load< Scene > level2_scene(LoadTagDefault, []() -> Scene const * {
-	return new Scene(data_path("level1.scene"), [&](Scene &scene, Scene::Transform *transform, std::string const &mesh_name){
+	return new Scene(data_path("level2.scene"), [&](Scene &scene, Scene::Transform *transform, std::string const &mesh_name){
 		Mesh const &mesh = level2_meshes->lookup(mesh_name);
 
 		scene.drawables.emplace_back(transform);
@@ -32,15 +32,15 @@ Load< Scene > level2_scene(LoadTagDefault, []() -> Scene const * {
 });
 
 Load< WalkMesh > level2_walkmesh(LoadTagDefault, []() -> WalkMesh const * {
-	WalkMeshes *ret = new WalkMeshes(data_path("level1.w"));
+	WalkMeshes *ret = new WalkMeshes(data_path("level2.w"));
 	WalkMesh const *walkmesh = &ret->lookup("WalkMesh");
 	return walkmesh;
 });
 
-Load< Animation > level2_animations(LoadTagDefault, []() -> Animation const * {
-	Animation *anim = new Animation(data_path("level1.anim"));
-	return anim;
-});
+// Load< Animation > level2_animations(LoadTagDefault, []() -> Animation const * {
+// 	Animation *anim = new Animation(data_path("level1.anim"));
+// 	return anim;
+// });
 
 Level2::Level2(std::shared_ptr<UI> ui_): Level(ui_) {
     scene = *level2_scene;
@@ -48,18 +48,17 @@ Level2::Level2(std::shared_ptr<UI> ui_): Level(ui_) {
 
     for (auto &transform : scene.transforms) {
         if (transform.name == "RedPanda") player_transform = &transform;
-        else if (transform.name == "Jewel") target_transform = &transform;
+        else if (transform.name == "Head") target_transform = &transform;
 		else if (transform.name == "GuardDog") guardDog = &transform;
-		else if (transform.name == "FOV") fov = &transform;
-        else if (transform.name == "Vase.001") vase = &transform;
-        else if (transform.name == "Painting.002") painting_1 = &transform;
-        else if (transform.name == "Painting.003") painting_2 = &transform;
+        else if (transform.name == "Painting") painting_1 = &transform;
+        else if (transform.name == "Painting.001") painting_2 = &transform;
+        else if (transform.name == "ControlPanel") control_panel = &transform;
+        else if (transform.name == "Paper") paper = &transform;
 	}
 
     if (target_transform == nullptr) throw std::runtime_error("Target not found.");
     else if (player_transform == nullptr) throw std::runtime_error("Player not found.");
 	else if (guardDog == nullptr) throw std::runtime_error("GuardDog not found.");
-	else if (fov == nullptr) throw std::runtime_error("FOV not found.");
 
     // fov->parent = guardDog;
 
@@ -84,17 +83,24 @@ Level2::Level2(std::shared_ptr<UI> ui_): Level(ui_) {
     auto controll_panel_ptr = std::make_shared<Item>();
     controll_panel_ptr->name = "ControlPanel";
     controll_panel_ptr->interaction_description = "Interact with it";
-    controll_panel_ptr->transform = painting_2;
-    controll_panel_ptr->spawn_point = painting_2->position;
+    controll_panel_ptr->transform = control_panel;
+    controll_panel_ptr->spawn_point = control_panel->position;
     items["ControlPanel"] = controll_panel_ptr;
+
+    auto paper_ptr = std::make_shared<Item>();
+    paper_ptr->name = "Paper";
+    paper_ptr->interaction_description = "Pick it up";
+    paper_ptr->transform = paper;
+    paper_ptr->img_path = "UI/Level2/paper.png";
+    paper_ptr->description_img_path = "UI/Level2/256test.png";
+    paper_ptr->spawn_point = paper->position;
+    items["Paper"] = paper_ptr;
     
     // initialize guard dogs
     auto guardDog_ptr = std::make_shared<GuardDog>();
     guardDog_ptr->name = "GuardDog";
     guardDog_ptr->transform = guardDog;
     guardDog_ptr->spawn_point = guardDog->position;
-    guardDog_ptr->fov = fov;
-    guardDog_ptr->fov_spawn_point = fov->position;
     guard_dogs.push_back(guardDog_ptr);
 
     // initialize drivers
@@ -103,10 +109,10 @@ Level2::Level2(std::shared_ptr<UI> ui_): Level(ui_) {
     driver_guardDog_walk->loop = false;
     drivers.push_back(driver_guardDog_walk);
 
-    driver_fov_move = std::make_shared<Driver>("FOV-move", CHANEL_TRANSLATION);
-    driver_fov_move->transform = fov;
-    driver_fov_move->loop = false;
-    drivers.push_back(driver_fov_move);
+    // driver_fov_move = std::make_shared<Driver>("FOV-move", CHANEL_TRANSLATION);
+    // driver_fov_move->transform = fov;
+    // driver_fov_move->loop = false;
+    // drivers.push_back(driver_fov_move);
 
     // sound
 }
@@ -149,6 +155,7 @@ void Level2::handle_interact_key() {
             uint32_t id = ui->get_inventory_item_id(curr_item->name);
             ui->show_inventory_description_img(id);
             Sound::play(*pop_sample, 0.05f, 0.0f);
+            paper->position.x = -1000.0f;
         } else if (curr_item->name.find("Painting") != std::string::npos) {
             if (!curr_item->added) {
                 curr_item->img = ui->add_img(curr_item->description_img_path);
@@ -222,7 +229,7 @@ void Level2::restart() {
 
     for(auto &guard_dog: guard_dogs) {
         guard_dog->transform->position = guard_dog->spawn_point;
-        guard_dog->fov->position = guard_dog->fov_spawn_point;
+        // guard_dog->fov->position = guard_dog->fov_spawn_point;
     }
 
     for(auto &driver: drivers) {
@@ -235,10 +242,10 @@ void Level2::restart() {
     }
 
     driver_guardDog_walk->clear();
-    driver_fov_move->clear();
+    // driver_fov_move->clear();
 
-    fov->position.x = guardDog->position.x;
-    fov->position.y = guardDog->position.y;
+    // fov->position.x = guardDog->position.x;
+    // fov->position.y = guardDog->position.y;
 
     control_panel_slots = {};
     control_panel_inputs = {};

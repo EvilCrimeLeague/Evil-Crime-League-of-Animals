@@ -414,10 +414,10 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 	/* In case you are wondering if your walkmesh is lining up with your scene, try:
 	{
 		glDisable(GL_DEPTH_TEST);
-		for (auto const &tri : walkmesh->triangles) {
-			lines.draw(walkmesh->vertices[tri.x], walkmesh->vertices[tri.y], glm::u8vec4(0x88, 0x00, 0xff, 0xff));
-			lines.draw(walkmesh->vertices[tri.y], walkmesh->vertices[tri.z], glm::u8vec4(0x88, 0x00, 0xff, 0xff));
-			lines.draw(walkmesh->vertices[tri.z], walkmesh->vertices[tri.x], glm::u8vec4(0x88, 0x00, 0xff, 0xff));
+		for (auto const &tri : level->walkmesh->triangles) {
+			lines.draw(level->walkmesh->vertices[tri.x], level->walkmesh->vertices[tri.y], glm::u8vec4(0x88, 0x00, 0xff, 0xff));
+			lines.draw(level->walkmesh->vertices[tri.y], level->walkmesh->vertices[tri.z], glm::u8vec4(0x88, 0x00, 0xff, 0xff));
+			lines.draw(level->walkmesh->vertices[tri.z], level->walkmesh->vertices[tri.x], glm::u8vec4(0x88, 0x00, 0xff, 0xff));
 		}
 	}
 	*/
