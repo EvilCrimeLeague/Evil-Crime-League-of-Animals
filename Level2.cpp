@@ -80,6 +80,13 @@ Level2::Level2(std::shared_ptr<UI> ui_): Level(ui_) {
     painting_1_ptr->description_img_path = "UI/Level2/256test.png";
     painting_1_ptr->spawn_point = painting_1->position;
     items["Painting1"] = painting_1_ptr;
+
+    auto controll_panel_ptr = std::make_shared<Item>();
+    controll_panel_ptr->name = "ControlPanel";
+    controll_panel_ptr->interaction_description = "Interact with it";
+    controll_panel_ptr->transform = painting_2;
+    controll_panel_ptr->spawn_point = painting_2->position;
+    items["ControlPanel"] = controll_panel_ptr;
     
     // initialize guard dogs
     auto guardDog_ptr = std::make_shared<GuardDog>();
@@ -105,9 +112,11 @@ Level2::Level2(std::shared_ptr<UI> ui_): Level(ui_) {
 }
 
 void Level2::handle_enter_key() {
-    if(ui->showing_inventory_description) {
-        // Interact with inventory item
-        handle_inventory_choice(ui->choice_id);
+    if(showing_control_panel) {
+        // hide control panel
+        hide_control_panel();
+    } else if(ui->showing_inventory_description) {
+        ui->hide_inventory_description_img();
     } else if (ui->showing_image) {
         ui->hide_img();
     } else if (ui->showing_description) {
@@ -146,6 +155,32 @@ void Level2::handle_interact_key() {
                 curr_item->added = true;
             }
             ui->show_img(curr_item->img);
+        } else if (curr_item->name == "ControlPanel") {
+            ui->hide_all();
+            // show control panel
+            if(!control_panel_box) {
+                control_panel_box = ui->add_box(glm::vec4(200, 100, 1080, 620), glm::u8vec4(0, 0, 0, 200));
+            }
+            if(control_panel_slots.size()==0) {
+                glm::vec2 pivot = glm::vec2(300, 180);
+                for (uint32_t i = 0; i < 6; i++) {
+                    glm::vec2 pos = pivot + glm::vec2(i*120, 0);
+                    control_panel_slots.push_back(ui->add_img("UI/Slot2.png"));
+                    control_panel_slots[i]->pos = pos;
+                }
+            }
+            if(!control_panel_text) {
+                control_panel_text = ui->add_text("Enter a 6 digits password. Press enter to exit.", glm::vec2(240, 500), ui->font_manual);
+            }
+            control_panel_box->hide = false;
+            for(auto &slot: control_panel_slots) {
+                slot->hide = false;
+            }
+            control_panel_text->text = "Enter a 6 digits password. (Press enter to exit)";
+            control_panel_text->hide = false;
+            showing_control_panel = true;
+            ui->showing_image = true;
+            ui->need_update_texture = true;
         } else {
             // show description box
             if(curr_item->interaction_choices.size() > 0) {
@@ -205,6 +240,14 @@ void Level2::restart() {
     fov->position.x = guardDog->position.x;
     fov->position.y = guardDog->position.y;
 
+    control_panel_slots = {};
+    control_panel_inputs = {};
+    items["ControlPanel"]->interactable = true;
+    control_panel_box = nullptr;
+    control_panel_text = nullptr;
+    showing_control_panel = false;
+    player_input = "";
+
 }
 
 void Level2::update() {
@@ -213,4 +256,54 @@ void Level2::update() {
     
     
     // animation
+}
+
+void Level2::handle_numeric_key(uint32_t key) {
+    if(showing_control_panel) {
+        if(control_panel_inputs.size() < 6) {
+            player_input += std::to_string(key);
+            uint32_t i = control_panel_inputs.size();
+            auto img = ui->add_img("UI/"+std::to_string(key)+".png");
+            img->pos = control_panel_slots[i]->pos;
+            img->hide = false;
+            control_panel_inputs.push_back(img);
+        }
+        if(control_panel_inputs.size() == 6) {
+            // check password
+            if(player_input == password) {
+                // correct password
+                // TODO: disable laser
+                hide_control_panel();
+                items["ControlPanel"]->interactable = false;
+            } else {
+                // wrong password
+                control_panel_text->text = "Wrong password. Try again. (Press enter to exit)";
+            }
+            // clear input
+            for(auto &img: control_panel_inputs) {
+                ui->imgs.erase(std::remove(ui->imgs.begin(), ui->imgs.end(), img), ui->imgs.end());
+            }
+            control_panel_inputs.clear();
+            player_input = "";
+        }
+        ui->need_update_texture = true;
+    }
+}
+
+void Level2::hide_control_panel() {
+    control_panel_box->hide = true;
+    for(auto &slot: control_panel_slots) {
+        slot->hide = true;
+    }
+    for(auto &img: control_panel_inputs) {
+        ui->imgs.erase(std::remove(ui->imgs.begin(), ui->imgs.end(), img), ui->imgs.end());
+    }
+    control_panel_inputs.clear();
+    control_panel_text->hide = true;
+    showing_control_panel = false;
+    ui->showing_image = false;
+    ui->set_menu_button(false);
+    ui->set_inventory_button(false);
+    ui->set_restart_button(false);
+    ui->set_menu_button(false);
 }

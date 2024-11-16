@@ -33,6 +33,7 @@ struct Level {
         std::shared_ptr<UI::Img> img = nullptr;
         bool show_description_box = false;
         bool added = false;//added to inventory
+        bool interactable = true;
 	};
 
     struct GuardDog {
@@ -77,6 +78,7 @@ struct Level {
 
     virtual void handle_enter_key() = 0;
     virtual void handle_interact_key() = 0;
+    virtual void handle_numeric_key(uint32_t key) = 0;
     virtual void update() = 0; // any update particular to that level
     
     void update_guard_detection();

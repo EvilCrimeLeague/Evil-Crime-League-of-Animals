@@ -406,6 +406,12 @@ void UI::reset() {
     for(auto img: extra_imgs) {
         imgs.erase(std::remove(imgs.begin(), imgs.end(), img), imgs.end());
     }
+    for(auto box: extra_boxes) {
+        boxes.erase(std::remove(boxes.begin(), boxes.end(), box), boxes.end());
+    }
+    for(auto text: extra_texts) {
+        texts.erase(std::remove(texts.begin(), texts.end(), text), texts.end());
+    }
     inventory_items.clear();
     manual_text->text = "Press <- or -> to select, press 'return' to continue";
 
@@ -658,4 +664,18 @@ void UI::hide_img() {
 
 bool UI::should_pause() {
     return showing_description || showing_image || showing_inventory_description || showing_menu;
+}
+
+std::shared_ptr<UI::Box> UI::add_box(glm::vec4 rect, glm::u8vec4 color) {
+    auto box = std::make_shared<UI::Box>(rect, color);
+    boxes.push_back(box);
+    extra_boxes.push_back(box);
+    return box;
+}
+
+std::shared_ptr<Text> UI::add_text(std::string text, glm::vec2 start_pos, std::shared_ptr<Font> font) {
+    auto text_ptr = std::make_shared<Text>(text, /*line length*/85, start_pos, font);
+    texts.push_back(text_ptr);
+    extra_texts.push_back(text_ptr);
+    return text_ptr;
 }

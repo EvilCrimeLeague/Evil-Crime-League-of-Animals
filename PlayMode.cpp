@@ -174,9 +174,21 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_q) {
 			key_q.pressed = false;
-			if(!game_over) {
+			if((!game_over && !paused) || ui->showing_menu) {
 				ui->set_menu(ui->showing_menu);
 			}
+			return true;
+		} else if (evt.key.keysym.sym ==  SDLK_0 ||
+				   evt.key.keysym.sym ==  SDLK_1 ||
+				   evt.key.keysym.sym ==  SDLK_2 ||
+				   evt.key.keysym.sym ==  SDLK_3 ||
+				   evt.key.keysym.sym ==  SDLK_4 ||
+				   evt.key.keysym.sym ==  SDLK_5 ||
+				   evt.key.keysym.sym ==  SDLK_6 ||
+				   evt.key.keysym.sym ==  SDLK_7 ||
+				   evt.key.keysym.sym ==  SDLK_8 ||
+				   evt.key.keysym.sym ==  SDLK_9) {
+			level->handle_numeric_key(evt.key.keysym.sym - SDLK_0);
 			return true;
 		}
 	}
@@ -332,8 +344,10 @@ void PlayMode::update(float elapsed) {
 
 	{
 		// player and item interaction
-		curr_item = level->get_closest_item(player.transform->position);
-		if(!ui->showing_interactable_button && curr_item!=nullptr) {
+		auto new_item = level->get_closest_item(player.transform->position);
+		if(new_item!=nullptr && (!ui->showing_interactable_button || curr_item != new_item)) {
+			curr_item = new_item;
+			// show interaction button
 			ui->set_interactable_button(/*hide=*/false);
 			if(!curr_item->show_description_box) {
 				// show short interaction message next to the button
@@ -341,7 +355,8 @@ void PlayMode::update(float elapsed) {
 			} else {
 				ui->show_interact_bt_msg("Interact");
 			}
-		} else if (ui->showing_interactable_button && curr_item==nullptr) {
+		} else if (ui->showing_interactable_button && new_item==nullptr) {
+			// hide interaction button
 			ui->set_interactable_button(/*hide=*/true);
 			ui->hide_interact_bt_msg();
 		}

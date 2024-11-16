@@ -24,7 +24,7 @@ struct PlayMode : Mode {
 	struct Button {
 		uint8_t downs = 0;
 		uint8_t pressed = 0;
-	} left, right, down, up, left_arrow, right_arrow, key_f/*interact*/, enter/*make choice*/, key_e/*show inventory*/, key_r/*restart*/, key_q/*show menu*/;
+	} left, right, down, up, left_arrow, right_arrow, key_f/*interact*/, enter/*make choice*/, key_e/*show inventory*/, key_r/*restart*/, key_q/*show menu*/, key_1, key_2, key_3, key_4, key_5, key_6, key_7, key_8, key_9, key_0;
 
 	//camera:
 	glm::vec3 camera_transform;

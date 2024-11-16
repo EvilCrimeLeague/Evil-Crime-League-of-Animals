@@ -62,6 +62,7 @@ struct UI {
     std::shared_ptr<Img> menu_bt_img = nullptr;
     std::shared_ptr<Img> level_1_img = nullptr;
     std::shared_ptr<Img> level_2_img = nullptr;
+    std::shared_ptr<Img> level_3_img = nullptr;
 
     unsigned int text_texture = -1U;
     unsigned int box_texture = -1U;
@@ -95,7 +96,7 @@ struct UI {
     std::vector<glm::vec2> menu_item_pos = {};
     uint32_t menu_slot_id_start;
     uint32_t menu_slot_selected_id = 0;
-    const uint32_t menu_slot_num = 4;
+    const uint32_t menu_slot_num = 3;
 
     bool showing_inventory = false;
     bool showing_inventory_description = false;
@@ -110,6 +111,8 @@ struct UI {
     bool need_update_texture = true;
 
     std::vector<std::shared_ptr<Img>> extra_imgs = {};
+    std::vector<std::shared_ptr<Box>> extra_boxes = {};
+    std::vector<std::shared_ptr<Text>> extra_texts = {};
 
     UI() {
         // Load font
@@ -207,8 +210,10 @@ struct UI {
         menu_img = std::make_shared<Img>(glm::vec2(440, 160), "UI/menu.png");
         menu_bt_img = std::make_shared<Img>(glm::vec2(960, 20), "UI/Q.png");
         menu_bt_img->hide = false;
-        level_1_img = std::make_shared<Img>(glm::vec2(0, 0), "UI/1.png");
-        level_2_img = std::make_shared<Img>(glm::vec2(0, 0), "UI/2.png");
+        level_1_img = std::make_shared<Img>(glm::vec2(0, 0), "UI/1b.png");
+        level_2_img = std::make_shared<Img>(glm::vec2(0, 0), "UI/2b.png");
+        level_3_img = std::make_shared<Img>(glm::vec2(0, 0), "UI/3b.png");
+
 
         glm::uvec2 size;
         std::shared_ptr<std::vector< glm::u8vec4 > > data = std::make_shared<std::vector< glm::u8vec4 >>();
@@ -240,8 +245,10 @@ struct UI {
         }
         level_1_img->pos = menu_item_pos[0];
         level_2_img->pos = menu_item_pos[1];
+        level_3_img->pos = menu_item_pos[2];
         imgs[menu_slot_id_start] = level_1_img;
         imgs[menu_slot_id_start+1] = level_2_img;
+        imgs[menu_slot_id_start+2] = level_3_img;
 
         slot_selected_img = std::make_shared<Img>(inventory_item_pos[inventory_slot_selected_id], "UI/slot_selected.png");
         imgs.push_back(slot_selected_img);
@@ -309,4 +316,7 @@ struct UI {
     void hide_img();
 
     bool should_pause();
+
+    std::shared_ptr<Box> add_box(glm::vec4 rect, glm::u8vec4 color);
+    std::shared_ptr<Text> add_text(std::string text, glm::vec2 start_pos, std::shared_ptr<Font> font);
 };

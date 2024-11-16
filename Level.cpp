@@ -18,6 +18,7 @@ std::shared_ptr<Level::Item> Level::get_closest_item(glm::vec3 player_position) 
     std::shared_ptr<Item> closest_item = nullptr;
     float closest_distance = interactable_distance;
     for(auto itr = items.begin(); itr != items.end(); itr++) {
+		if(!itr->second->interactable) continue;
         float distance = glm::distance(itr->second->transform->position, player_position);
         if(distance < closest_distance) {
             closest_distance = distance;
