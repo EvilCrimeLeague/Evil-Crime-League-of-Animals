@@ -294,6 +294,7 @@ struct UI {
     void show_inventory_description_img(uint32_t slot_id);
     void hide_inventory_description_img();
     uint32_t get_inventory_item_id(std::string item_name);
+    void handle_inventory_selection(std::string description="",std::vector<std::string> choices={});
 
     void show_notification(std::string notification);
     void hide_notification();

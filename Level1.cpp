@@ -92,7 +92,7 @@ Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
     auto vase_ptr = std::make_shared<Item>();
     vase_ptr->name = "Vase";
     vase_ptr->interaction_description = "It's a bizarre vase. You may want to leave it alone.";
-    bone_ptr->inventory_choices = {};
+    vase_ptr->inventory_choices = {};
     vase_ptr->transform = vase;
     vase_ptr->show_description_box = true;
     vase_ptr->spawn_point = vase->position;
@@ -119,7 +119,7 @@ Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
     head_ptr->interaction_description = "Collect it.";
     head_ptr->transform = head;
     head_ptr->img_path = "UI/dog.png";
-    head_ptr->spawn_point = bone->position;
+    head_ptr->spawn_point = head->position;
     head_ptr->inventory_description = "This is the copper head of Dog";
     head_ptr->inventory_choices = {};
     items["Head"] = head_ptr;
@@ -187,14 +187,10 @@ void Level1::handle_enter_key() {
             ui->hide_description();
         }
     } 
-    else if (ui->showing_inventory && ui->inventory_items.size() > 0) {
-        std::string item_name = ui->get_selected_inventory_item_name();
+    else if (ui->showing_inventory && ui->inventory_slot_selected_id < ui->inventory_items.size()) {
         Sound::play(*pop_sample, 0.1f, 0.0f);
-        if(item_name == "Bone") {
-            ui->show_description(items[item_name]->inventory_description, items[item_name]->inventory_choices[0], items[item_name]->inventory_choices[1]);
-            ui->showing_inventory_description = true;
-        }
-        
+        std::string item_name = ui->get_selected_inventory_item_name();
+        ui->handle_inventory_selection(items[item_name]->inventory_description, items[item_name]->inventory_choices);
     }
 }
 
@@ -217,7 +213,7 @@ void Level1::handle_interact_key() {
             curr_item->transform->position.x = -1000.0f;
             Sound::play(*pop_sample, 0.05f, 0.0f);
             target_obtained = true;
-        }else {
+        } else {
             // show description box
             if(curr_item->interaction_choices.size() > 0) {
                 // show choices

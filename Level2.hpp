@@ -4,7 +4,8 @@
 
 struct Level2 : Level {
     Scene::Transform *head = nullptr;
-	Scene::Transform *guardDog = nullptr;
+	Scene::Transform *guardDog_1 = nullptr;
+    Scene::Transform *guardDog_2 = nullptr;
 	Scene::Transform *fov = nullptr;
 
     Scene::Transform *vase = nullptr;
@@ -13,8 +14,11 @@ struct Level2 : Level {
     Scene::Transform *control_panel = nullptr;
     Scene::Transform *paper = nullptr;
 
-    std::shared_ptr<Driver> driver_guardDog_walk = nullptr;
-    std::shared_ptr<Driver> driver_fov_move = nullptr;
+    std::shared_ptr<Driver> driver_guardDog1_walk = nullptr;
+    std::shared_ptr<Driver> driver_guardDog1_rotate = nullptr;
+    std::shared_ptr<Driver> driver_guardDog2_walk = nullptr;
+    std::shared_ptr<Driver> driver_guardDog2_rotate = nullptr;
+    // std::shared_ptr<Driver> driver_fov_move = nullptr;
 
     const float guard_dog_speed = 1.0f;
 

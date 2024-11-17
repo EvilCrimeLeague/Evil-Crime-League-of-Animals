@@ -549,6 +549,19 @@ uint32_t UI::get_inventory_item_id(std::string item_name) {
     throw std::runtime_error("Item "+item_name+" not found in inventory");
 }
 
+void UI::handle_inventory_selection(std::string description,std::vector<std::string> choices) {
+    if(description != "") {
+        if(choices.size() == 0) {
+            show_description(description);
+        } else {
+            show_description(description, choices[0], choices[1]);
+        }
+        showing_inventory_description = true;
+    } else {
+        show_inventory_description_img(inventory_slot_selected_id);
+    }
+}
+
 void UI::show_notification(std::string notification) {
     notification_text->text = notification;
     notification_text->hide = false;

@@ -37,10 +37,10 @@ Load< WalkMesh > level2_walkmesh(LoadTagDefault, []() -> WalkMesh const * {
 	return walkmesh;
 });
 
-// Load< Animation > level2_animations(LoadTagDefault, []() -> Animation const * {
-// 	Animation *anim = new Animation(data_path("level1.anim"));
-// 	return anim;
-// });
+Load< Animation > level2_animations(LoadTagDefault, []() -> Animation const * {
+	Animation *anim = new Animation(data_path("level2.anim"));
+	return anim;
+});
 
 Level2::Level2(std::shared_ptr<UI> ui_): Level(ui_) {
     scene = *level2_scene;
@@ -49,7 +49,8 @@ Level2::Level2(std::shared_ptr<UI> ui_): Level(ui_) {
     for (auto &transform : scene.transforms) {
         if (transform.name == "RedPanda") player_transform = &transform;
         else if (transform.name == "Head") head = &transform;
-		else if (transform.name == "GuardDog") guardDog = &transform;
+		else if (transform.name == "GuardDog") guardDog_1 = &transform;
+        else if (transform.name == "GuardDog.001") guardDog_2 = &transform;
         else if (transform.name == "Painting") painting_1 = &transform;
         else if (transform.name == "Painting.001") painting_2 = &transform;
         else if (transform.name == "ControlPanel") control_panel = &transform;
@@ -59,8 +60,14 @@ Level2::Level2(std::shared_ptr<UI> ui_): Level(ui_) {
 
     if (head == nullptr) throw std::runtime_error("Target not found.");
     else if (player_transform == nullptr) throw std::runtime_error("Player not found.");
-	else if (guardDog == nullptr) throw std::runtime_error("GuardDog not found.");
+	else if (guardDog_1 == nullptr) throw std::runtime_error("GuardDog 1 not found.");
+    else if (guardDog_2 == nullptr) throw std::runtime_error("GuardDog 2 not found.");
+    else if (painting_1 == nullptr) throw std::runtime_error("Painting 1 not found.");
+    else if (painting_2 == nullptr) throw std::runtime_error("Painting 2 not found.");
+    else if (control_panel == nullptr) throw std::runtime_error("ControlPanel not found.");
+    else if (paper == nullptr) throw std::runtime_error("Paper not found.");
     else if (exit_transform == nullptr) throw std::runtime_error("Exit not found.");
+    else if (head == nullptr) throw std::runtime_error("Head not found.");
 
     // fov->parent = guardDog;
 
@@ -97,19 +104,64 @@ Level2::Level2(std::shared_ptr<UI> ui_): Level(ui_) {
     paper_ptr->description_img_path = "UI/Level2/256test.png";
     paper_ptr->spawn_point = paper->position;
     items["Paper"] = paper_ptr;
+
+    auto head_ptr = std::make_shared<Item>();
+    head_ptr->name = "Head";
+    head_ptr->interaction_description = "Collect it.";
+    head_ptr->transform = head;
+    head_ptr->img_path = "UI/dragon.png";
+    head_ptr->spawn_point = head->position;
+    head_ptr->inventory_description = "This is the copper head of Dragon";
+    head_ptr->inventory_choices = {};
+    items["Head"] = head_ptr;
     
     // initialize guard dogs
-    auto guardDog_ptr = std::make_shared<GuardDog>();
-    guardDog_ptr->name = "GuardDog";
-    guardDog_ptr->transform = guardDog;
-    guardDog_ptr->spawn_point = guardDog->position;
-    guard_dogs.push_back(guardDog_ptr);
+    auto guardDog_1_ptr = std::make_shared<GuardDog>();
+    guardDog_1_ptr->name = "GuardDog1";
+    guardDog_1_ptr->transform = guardDog_1;
+    guardDog_1_ptr->spawn_point = guardDog_1->position;
+    guard_dogs.push_back(guardDog_1_ptr);
 
-    // initialize drivers
-    driver_guardDog_walk = std::make_shared<Driver>("GuardDog-walk", CHANEL_TRANSLATION);
-    driver_guardDog_walk->transform = guardDog;
-    driver_guardDog_walk->loop = false;
-    drivers.push_back(driver_guardDog_walk);
+    auto guardDog_2_ptr = std::make_shared<GuardDog>();
+    guardDog_2_ptr->name = "GuardDog2";
+    guardDog_2_ptr->transform = guardDog_2;
+    guardDog_2_ptr->spawn_point = guardDog_2->position;
+    guard_dogs.push_back(guardDog_2_ptr);
+
+    // initialize animation drivers
+    driver_guardDog1_walk = std::make_shared<Driver>(level2_animations->animations.at("GuardDog.001-translation"));
+    driver_guardDog1_walk->transform = guardDog_1;
+    driver_guardDog1_walk->loop = true;
+    driver_guardDog1_walk->start();
+    drivers.push_back(driver_guardDog1_walk);
+
+    driver_guardDog2_walk = std::make_shared<Driver>(level2_animations->animations.at("GuardDog.001-translation"));
+    driver_guardDog2_walk->transform = guardDog_2;
+    driver_guardDog2_walk->loop = true;
+    driver_guardDog2_walk->start();
+    drivers.push_back(driver_guardDog2_walk);
+
+    driver_guardDog1_rotate = std::make_shared<Driver>(level2_animations->animations.at("GuardDog.001-rotation"));
+    driver_guardDog1_rotate->transform = guardDog_1;
+    driver_guardDog1_rotate->loop = true;
+    driver_guardDog1_rotate->start();
+    drivers.push_back(driver_guardDog1_rotate);
+
+    driver_guardDog2_rotate = std::make_shared<Driver>(level2_animations->animations.at("GuardDog.001-rotation"));
+    driver_guardDog2_rotate->transform = guardDog_2;
+    driver_guardDog2_rotate->loop = true;
+    driver_guardDog2_rotate->start();
+    drivers.push_back(driver_guardDog2_rotate);
+
+    // slow done guard movement
+    for(auto& driver: drivers) {
+        for(int i=0; i<driver->times.size(); i++){
+            driver->times[i] = driver->times[i] * 4.0f;
+        }
+    }
+
+    driver_guardDog1_rotate->setPlaybackTime(driver_guardDog1_rotate->times[static_cast<int>(driver_guardDog1_rotate->times.size()/2)]);
+    driver_guardDog1_walk->setPlaybackTime(driver_guardDog1_walk->times[static_cast<int>(driver_guardDog1_walk->times.size()/2)]);
 
     // driver_fov_move = std::make_shared<Driver>("FOV-move", CHANEL_TRANSLATION);
     // driver_fov_move->transform = fov;
@@ -135,13 +187,10 @@ void Level2::handle_enter_key() {
             ui->hide_description();
         }
     } 
-    else if (ui->showing_inventory && ui->inventory_items.size() > 0) {
+    else if (ui->showing_inventory && ui->inventory_slot_selected_id < ui->inventory_items.size()) {
         Sound::play(*pop_sample, 0.1f, 0.0f);
-        if(ui->inventory_slot_selected_id < ui->inventory_items.size()) {
-            ui->show_inventory_description_img(ui->inventory_slot_selected_id);
-        }
-        
-        
+        std::string item_name = ui->get_selected_inventory_item_name();
+        ui->handle_inventory_selection(items[item_name]->inventory_description, items[item_name]->inventory_choices);
     }
 }
 
@@ -190,6 +239,11 @@ void Level2::handle_interact_key() {
             showing_control_panel = true;
             ui->showing_image = true;
             ui->need_update_texture = true;
+        } else if (curr_item->name == "Head") {
+            ui->add_inventory_item(curr_item->name, curr_item->img_path);
+            curr_item->transform->position.x = -1000.0f;
+            Sound::play(*pop_sample, 0.05f, 0.0f);
+            target_obtained = true;
         } else {
             // show description box
             if(curr_item->interaction_choices.size() > 0) {
@@ -200,10 +254,6 @@ void Level2::handle_interact_key() {
                 ui->show_description(curr_item->interaction_description);
             }
         }
-        if(curr_item->name == "Paper") {
-            // hide item
-            curr_item->transform->position.x = -1000.0f;
-        } 
     }
 }
 
@@ -238,12 +288,18 @@ void Level2::restart() {
         driver->restart();
         driver->stop();
     }
+    driver_guardDog1_rotate->setPlaybackTime(driver_guardDog1_rotate->times[static_cast<int>(driver_guardDog1_rotate->times.size()/2)]);
+    driver_guardDog1_walk->setPlaybackTime(driver_guardDog1_walk->times[static_cast<int>(driver_guardDog1_walk->times.size()/2)]);
+    driver_guardDog2_rotate->start();
+    driver_guardDog2_walk->start();
+    driver_guardDog1_rotate->start();
+    driver_guardDog1_walk->start();
 
     for(auto &item: guard_detectables) {
         item.second = false;
     }
 
-    driver_guardDog_walk->clear();
+    // driver_guardDog_walk->clear();
     // driver_fov_move->clear();
 
     // fov->position.x = guardDog->position.x;
@@ -272,7 +328,7 @@ void Level2::handle_numeric_key(uint32_t key) {
         if(control_panel_inputs.size() < 6) {
             player_input += std::to_string(key);
             uint32_t i = control_panel_inputs.size();
-            auto img = ui->add_img("UI/Level2"+std::to_string(key)+".png");
+            auto img = ui->add_img("UI/Level2/"+std::to_string(key)+".png");
             img->pos = control_panel_slots[i]->pos;
             img->hide = false;
             control_panel_inputs.push_back(img);
