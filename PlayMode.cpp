@@ -198,11 +198,14 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 
 void PlayMode::update(float elapsed) {
 	//player walking:
-	if(game_over) {
-		if(level->is_exit_finished()) {
-			ui->show_game_over(true);
-			return;
-		} 
+	if(game_over && !ui->showing_game_over && level->is_exit_finished()) {
+		ui->show_game_over(true);
+		game_info.update_target_obtained(level->level_targets);
+		game_info.update_game_info();
+		for(auto i: game_info.targets_obtained) {
+			std::cout<<i<<std::endl;
+		}
+		return;
 	}
 	paused = ui->should_pause();
 	
@@ -364,11 +367,11 @@ void PlayMode::update(float elapsed) {
 			ui->hide_interact_bt_msg();
 		}
 
-		if(level->target_obtained && get_distance(player.transform->position, level->exit_transform->position) < 0.5f) {
+		if(level->is_target_obtained() && get_distance(player.transform->position, level->exit_transform->position) < 0.5f) {
 			game_over = true;
 			++level_id; 
 			if((uint32_t)level_id > game_info.highest_level) {
-				game_info.update_highest_level(level_id);
+				game_info.highest_level = level_id;
 			}
 			level->exit();
 		}

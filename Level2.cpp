@@ -198,6 +198,7 @@ void Level2::handle_enter_key() {
         hide_control_panel();
     } else if(ui->showing_inventory_description) {
         ui->hide_inventory_description_img();
+        ui->hide_description();
     } else if (ui->showing_image) {
         ui->hide_img();
     } else if (ui->showing_description) {
@@ -264,7 +265,7 @@ void Level2::handle_interact_key() {
             ui->add_inventory_item(curr_item->name, curr_item->img_path);
             curr_item->transform->position.x = -1000.0f;
             Sound::play(*pop_sample, 0.05f, 0.0f);
-            target_obtained = true;
+            level_targets[1] = 1;
             driver_rope_descend->start();
         } else {
             // show description box

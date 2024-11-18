@@ -62,7 +62,8 @@ struct Level {
     glm::quat player_spawn_rotation;
     Scene::Transform *exit_transform = nullptr;
 
-    bool target_obtained = false;
+    std::vector<uint32_t> level_targets = {0, 0, 0, 0, 0};
+    bool is_target_obtained();
 
     // ui
     std::shared_ptr<UI> ui;
@@ -101,6 +102,7 @@ struct Level {
 struct GameInfo {
     std::string file_path;
     uint32_t highest_level;
+    std::vector<uint32_t> targets_obtained; //bronze head obtained: dog, dragon, chicken, sheep, snake
 
     GameInfo() {
         file_path = data_path("game.info");
@@ -111,23 +113,33 @@ struct GameInfo {
             std::ofstream new_file(file_path, std::ios::binary);
             highest_level_v = {0};
             highest_level = 0;
+            targets_obtained = {0, 0, 0, 0, 0};
             write_chunk("int0", highest_level_v, &new_file);
+            write_chunk("bool", targets_obtained, &new_file);
             new_file.close();
         } else {
             read_chunk(file, "int0", &highest_level_v);
             highest_level = highest_level_v[0];
+            read_chunk(file, "bool", &targets_obtained);
         }
 	    file.close();
     }
 
-    void update_highest_level(int level) {
-        highest_level = level;
+    void update_game_info() {
         std::ofstream file(file_path, std::ios::binary);
         std::vector<uint32_t> highest_level_v = {highest_level};
         write_chunk("int0", highest_level_v, &file);
+        write_chunk("bool", targets_obtained, &file);
         file.close();
     }
 
+    void update_target_obtained(std::vector<uint32_t>& level_targets) {
+        for(uint32_t i = 0; i < level_targets.size(); i++) {
+            if(level_targets[i]>0) {
+                targets_obtained[i] = level_targets[i];
+            }
+        }
+    }
 };
 
 struct Triangle {

@@ -107,6 +107,7 @@ struct UI {
     bool showing_alarm = false;
     bool showing_menu = false; // when menu is showing, disable other UI elements
     bool showing_image = false;
+    bool showing_game_over = false;
 
     bool need_update_texture = true;
 

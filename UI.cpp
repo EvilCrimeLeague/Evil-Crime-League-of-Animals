@@ -369,6 +369,7 @@ void UI::show_game_over(bool won) {
     game_over_text->hide = false;
     game_over_box->hide = false;
     manual_text->hide = false;
+    showing_game_over = true;
     need_update_texture = true;
 }
 
@@ -393,6 +394,8 @@ void UI::hide_all() {
     showing_alarm = false;
     showing_inventory_description = false;
     showing_menu = false;
+    showing_image = false;
+    showing_game_over = false;
 }
 
 void UI::reset() {

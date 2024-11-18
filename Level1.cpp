@@ -233,7 +233,7 @@ void Level1::handle_interact_key() {
             ui->add_inventory_item(curr_item->name, curr_item->img_path);
             curr_item->transform->position.x = -1000.0f;
             Sound::play(*pop_sample, 0.05f, 0.0f);
-            target_obtained = true;
+            level_targets[0] = 1;
             driver_rope_descend->start();
         } else {
             // show description box
