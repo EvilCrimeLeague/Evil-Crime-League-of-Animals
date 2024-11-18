@@ -11,6 +11,7 @@
 #include "Ray.hpp"
 #include "Level.hpp"
 #include "Level1.hpp"
+#include "Level0.hpp"
 #include "Sound.hpp"
 
 #include <glm/gtc/type_ptr.hpp>
@@ -29,11 +30,14 @@ Load< Sound::Sample > toggle_inventory_sample(LoadTagDefault, []() -> Sound::Sam
 
 PlayMode::PlayMode() {
 	ui = std::make_shared<UI>();
+	game_info = std::make_shared<GameInfo>();
 
-	auto level1 = std::make_shared<Level1>(ui);
+	auto level1 = std::make_shared<Level1>(ui, game_info);
 	levels.push_back(level1);
-	auto level2 = std::make_shared<Level2>(ui);
+	auto level2 = std::make_shared<Level2>(ui, game_info);
 	levels.push_back(level2);
+	auto level0 = std::make_shared<Level0>(ui, game_info);
+	levels.push_back(level0);
 	level = level1;
 
 	player.transform = level->player_transform;
@@ -49,7 +53,6 @@ PlayMode::PlayMode() {
 	//start player walking at nearest walk point:
 	player.at = level->walkmesh->nearest_walk_point(player.transform->position);
 
-	game_info = GameInfo();
 	ui->set_title("Level 1");
 }
 
@@ -149,7 +152,7 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 				level = levels[level_id];
 				restart(true);
 			} else if(ui->showing_menu) {
-				if(ui->menu_slot_selected_id <= game_info.highest_level) {
+				if(ui->menu_slot_selected_id <= game_info->highest_level) {
 					level_id = ui->menu_slot_selected_id;
 					level = levels[level_id];
 					restart(true);
@@ -200,9 +203,9 @@ void PlayMode::update(float elapsed) {
 	//player walking:
 	if(game_over && !ui->showing_game_over && level->is_exit_finished()) {
 		ui->show_game_over(true);
-		game_info.update_target_obtained(level->level_targets);
-		game_info.update_game_info();
-		for(auto i: game_info.targets_obtained) {
+		game_info->update_target_obtained(level->level_targets);
+		game_info->update_game_info();
+		for(auto i: game_info->targets_obtained) {
 			std::cout<<i<<std::endl;
 		}
 		return;
@@ -370,8 +373,8 @@ void PlayMode::update(float elapsed) {
 		if(level->is_target_obtained() && get_distance(player.transform->position, level->exit_transform->position) < 0.5f) {
 			game_over = true;
 			++level_id; 
-			if((uint32_t)level_id > game_info.highest_level) {
-				game_info.highest_level = level_id;
+			if((uint32_t)level_id > game_info->highest_level) {
+				game_info->highest_level = level_id;
 			}
 			level->exit();
 		}

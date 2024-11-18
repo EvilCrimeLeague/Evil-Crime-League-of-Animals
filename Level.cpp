@@ -12,7 +12,7 @@ Load< Sound::Sample > rolling_sample(LoadTagDefault, []() -> Sound::Sample const
 	return new Sound::Sample(data_path("rolling.wav"));
 });
 
-Level::Level(std::shared_ptr<UI> ui_): ui(ui_) {};
+Level::Level(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): ui(ui_), info(info_) {};
 
 std::shared_ptr<Level::Item> Level::get_closest_item(glm::vec3 player_position) {
     std::shared_ptr<Item> closest_item = nullptr;

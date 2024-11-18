@@ -18,6 +18,49 @@
 #include <vector>
 #include <unordered_map>
 
+struct GameInfo {
+    std::string file_path;
+    uint32_t highest_level;
+    std::vector<uint32_t> targets_obtained; //bronze head obtained: dog, dragon, chicken, sheep, snake
+
+    GameInfo() {
+        file_path = data_path("game.info");
+        // if file does not exist, create it
+        std::ifstream file(file_path, std::ios::binary);
+        std::vector<uint32_t> highest_level_v;
+        if(!file.good()) {
+            std::ofstream new_file(file_path, std::ios::binary);
+            highest_level_v = {0};
+            highest_level = 0;
+            targets_obtained = {0, 0, 0, 0, 0};
+            write_chunk("int0", highest_level_v, &new_file);
+            write_chunk("bool", targets_obtained, &new_file);
+            new_file.close();
+        } else {
+            read_chunk(file, "int0", &highest_level_v);
+            highest_level = highest_level_v[0];
+            read_chunk(file, "bool", &targets_obtained);
+        }
+	    file.close();
+    }
+
+    void update_game_info() {
+        std::ofstream file(file_path, std::ios::binary);
+        std::vector<uint32_t> highest_level_v = {highest_level};
+        write_chunk("int0", highest_level_v, &file);
+        write_chunk("bool", targets_obtained, &file);
+        file.close();
+    }
+
+    void update_target_obtained(std::vector<uint32_t>& level_targets) {
+        for(uint32_t i = 0; i < level_targets.size(); i++) {
+            if(level_targets[i]>0) {
+                targets_obtained[i] = level_targets[i];
+            }
+        }
+    }
+};
+
 struct Level {
     struct Item {
 		// Interactable item
@@ -77,7 +120,10 @@ struct Level {
     std::shared_ptr<Driver> driver_rope_ascend = nullptr;
     std::shared_ptr<Driver> driver_player_ascend = nullptr;
 
-    Level(std::shared_ptr<UI> ui_);
+    // game info
+    std::shared_ptr<GameInfo> info;
+
+    Level(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_);
     virtual ~Level() {}
 
     std::shared_ptr<Item> get_closest_item(glm::vec3 player_position);
@@ -97,49 +143,6 @@ struct Level {
 
     void exit();
     bool is_exit_finished();
-};
-
-struct GameInfo {
-    std::string file_path;
-    uint32_t highest_level;
-    std::vector<uint32_t> targets_obtained; //bronze head obtained: dog, dragon, chicken, sheep, snake
-
-    GameInfo() {
-        file_path = data_path("game.info");
-        // if file does not exist, create it
-        std::ifstream file(file_path, std::ios::binary);
-        std::vector<uint32_t> highest_level_v;
-        if(!file.good()) {
-            std::ofstream new_file(file_path, std::ios::binary);
-            highest_level_v = {0};
-            highest_level = 0;
-            targets_obtained = {0, 0, 0, 0, 0};
-            write_chunk("int0", highest_level_v, &new_file);
-            write_chunk("bool", targets_obtained, &new_file);
-            new_file.close();
-        } else {
-            read_chunk(file, "int0", &highest_level_v);
-            highest_level = highest_level_v[0];
-            read_chunk(file, "bool", &targets_obtained);
-        }
-	    file.close();
-    }
-
-    void update_game_info() {
-        std::ofstream file(file_path, std::ios::binary);
-        std::vector<uint32_t> highest_level_v = {highest_level};
-        write_chunk("int0", highest_level_v, &file);
-        write_chunk("bool", targets_obtained, &file);
-        file.close();
-    }
-
-    void update_target_obtained(std::vector<uint32_t>& level_targets) {
-        for(uint32_t i = 0; i < level_targets.size(); i++) {
-            if(level_targets[i]>0) {
-                targets_obtained[i] = level_targets[i];
-            }
-        }
-    }
 };
 
 struct Triangle {

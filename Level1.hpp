@@ -21,7 +21,7 @@ struct Level1 : Level {
 
     const float guard_dog_speed = 1.0f;
 
-    Level1(std::shared_ptr<UI> ui_);
+    Level1(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_);
     virtual ~Level1() {}
 
     void handle_enter_key();

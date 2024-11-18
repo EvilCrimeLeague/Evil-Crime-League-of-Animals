@@ -69,5 +69,5 @@ struct PlayMode : Mode {
 	float speed_percent = 0;
 	float playerSpeed = 0;
 
-	GameInfo game_info;
+	std::shared_ptr<GameInfo> game_info;
 };

@@ -31,7 +31,7 @@ struct Level2 : Level {
     const std::string password = "202411";
     std::string player_input = "";
 
-    Level2(std::shared_ptr<UI> ui_);
+    Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_);
     virtual ~Level2() {}
 
     void handle_enter_key();

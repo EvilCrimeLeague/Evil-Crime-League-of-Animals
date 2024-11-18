@@ -42,7 +42,7 @@ Load< Animation > level2_animations(LoadTagDefault, []() -> Animation const * {
 	return anim;
 });
 
-Level2::Level2(std::shared_ptr<UI> ui_): Level(ui_) {
+Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(ui_, info_) {
     scene = *level2_scene;
     walkmesh = level2_walkmesh;
 
