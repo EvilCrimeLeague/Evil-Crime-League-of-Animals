@@ -405,13 +405,13 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 	glDepthFunc(GL_LESS); //this is the default depth comparison function, but FYI you can change it.
 
 	level->scene.draw(*player.camera);
-	// DrawLines lines(player.camera->make_projection() * glm::mat4(player.camera->transform->make_world_to_local()));
+	DrawLines lines(player.camera->make_projection() * glm::mat4(player.camera->transform->make_world_to_local()));
 	// lines.draw(player.transform->position, level->first, glm::u8vec4(0x88, 0x00, 0xff, 0xff));
 	// lines.draw(player.transform->position, level->second, glm::u8vec4(0x88, 0x00, 0xff, 0xff));
 	// lines.draw(player.transform->position, level->third, glm::u8vec4(0x88, 0x00, 0xff, 0xff));
 	// lines.draw(player.transform->position, level->fourth, glm::u8vec4(0x88, 0x00, 0xff, 0xff));
 
-	/* In case you are wondering if your walkmesh is lining up with your scene, try:
+	// In case you are wondering if your walkmesh is lining up with your scene, try:
 	{
 		glDisable(GL_DEPTH_TEST);
 		for (auto const &tri : level->walkmesh->triangles) {
@@ -420,7 +420,6 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 			lines.draw(level->walkmesh->vertices[tri.z], level->walkmesh->vertices[tri.x], glm::u8vec4(0x88, 0x00, 0xff, 0xff));
 		}
 	}
-	*/
 
 	// Draw UI
     {	

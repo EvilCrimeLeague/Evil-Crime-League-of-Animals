@@ -111,7 +111,7 @@ Level2::Level2(std::shared_ptr<UI> ui_): Level(ui_) {
     head_ptr->transform = head;
     head_ptr->img_path = "UI/dragon.png";
     head_ptr->spawn_point = head->position;
-    head_ptr->inventory_description = "This is the copper head of Dragon";
+    head_ptr->inventory_description = "This is the Old Summer Palace bronze head of Dragon. It was looted by during the Second Opium War and went missing since then.";
     head_ptr->inventory_choices = {};
     items["Head"] = head_ptr;
     
