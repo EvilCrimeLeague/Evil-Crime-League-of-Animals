@@ -198,12 +198,17 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 
 void PlayMode::update(float elapsed) {
 	//player walking:
+	if(game_over) {
+		if(level->is_exit_finished()) {
+			ui->show_game_over(true);
+			return;
+		} 
+	}
 	paused = ui->should_pause();
-	if(game_over || paused) 
-		return;
+	
 	constexpr float player_speed = 20.0f;
 
-	{
+	if(!paused && !game_over) {
 		// play footstep sounds
 		if (left.pressed || right.pressed || down.pressed || up.pressed ) {
 			if (speed_percent <= 0.25) speed_percent += elapsed;
@@ -219,7 +224,7 @@ void PlayMode::update(float elapsed) {
 		}
 	}
 
-	{
+	if(!paused && !game_over) {
 		//combine inputs into a move:
 		glm::vec2 move = glm::vec2(0.0f);
 		if (left.pressed && !right.pressed) {
@@ -321,11 +326,9 @@ void PlayMode::update(float elapsed) {
 	}
 
 	
-	{
+	if(!paused && !game_over) {
 		level->update();
-	}
 
-	{
 		if(seen_by_guard_timer > 0.5f) {
 			// player caught, restart game
 			restart();
@@ -342,7 +345,7 @@ void PlayMode::update(float elapsed) {
 		}
 	}
 
-	{
+	if(!paused && !game_over) {
 		// player and item interaction
 		auto new_item = level->get_closest_item(player.transform->position);
 		if(new_item!=nullptr && (!ui->showing_interactable_button || curr_item != new_item)) {
@@ -361,14 +364,13 @@ void PlayMode::update(float elapsed) {
 			ui->hide_interact_bt_msg();
 		}
 
-		if(level->target_obtained && get_distance(player.transform->position, level->exit_transform->position) < 1.5f) {
-			// TODO: add exit door
+		if(level->target_obtained && get_distance(player.transform->position, level->exit_transform->position) < 0.5f) {
 			game_over = true;
 			++level_id; 
 			if((uint32_t)level_id > game_info.highest_level) {
 				game_info.update_highest_level(level_id);
 			}
-			ui->show_game_over(true);
+			level->exit();
 		}
 	}
 
@@ -405,13 +407,13 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 	glDepthFunc(GL_LESS); //this is the default depth comparison function, but FYI you can change it.
 
 	level->scene.draw(*player.camera);
-	DrawLines lines(player.camera->make_projection() * glm::mat4(player.camera->transform->make_world_to_local()));
+	// DrawLines lines(player.camera->make_projection() * glm::mat4(player.camera->transform->make_world_to_local()));
 	// lines.draw(player.transform->position, level->first, glm::u8vec4(0x88, 0x00, 0xff, 0xff));
 	// lines.draw(player.transform->position, level->second, glm::u8vec4(0x88, 0x00, 0xff, 0xff));
 	// lines.draw(player.transform->position, level->third, glm::u8vec4(0x88, 0x00, 0xff, 0xff));
 	// lines.draw(player.transform->position, level->fourth, glm::u8vec4(0x88, 0x00, 0xff, 0xff));
 
-	// In case you are wondering if your walkmesh is lining up with your scene, try:
+	/* In case you are wondering if your walkmesh is lining up with your scene, try:
 	{
 		glDisable(GL_DEPTH_TEST);
 		for (auto const &tri : level->walkmesh->triangles) {
@@ -419,7 +421,7 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 			lines.draw(level->walkmesh->vertices[tri.y], level->walkmesh->vertices[tri.z], glm::u8vec4(0x88, 0x00, 0xff, 0xff));
 			lines.draw(level->walkmesh->vertices[tri.z], level->walkmesh->vertices[tri.x], glm::u8vec4(0x88, 0x00, 0xff, 0xff));
 		}
-	}
+	}*/
 
 	// Draw UI
     {	

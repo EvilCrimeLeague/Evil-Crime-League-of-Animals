@@ -72,6 +72,9 @@ struct Level {
 
     // animation
     std::vector<std::shared_ptr<Driver> > drivers;
+    std::shared_ptr<Driver> driver_rope_descend = nullptr;
+    std::shared_ptr<Driver> driver_rope_ascend = nullptr;
+    std::shared_ptr<Driver> driver_player_ascend = nullptr;
 
     Level(std::shared_ptr<UI> ui_);
     virtual ~Level() {}
@@ -90,6 +93,9 @@ struct Level {
     virtual void restart() = 0;
     std::shared_ptr< Sound::PlayingSample > rolling_loop;
     float closest_dist_infront = 5.0f;
+
+    void exit();
+    bool is_exit_finished();
 };
 
 struct GameInfo {

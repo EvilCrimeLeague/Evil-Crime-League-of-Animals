@@ -55,7 +55,7 @@ Level2::Level2(std::shared_ptr<UI> ui_): Level(ui_) {
         else if (transform.name == "Painting.001") painting_2 = &transform;
         else if (transform.name == "ControlPanel") control_panel = &transform;
         else if (transform.name == "Paper") paper = &transform;
-        else if (transform.name == "Exit") exit_transform = &transform;
+        else if (transform.name == "Rope") exit_transform = &transform;
 	}
 
     if (head == nullptr) throw std::runtime_error("Target not found.");
@@ -163,6 +163,27 @@ Level2::Level2(std::shared_ptr<UI> ui_): Level(ui_) {
     driver_guardDog1_rotate->setPlaybackTime(driver_guardDog1_rotate->times[static_cast<int>(driver_guardDog1_rotate->times.size()/2)]);
     driver_guardDog1_walk->setPlaybackTime(driver_guardDog1_walk->times[static_cast<int>(driver_guardDog1_walk->times.size()/2)]);
 
+    driver_rope_descend = std::make_shared<Driver>("Rope-descend", CHANEL_TRANSLATION);
+    driver_rope_descend->transform = exit_transform;
+    glm::vec3 rope_up_pos = exit_transform->position;
+    rope_up_pos.z = 5.0f;
+    glm::vec3 rope_down_pos = rope_up_pos;
+    rope_down_pos.z = 0.0f;
+    driver_rope_descend->add_move_in_straight_line_anim(rope_up_pos, rope_down_pos, 5.0f, 3);
+    driver_rope_descend->loop = false;
+    drivers.push_back(driver_rope_descend);
+
+    driver_rope_ascend = std::make_shared<Driver>("Rope-ascend", CHANEL_TRANSLATION);
+    driver_rope_ascend->transform = exit_transform;
+    driver_rope_ascend->add_move_in_straight_line_anim(rope_down_pos, rope_up_pos, 5.0f, 3);
+    driver_rope_ascend->loop = false;
+    drivers.push_back(driver_rope_ascend);
+
+    driver_player_ascend = std::make_shared<Driver>("Player-ascend", CHANEL_TRANSLATION);
+    driver_player_ascend->transform = player_transform;
+    driver_player_ascend->loop = false;
+    drivers.push_back(driver_player_ascend);
+
     // driver_fov_move = std::make_shared<Driver>("FOV-move", CHANEL_TRANSLATION);
     // driver_fov_move->transform = fov;
     // driver_fov_move->loop = false;
@@ -244,6 +265,7 @@ void Level2::handle_interact_key() {
             curr_item->transform->position.x = -1000.0f;
             Sound::play(*pop_sample, 0.05f, 0.0f);
             target_obtained = true;
+            driver_rope_descend->start();
         } else {
             // show description box
             if(curr_item->interaction_choices.size() > 0) {
@@ -294,6 +316,8 @@ void Level2::restart() {
     driver_guardDog2_walk->start();
     driver_guardDog1_rotate->start();
     driver_guardDog1_walk->start();
+
+    driver_player_ascend->clear();
 
     for(auto &item: guard_detectables) {
         item.second = false;

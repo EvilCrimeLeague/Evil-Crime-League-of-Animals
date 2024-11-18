@@ -109,3 +109,15 @@ void Level::update_animation(const float deltaTime) {
         driver->animate(deltaTime);
     }
 }
+
+void Level::exit() {
+	driver_rope_ascend->start();
+	player_transform->position = exit_transform->position + glm::vec3(0.5f,0.0f,0.0f);
+	player_transform->rotation = glm::angleAxis(glm::radians(90.f),glm::vec3(0.0f, 0.0f, 1.0f));
+	driver_player_ascend->add_move_in_straight_line_anim(player_transform->position, player_transform->position+glm::vec3(0,0,5.0f), 5.0f, 3);
+	driver_player_ascend->start();
+}
+
+bool Level::is_exit_finished() {
+	return driver_rope_ascend->finished && driver_player_ascend->finished;
+}

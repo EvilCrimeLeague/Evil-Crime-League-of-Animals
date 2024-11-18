@@ -33,4 +33,5 @@ struct Level1 : Level {
     void update();
 
     void restart();
+    void exit();
 };

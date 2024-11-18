@@ -99,7 +99,7 @@ struct Driver {
 
     void start();
 
-    void add_walk_in_straight_line_anim(const glm::vec3& start, const glm::vec3& end, const float duration, int num_frames) {
+    void add_move_in_straight_line_anim(const glm::vec3& start, const glm::vec3& end, const float duration, int num_frames) {
         for(int i=0; i<=num_frames; i++) {
             float t = i/(float)num_frames;
             times.push_back(t*duration);
