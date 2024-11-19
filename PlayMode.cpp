@@ -9,9 +9,7 @@
 #include "gl_errors.hpp"
 #include "data_path.hpp"
 #include "Ray.hpp"
-#include "Level.hpp"
-#include "Level1.hpp"
-#include "Level0.hpp"
+
 #include "Sound.hpp"
 
 #include <glm/gtc/type_ptr.hpp>
@@ -36,6 +34,8 @@ PlayMode::PlayMode() {
 	levels.push_back(level1);
 	auto level2 = std::make_shared<Level2>(ui, game_info);
 	levels.push_back(level2);
+	auto level3 = std::make_shared<Level3>(ui, game_info);
+	levels.push_back(level3);
 	auto level0 = std::make_shared<Level0>(ui, game_info);
 	levels.push_back(level0);
 	level = level1;
@@ -152,7 +152,7 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 				level = levels[level_id];
 				restart(true);
 			} else if(ui->showing_menu) {
-				if(ui->menu_slot_selected_id <= game_info->highest_level) {
+				if(ui->menu_slot_selected_id <= game_info->highest_level || ui->menu_slot_selected_id == 3) {
 					level_id = ui->menu_slot_selected_id;
 					level = levels[level_id];
 					restart(true);

@@ -6,6 +6,8 @@
 #include "Level.hpp"
 #include "Level1.hpp"
 #include "Level2.hpp"
+#include "Level3.hpp"
+#include "Level0.hpp"
 
 #include <glm/glm.hpp>
 

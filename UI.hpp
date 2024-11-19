@@ -63,6 +63,7 @@ struct UI {
     std::shared_ptr<Img> level_1_img = nullptr;
     std::shared_ptr<Img> level_2_img = nullptr;
     std::shared_ptr<Img> level_3_img = nullptr;
+    std::shared_ptr<Img> level_0_img = nullptr;
 
     unsigned int text_texture = -1U;
     unsigned int box_texture = -1U;
@@ -96,7 +97,7 @@ struct UI {
     std::vector<glm::vec2> menu_item_pos = {};
     uint32_t menu_slot_id_start;
     uint32_t menu_slot_selected_id = 0;
-    const uint32_t menu_slot_num = 3;
+    const uint32_t menu_slot_num = 4;
 
     bool showing_inventory = false;
     bool showing_inventory_description = false;
@@ -214,6 +215,7 @@ struct UI {
         level_1_img = std::make_shared<Img>(glm::vec2(0, 0), "UI/1b.png");
         level_2_img = std::make_shared<Img>(glm::vec2(0, 0), "UI/2b.png");
         level_3_img = std::make_shared<Img>(glm::vec2(0, 0), "UI/3b.png");
+        level_0_img = std::make_shared<Img>(glm::vec2(0, 0), "UI/0b.png");
 
 
         glm::uvec2 size;
@@ -247,9 +249,11 @@ struct UI {
         level_1_img->pos = menu_item_pos[0];
         level_2_img->pos = menu_item_pos[1];
         level_3_img->pos = menu_item_pos[2];
+        level_0_img->pos = menu_item_pos[3];
         imgs[menu_slot_id_start] = level_1_img;
         imgs[menu_slot_id_start+1] = level_2_img;
         imgs[menu_slot_id_start+2] = level_3_img;
+        imgs[menu_slot_id_start+3] = level_0_img;
 
         slot_selected_img = std::make_shared<Img>(inventory_item_pos[inventory_slot_selected_id], "UI/slot_selected.png");
         imgs.push_back(slot_selected_img);

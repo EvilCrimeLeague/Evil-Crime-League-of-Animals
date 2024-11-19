@@ -57,6 +57,7 @@ Level1::Level1(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
         else if (transform.name == "Painting.002") painting_1 = &transform;
         else if (transform.name == "Painting.003") painting_2 = &transform;
         else if (transform.name == "Rope") exit_transform = &transform;
+        else if (transform.name == "Shell") shell = &transform;
 	}
 
     if (head == nullptr) throw std::runtime_error("Target not found.");
@@ -91,7 +92,7 @@ Level1::Level1(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
 
     auto vase_ptr = std::make_shared<Item>();
     vase_ptr->name = "Vase";
-    vase_ptr->interaction_description = "It's a bizarre vase. You may want to leave it alone.";
+    vase_ptr->interaction_description = "It's a bizarre vase. Better not to break it.";
     vase_ptr->inventory_choices = {};
     vase_ptr->transform = vase;
     vase_ptr->show_description_box = true;
@@ -113,6 +114,14 @@ Level1::Level1(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     painting_2_ptr->show_description_box = true;
     painting_2_ptr->spawn_point = painting_2->position;
     items["Painting2"] = painting_2_ptr;
+
+    auto shell_ptr = std::make_shared<Item>();
+    shell_ptr->name = "Shell";
+    shell_ptr->interaction_description = "It's a conch shell. Listen closely. You may hear the sound of the waves.";
+    shell_ptr->transform = shell;
+    shell_ptr->show_description_box = true;
+    shell_ptr->spawn_point = shell->position;
+    items["Shell"] = shell_ptr;
 
     auto head_ptr = std::make_shared<Item>();
     head_ptr->name = "Head";

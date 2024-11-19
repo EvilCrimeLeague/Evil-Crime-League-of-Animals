@@ -144,6 +144,7 @@ const game_names = [
 	maek.CPP('Level.cpp'),
 	maek.CPP('Level1.cpp'),
 	maek.CPP('Level2.cpp'),
+	maek.CPP('Level3.cpp'),
 	maek.CPP('Level0.cpp'),
 	maek.CPP('Driver.cpp'),
 ];
