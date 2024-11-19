@@ -12,7 +12,8 @@ struct Level2 : Level {
     Scene::Transform *painting_1 = nullptr;
     Scene::Transform *painting_2 = nullptr;
     Scene::Transform *control_panel = nullptr;
-    Scene::Transform *paper = nullptr;
+    Scene::Transform *paper_1 = nullptr;
+    Scene::Transform *paper_2 = nullptr;
 
     std::shared_ptr<Driver> driver_guardDog1_walk = nullptr;
     std::shared_ptr<Driver> driver_guardDog1_rotate = nullptr;

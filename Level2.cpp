@@ -53,7 +53,8 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
         else if (transform.name == "Painting") painting_1 = &transform;
         else if (transform.name == "Painting.001") painting_2 = &transform;
         else if (transform.name == "ControlPanel") control_panel = &transform;
-        else if (transform.name == "Paper") paper = &transform;
+        else if (transform.name == "Paper") paper_1 = &transform;
+        else if (transform.name == "Paper.001") paper_2 = &transform;
         else if (transform.name == "Rope") exit_transform = &transform;
 	}
 
@@ -64,7 +65,8 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     else if (painting_1 == nullptr) throw std::runtime_error("Painting 1 not found.");
     else if (painting_2 == nullptr) throw std::runtime_error("Painting 2 not found.");
     else if (control_panel == nullptr) throw std::runtime_error("ControlPanel not found.");
-    else if (paper == nullptr) throw std::runtime_error("Paper not found.");
+    else if (paper_1 == nullptr) throw std::runtime_error("Paper 1 not found.");
+    else if (paper_2 == nullptr) throw std::runtime_error("Paper 2 not found.");
     else if (exit_transform == nullptr) throw std::runtime_error("Exit not found.");
     else if (head == nullptr) throw std::runtime_error("Head not found.");
 
@@ -111,12 +113,22 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     auto paper_ptr = std::make_shared<Item>();
     paper_ptr->name = "Paper";
     paper_ptr->interaction_description = "Pick it up";
-    paper_ptr->transform = paper;
+    paper_ptr->transform = paper_1;
     paper_ptr->img_path = "UI/Level2/paper.png";
     paper_ptr->inventory_description = "The paper contains a note: \"The secret is hidden in the paintings.\"";
     paper_ptr->inventory_choices = {};
-    paper_ptr->spawn_point = paper->position;
+    paper_ptr->spawn_point = paper_1->position;
     items["Paper"] = paper_ptr;
+
+    auto paper_2_ptr = std::make_shared<Item>();
+    paper_2_ptr->name = "Paper_2";
+    paper_2_ptr->interaction_description = "Pick it up";
+    paper_2_ptr->transform = paper_2;
+    paper_2_ptr->img_path = "UI/Level2/paper.png";
+    paper_2_ptr->inventory_description = "The paper contains a note: \"The order of the secret is also hidden in the painting.\"";
+    paper_2_ptr->inventory_choices = {};
+    paper_2_ptr->spawn_point = paper_2->position;
+    items["Paper_2"] = paper_2_ptr;
 
     auto head_ptr = std::make_shared<Item>();
     head_ptr->name = "Head";
@@ -233,7 +245,7 @@ void Level2::handle_interact_key() {
     if(ui->showing_interactable_button) {
         // ui->show_description(curr_item->interaction_description, curr_item->interaction_choices[0], curr_item->interaction_choices[1]);
         
-        if(curr_item->name == "Paper") {
+        if(curr_item->name.find("Paper") != std::string::npos) {
             if (!curr_item->added) {
                 curr_item->added = true;
                 ui->add_inventory_item(curr_item->name, curr_item->img_path, curr_item->description_img_path);
@@ -241,7 +253,7 @@ void Level2::handle_interact_key() {
             // uint32_t id = ui->get_inventory_item_id(curr_item->name);
             // ui->show_inventory_description_img(id);
             Sound::play(*pop_sample, 0.05f, 0.0f);
-            paper->position.x = -1000.0f;
+            curr_item->transform->position.x = -1000.0f;
         } else if (curr_item->name.find("Painting") != std::string::npos) {
             if (!curr_item->added) {
                 curr_item->img = ui->add_img(curr_item->description_img_path);
