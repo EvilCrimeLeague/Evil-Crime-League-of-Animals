@@ -205,9 +205,6 @@ void PlayMode::update(float elapsed) {
 		ui->show_game_over(true);
 		game_info->update_target_obtained(level->level_targets);
 		game_info->update_game_info();
-		for(auto i: game_info->targets_obtained) {
-			std::cout<<i<<std::endl;
-		}
 		return;
 	}
 	paused = ui->should_pause();

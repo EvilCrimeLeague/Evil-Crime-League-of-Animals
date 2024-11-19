@@ -27,7 +27,6 @@ Load< Scene > level2_scene(LoadTagDefault, []() -> Scene const * {
 		// if this doenst work, ask on discord, ping Jim
 		drawable.meshBuffer = &(*level2_meshes);
 		drawable.mesh = &mesh;
-
 	});
 });
 
@@ -69,7 +68,11 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     else if (exit_transform == nullptr) throw std::runtime_error("Exit not found.");
     else if (head == nullptr) throw std::runtime_error("Head not found.");
 
-    // fov->parent = guardDog;
+    for (auto &drawable : scene.drawables) {
+        if (drawable.transform->name == "Painting") {
+            drawable.texture = gen_texture_from_img("UI/Level2/256test.png");
+        }
+	}
 
     player_spawn_point = player_transform->position;
     player_spawn_rotation = player_transform->rotation;

@@ -126,3 +126,21 @@ bool Level::is_exit_finished() {
 bool Level::is_target_obtained() {
 	return std::any_of(level_targets.begin(), level_targets.end(), [](uint32_t v) { return v>0; });
 }
+
+GLint gen_texture_from_img(const std::string img_path) {
+	std::vector< glm::u8vec4 > data;
+	glm::uvec2 size;
+	load_png(data_path(img_path), &size, &data, UpperLeftOrigin);
+
+	GLuint tex;
+	glGenTextures(1, &tex);
+	glBindTexture(GL_TEXTURE_2D, tex);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size[0], size[1], 0, GL_RGBA, GL_UNSIGNED_BYTE, data.data());
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	return tex;
+}

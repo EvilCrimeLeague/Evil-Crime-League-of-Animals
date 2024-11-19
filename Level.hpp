@@ -155,3 +155,5 @@ struct Triangle {
 extern Load< Sound::Sample > collect_sample;
 extern Load< Sound::Sample > pop_sample;
 extern Load< Sound::Sample > rolling_sample;
+
+GLint gen_texture_from_img(const std::string img_path);
