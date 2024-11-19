@@ -71,6 +71,8 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     for (auto &drawable : scene.drawables) {
         if (drawable.transform->name == "Painting") {
             drawable.texture = gen_texture_from_img("UI/Level2/256test.png");
+        } else if (drawable.transform->name == "Painting.001") {
+            drawable.texture = gen_texture_from_img("UI/Level2/256test.png");
         }
 	}
 
@@ -87,10 +89,17 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     painting_1_ptr->name = "Painting1";
     painting_1_ptr->interaction_description = "Look at it";
     painting_1_ptr->transform = painting_1;
-    painting_1_ptr->img_path = "UI/Level2/painting.png";
     painting_1_ptr->description_img_path = "UI/Level2/256test.png";
     painting_1_ptr->spawn_point = painting_1->position;
     items["Painting1"] = painting_1_ptr;
+
+    auto painting_2_ptr = std::make_shared<Item>();
+    painting_2_ptr->name = "Painting2";
+    painting_2_ptr->interaction_description = "Look at it";
+    painting_2_ptr->transform = painting_2;
+    painting_2_ptr->description_img_path = "UI/Level2/256test.png";
+    painting_2_ptr->spawn_point = painting_2->position;
+    items["Painting2"] = painting_2_ptr;
 
     auto controll_panel_ptr = std::make_shared<Item>();
     controll_panel_ptr->name = "ControlPanel";
@@ -104,7 +113,8 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     paper_ptr->interaction_description = "Pick it up";
     paper_ptr->transform = paper;
     paper_ptr->img_path = "UI/Level2/paper.png";
-    paper_ptr->description_img_path = "UI/Level2/256test.png";
+    paper_ptr->inventory_description = "The paper contains a note: \"The secret is hidden in the paintings.\"";
+    paper_ptr->inventory_choices = {};
     paper_ptr->spawn_point = paper->position;
     items["Paper"] = paper_ptr;
 
@@ -228,8 +238,8 @@ void Level2::handle_interact_key() {
                 curr_item->added = true;
                 ui->add_inventory_item(curr_item->name, curr_item->img_path, curr_item->description_img_path);
             }
-            uint32_t id = ui->get_inventory_item_id(curr_item->name);
-            ui->show_inventory_description_img(id);
+            // uint32_t id = ui->get_inventory_item_id(curr_item->name);
+            // ui->show_inventory_description_img(id);
             Sound::play(*pop_sample, 0.05f, 0.0f);
             paper->position.x = -1000.0f;
         } else if (curr_item->name.find("Painting") != std::string::npos) {
