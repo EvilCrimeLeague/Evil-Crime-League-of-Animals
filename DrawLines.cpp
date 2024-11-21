@@ -62,14 +62,14 @@ static Load< void > setup_buffers(LoadTagDefault, [](){
 	GL_ERRORS(); //PARANOIA: make sure nothing strange happened during setup
 });
 
-
 DrawLines::DrawLines(glm::mat4 const &world_to_clip_) : world_to_clip(world_to_clip_) {
 }
 
 void DrawLines::draw(glm::vec3 const &a, glm::vec3 const &b, glm::u8vec4 const &color) {
-	attribs.emplace_back(a, color);
-	attribs.emplace_back(b, color);
+       attribs.emplace_back(a, color);
+       attribs.emplace_back(b, color);
 }
+
 
 void DrawLines::draw_box(glm::mat4x3 const &mat, glm::u8vec4 const &color) {
 	//draw cube as three edge sets:

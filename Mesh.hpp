@@ -76,4 +76,5 @@ struct MeshBuffer {
 	Attrib TexCoord;
 
 	std::vector< Vertex > data;
+	void ChangeBuffer(std::vector< Vertex > &data);
 };

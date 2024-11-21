@@ -52,6 +52,7 @@ struct Level {
     // local copy of the game scene (so code can change it during gameplay):
     Scene scene;
     const WalkMesh* walkmesh;
+    const MeshBuffer* guard_fov;
 
     Scene::Camera *camera = nullptr;
     glm::vec3 camera_spawn_point;
@@ -59,6 +60,7 @@ struct Level {
     glm::vec3 player_spawn_point;
     glm::quat player_spawn_rotation;
     Scene::Transform *target_transform = nullptr;
+    MeshBuffer *guard_fov_meshes;
 
     // ui
     std::shared_ptr<UI> ui;
@@ -77,6 +79,8 @@ struct Level {
     virtual void handle_enter_key() = 0;
     virtual void handle_interact_key() = 0;
     virtual void update() = 0; // any update particular to that level
+
+    std::vector< Vertex > guard_fov_data;
     
     void update_guard_detection();
     void update_guard_fov();

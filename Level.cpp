@@ -1,4 +1,6 @@
 #include "Level.hpp"
+#include  "Mesh.hpp"
+#include "Level1.hpp"
 
 Load< Sound::Sample > collect_sample(LoadTagDefault, []() -> Sound::Sample const * {
 	return new Sound::Sample(data_path("collect.wav"));
@@ -12,7 +14,6 @@ Load< Sound::Sample > rolling_sample(LoadTagDefault, []() -> Sound::Sample const
 	return new Sound::Sample(data_path("rolling.wav"));
 });
 
-Level::Level(std::shared_ptr<UI> ui_): ui(ui_) {};
 
 std::shared_ptr<Level::Item> Level::get_closest_item(glm::vec3 player_position) {
     std::shared_ptr<Item> closest_item = nullptr;
@@ -30,6 +31,7 @@ std::shared_ptr<Level::Item> Level::get_closest_item(glm::vec3 player_position) 
 }
 
 void Level::update_guard_detection() {
+	// MeshBuffer *guard_fov_meshbuffer = guard_fov_meshes;
 	for (auto &item: guard_detectables) {
 		item.second = false;
 	}
@@ -42,6 +44,9 @@ void Level::update_guard_detection() {
 		float verticalStep = guardDogVerticalFov / verticalRays;
 		float visionDistance = 5.2f;
 		glm::vec3 point = guardDog->transform->position;
+		Vertex point_vertex;
+		point_vertex.Position = point;
+		point_vertex.Color = glm::u8vec4(0x88, 0x00, 0xff, 0xff);
 		glm::vec3 guardDogDirectionWorld = glm::normalize(guardDog->transform->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
 		//std::cout<<guardDogDirectionWorld.x<<" "<<guardDogDirectionWorld.y<<" "<<guardDogDirectionWorld.z<<std::endl;
 		for (uint32_t x = 0; x < horizontalRays; x++) {
@@ -98,8 +103,29 @@ void Level::update_guard_detection() {
 					}
 				}
 				guard_detectables[closest_item] = true;
+				Vertex ray_vertex;
+				ray_vertex.Position = r.at(closest_t);
+				ray_vertex.Color = glm::u8vec4(0x88, 0x00, 0xff, 0xff);
+				// add vertices
+				if (x == 0 && z == 0) {
+					guard_fov_data.push_back(ray_vertex);
+					guard_fov_data.push_back(point_vertex);
+				} else if (x == horizontalRays - 1 && z == horizontalRays - 1) {
+					guard_fov_data.push_back(ray_vertex);
+				} else {
+					guard_fov_data.push_back(ray_vertex);
+					guard_fov_data.push_back(ray_vertex);
+					guard_fov_data.push_back(point_vertex);
+				}
 			}
 		}
+		// guard_fov_meshes->ChangeBuffer(guard_fov_data);
+		// for (Scene::Drawable &d : scene.drawables) {
+		// 	if (d.transform->name == "FOV") {
+		// 		d.meshBuffer = guard_fov_meshes;
+		// 	}
+		// }
+
     }
 }
 

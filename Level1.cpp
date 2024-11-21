@@ -5,28 +5,38 @@
 #include <iostream>
 
 GLuint level1_meshes_for_lit_color_texture_program = 0;
+GLuint guard_fov_meshes_for_lit_color_texture_program = 0;
 Load< MeshBuffer > level1_meshes(LoadTagDefault, []() -> MeshBuffer const * {
 	MeshBuffer const *ret = new MeshBuffer(data_path("level1.pnct"));
 	level1_meshes_for_lit_color_texture_program = ret->make_vao_for_program(lit_color_texture_program->program);
 	return ret;
 });
 
+Load< MeshBuffer > guard_fov(LoadTagDefault, []() -> MeshBuffer const * {
+	MeshBuffer const *ret = new MeshBuffer(data_path("guard_fov.pnct"));
+	guard_fov_meshes_for_lit_color_texture_program = ret->make_vao_for_program(lit_color_texture_program->program);
+	return ret;
+});
+
+Level::Level(std::shared_ptr<UI> ui_): ui(ui_) {
+	guard_fov_meshes = new MeshBuffer(data_path("guard_fov.pnct"));
+    guard_fov_meshes_for_lit_color_texture_program = guard_fov_meshes->make_vao_for_program(lit_color_texture_program->program);
+};
+
 Load< Scene > level1_scene(LoadTagDefault, []() -> Scene const * {
 	return new Scene(data_path("level1.scene"), [&](Scene &scene, Scene::Transform *transform, std::string const &mesh_name){
-		Mesh const &mesh = level1_meshes->lookup(mesh_name);
+        Mesh const &mesh = (mesh_name == "FOV") ? guard_fov->lookup("Cube") : level1_meshes->lookup(mesh_name);
 
 		scene.drawables.emplace_back(transform);
 		Scene::Drawable &drawable = scene.drawables.back();
 
 		drawable.pipeline = lit_color_texture_program_pipeline;
 
-		drawable.pipeline.vao = level1_meshes_for_lit_color_texture_program;
+		drawable.pipeline.vao = (mesh_name == "FOV") ? guard_fov_meshes_for_lit_color_texture_program : level1_meshes_for_lit_color_texture_program;
 		drawable.pipeline.type = mesh.type;
 		drawable.pipeline.start = mesh.start;
 		drawable.pipeline.count = mesh.count;
-
-		// if this doenst work, ask on discord, ping Jim
-		drawable.meshBuffer = &(*level1_meshes);
+		drawable.meshBuffer = (mesh_name == "FOV") ? &(*guard_fov) : &(*level1_meshes);
 		drawable.mesh = &mesh;
 
 	});
