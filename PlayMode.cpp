@@ -326,10 +326,12 @@ void PlayMode::update(float elapsed) {
 		//laser check
 		if (!level->disable_lasers) {
 			for (auto laser : level->lasers) {
-				laser->timer += elapsed;
-				if (laser->timer >= laser->target_time) {
-					laser->on = !laser->on;
-					laser->timer = 0;
+				if (laser->name == "Laser.001" || laser->name == "Laser.002" || laser->name == "Laser.003" || laser->name == "Laser.004") {
+					laser->timer += elapsed;
+					if (laser->timer > laser->target_time) {
+						laser->on = !laser->on;
+						laser->timer = 0;
+					}
 				}
 			}
 		} else {
