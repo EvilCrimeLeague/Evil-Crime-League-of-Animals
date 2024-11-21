@@ -14,11 +14,13 @@ Load< Sound::Sample > rolling_sample(LoadTagDefault, []() -> Sound::Sample const
 	return new Sound::Sample(data_path("rolling.wav"));
 });
 
+Level::Level(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): ui(ui_), info(info_) {};
 
 std::shared_ptr<Level::Item> Level::get_closest_item(glm::vec3 player_position) {
     std::shared_ptr<Item> closest_item = nullptr;
     float closest_distance = interactable_distance;
     for(auto itr = items.begin(); itr != items.end(); itr++) {
+		if(!itr->second->interactable) continue;
         float distance = glm::distance(itr->second->transform->position, player_position);
         if(distance < closest_distance) {
             closest_distance = distance;
@@ -133,4 +135,39 @@ void Level::update_animation(const float deltaTime) {
     for(auto& driver: drivers){
         driver->animate(deltaTime);
     }
+}
+
+void Level::exit() {
+	driver_rope_ascend->start();
+	player_transform->position.x = exit_transform->position.x+0.5f;
+	player_transform->position.y = exit_transform->position.y;
+	player_transform->rotation = glm::angleAxis(glm::radians(90.f),glm::vec3(0.0f, 0.0f, 1.0f));
+	driver_player_ascend->add_move_in_straight_line_anim(player_transform->position+glm::vec3(0,0,0.5f), player_transform->position+glm::vec3(0,0,5.0f), 5.0f, 3);
+	driver_player_ascend->start();
+}
+
+bool Level::is_exit_finished() {
+	return driver_rope_ascend->finished && driver_player_ascend->finished;
+}
+
+bool Level::is_target_obtained() {
+	return std::any_of(level_targets.begin(), level_targets.end(), [](uint32_t v) { return v>0; });
+}
+
+GLint gen_texture_from_img(const std::string img_path) {
+	std::vector< glm::u8vec4 > data;
+	glm::uvec2 size;
+	load_png(data_path(img_path), &size, &data, UpperLeftOrigin);
+
+	GLuint tex;
+	glGenTextures(1, &tex);
+	glBindTexture(GL_TEXTURE_2D, tex);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size[0], size[1], 0, GL_RGBA, GL_UNSIGNED_BYTE, data.data());
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	return tex;
 }

@@ -53,26 +53,30 @@ Load< Animation > level1_animations(LoadTagDefault, []() -> Animation const * {
 	return anim;
 });
 
-Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
+Level1::Level1(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(ui_, info_) {
     scene = *level1_scene;
     walkmesh = level1_walkmesh;
 
     for (auto &transform : scene.transforms) {
         if (transform.name == "RedPanda") player_transform = &transform;
-        else if (transform.name == "Jewel") target_transform = &transform;
+        else if (transform.name == "Jewel") head = &transform;
 		else if (transform.name == "Bone") bone = &transform;
 		else if (transform.name == "GuardDog") guardDog = &transform;
 		else if (transform.name == "FOV") fov = &transform;
         else if (transform.name == "Vase.001") vase = &transform;
         else if (transform.name == "Painting.002") painting_1 = &transform;
         else if (transform.name == "Painting.003") painting_2 = &transform;
+        else if (transform.name == "Rope") exit_transform = &transform;
+        else if (transform.name == "Shell") shell = &transform;
 	}
 
-    if (target_transform == nullptr) throw std::runtime_error("Target not found.");
+    if (head == nullptr) throw std::runtime_error("Target not found.");
     else if (player_transform == nullptr) throw std::runtime_error("Player not found.");
     else if (bone == nullptr) throw std::runtime_error("Bone not found.");
 	else if (guardDog == nullptr) throw std::runtime_error("GuardDog not found.");
 	else if (fov == nullptr) throw std::runtime_error("FOV not found.");
+    else if (exit_transform == nullptr) throw std::runtime_error("Exit not found.");
+
 
     // fov->parent = guardDog;
 
@@ -98,8 +102,8 @@ Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
 
     auto vase_ptr = std::make_shared<Item>();
     vase_ptr->name = "Vase";
-    vase_ptr->interaction_description = "It's a bizarre vase. You may want to leave it alone.";
-    bone_ptr->inventory_choices = {};
+    vase_ptr->interaction_description = "It's a bizarre vase. Better not to break it.";
+    vase_ptr->inventory_choices = {};
     vase_ptr->transform = vase;
     vase_ptr->show_description_box = true;
     vase_ptr->spawn_point = vase->position;
@@ -120,6 +124,24 @@ Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
     painting_2_ptr->show_description_box = true;
     painting_2_ptr->spawn_point = painting_2->position;
     items["Painting2"] = painting_2_ptr;
+
+    auto shell_ptr = std::make_shared<Item>();
+    shell_ptr->name = "Shell";
+    shell_ptr->interaction_description = "It's a conch shell. Listen closely. You may hear the sound of the waves.";
+    shell_ptr->transform = shell;
+    shell_ptr->show_description_box = true;
+    shell_ptr->spawn_point = shell->position;
+    items["Shell"] = shell_ptr;
+
+    auto head_ptr = std::make_shared<Item>();
+    head_ptr->name = "Head";
+    head_ptr->interaction_description = "Collect it.";
+    head_ptr->transform = head;
+    head_ptr->img_path = "UI/dog.png";
+    head_ptr->spawn_point = head->position;
+    head_ptr->inventory_description = "This is the Old Summer Palace bronze head of Dog. It was looted by during the Second Opium War and went missing since then.";
+    head_ptr->inventory_choices = {};
+    items["Head"] = head_ptr;
     
     // initialize guard dogs
     auto guardDog_ptr = std::make_shared<GuardDog>();
@@ -166,6 +188,27 @@ Level1::Level1(std::shared_ptr<UI> ui_): Level(ui_) {
     driver_fov_rotate->start();
     drivers.push_back(driver_fov_rotate);
 
+    driver_rope_descend = std::make_shared<Driver>("Rope-descend", CHANEL_TRANSLATION);
+    driver_rope_descend->transform = exit_transform;
+    glm::vec3 rope_up_pos = exit_transform->position;
+    rope_up_pos.z = 5.0f;
+    glm::vec3 rope_down_pos = rope_up_pos;
+    rope_down_pos.z = 0.0f;
+    driver_rope_descend->add_move_in_straight_line_anim(rope_up_pos, rope_down_pos, 5.0f, 3);
+    driver_rope_descend->loop = false;
+    drivers.push_back(driver_rope_descend);
+
+    driver_rope_ascend = std::make_shared<Driver>("Rope-ascend", CHANEL_TRANSLATION);
+    driver_rope_ascend->transform = exit_transform;
+    driver_rope_ascend->add_move_in_straight_line_anim(rope_down_pos, rope_up_pos, 5.0f, 3);
+    driver_rope_ascend->loop = false;
+    drivers.push_back(driver_rope_ascend);
+
+    driver_player_ascend = std::make_shared<Driver>("Player-ascend", CHANEL_TRANSLATION);
+    driver_player_ascend->transform = player_transform;
+    driver_player_ascend->loop = false;
+    drivers.push_back(driver_player_ascend);
+
     // sound
     rolling_loop = Sound::loop(*rolling_sample, 0.07f, 0.0f);
     rolling_loop->paused = true;
@@ -184,14 +227,10 @@ void Level1::handle_enter_key() {
             ui->hide_description();
         }
     } 
-    else if (ui->showing_inventory && ui->inventory_items.size() > 0) {
-        std::string item_name = ui->get_selected_inventory_item_name();
+    else if (ui->showing_inventory && ui->inventory_slot_selected_id < ui->inventory_items.size()) {
         Sound::play(*pop_sample, 0.1f, 0.0f);
-        if(item_name == "Bone") {
-            ui->show_description(items[item_name]->inventory_description, items[item_name]->inventory_choices[0], items[item_name]->inventory_choices[1]);
-            ui->showing_inventory_description = true;
-        }
-        
+        std::string item_name = ui->get_selected_inventory_item_name();
+        ui->handle_inventory_selection(items[item_name]->inventory_description, items[item_name]->inventory_choices);
     }
 }
 
@@ -209,6 +248,12 @@ void Level1::handle_interact_key() {
             // hide item
             curr_item->transform->position.x = -1000.0f;
             Sound::play(*pop_sample, 0.05f, 0.0f);
+        } else if (curr_item->name == "Head") {
+            ui->add_inventory_item(curr_item->name, curr_item->img_path);
+            curr_item->transform->position.x = -1000.0f;
+            Sound::play(*pop_sample, 0.05f, 0.0f);
+            level_targets[0] = 1;
+            driver_rope_descend->start();
         } else {
             // show description box
             if(curr_item->interaction_choices.size() > 0) {
@@ -238,7 +283,7 @@ void Level1::handle_inventory_choice(uint32_t choice_id) {
                 glm::vec3 playerDirectionWorld = glm::normalize(player_transform->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
                 glm::vec3 bone_target_pos = player_transform->position + (dist * playerDirectionWorld);//playerDirectionWorld*2.0f + glm::vec3(0,0,0.5);
                 driver_bone_move->clear();
-                driver_bone_move->add_walk_in_straight_line_anim(player_transform->position, bone_target_pos, static_cast<int>(glm::distance(player_transform->position, bone_target_pos)), 3);
+                driver_bone_move->add_move_in_straight_line_anim(player_transform->position, bone_target_pos, static_cast<int>(glm::distance(player_transform->position, bone_target_pos)), 3);
                 driver_bone_rotate->values4d = level1_animations->animations.at("Bone-rotation").values4d;
                 bone->rotation = player_transform->rotation;
                 for(int i=0; i<driver_bone_rotate->values4d.size(); i++){
@@ -298,6 +343,8 @@ void Level1::restart() {
 
     driver_bone_move->clear();
 
+    driver_player_ascend->clear();
+
     driver_bone_rotate->values4d = level1_animations->animations.at("Bone-rotation").values4d;
 
     fov->position.x = guardDog->position.x;
@@ -306,6 +353,7 @@ void Level1::restart() {
     rolling_loop = Sound::loop(*rolling_sample, 0.07f, 0.0f);
     rolling_loop->paused = true;
 
+    exit_transform->position.z = 100.0f; // hide rope for exit
 }
 
 void Level1::update() {
@@ -328,10 +376,10 @@ void Level1::update() {
             glm::vec3 guardDirectionWorld = glm::normalize(guardDog->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
             driver_guardDog_walk->clear();
             float duration = dist/guard_dog_speed;
-            driver_guardDog_walk->add_walk_in_straight_line_anim(guardDog->position, bone->position - guardDirectionWorld, duration, std::max(static_cast<int>(duration),1));
+            driver_guardDog_walk->add_move_in_straight_line_anim(guardDog->position, bone->position - guardDirectionWorld, duration, std::max(static_cast<int>(duration),1));
             driver_guardDog_walk->restart();
             driver_fov_move->clear();
-            driver_fov_move->add_walk_in_straight_line_anim(fov->position, bone->position - guardDirectionWorld, duration, std::max(static_cast<int>(duration),1));
+            driver_fov_move->add_move_in_straight_line_anim(fov->position, bone->position - guardDirectionWorld, duration, std::max(static_cast<int>(duration),1));
             driver_fov_move->restart();
         } 
         if(dist <= 1.25f && driver_guardDog_walk->playing) {

@@ -369,6 +369,7 @@ void UI::show_game_over(bool won) {
     game_over_text->hide = false;
     game_over_box->hide = false;
     manual_text->hide = false;
+    showing_game_over = true;
     need_update_texture = true;
 }
 
@@ -393,6 +394,8 @@ void UI::hide_all() {
     showing_alarm = false;
     showing_inventory_description = false;
     showing_menu = false;
+    showing_image = false;
+    showing_game_over = false;
 }
 
 void UI::reset() {
@@ -403,6 +406,15 @@ void UI::reset() {
     enter_bt_img->pos = choice_pos[choice_id];
     inventory_slot_selected_id = 0;
     manual_text->start_pos.x = 680;
+    for(auto img: extra_imgs) {
+        imgs.erase(std::remove(imgs.begin(), imgs.end(), img), imgs.end());
+    }
+    for(auto box: extra_boxes) {
+        boxes.erase(std::remove(boxes.begin(), boxes.end(), box), boxes.end());
+    }
+    for(auto text: extra_texts) {
+        texts.erase(std::remove(texts.begin(), texts.end(), text), texts.end());
+    }
     inventory_items.clear();
     manual_text->text = "Press <- or -> to select, press 'return' to continue";
 
@@ -474,11 +486,13 @@ void UI::arrow_key_callback(bool left) {
 void UI::add_inventory_item(std::string item_name, std::string img_path, std::string description_img_path) {
     auto img_ptr = std::make_shared<Img>(inventory_item_pos[inventory_items.size()], img_path);
     imgs.push_back(img_ptr);
+    extra_imgs.push_back(img_ptr);
     InventoryItem item = {item_name, img_ptr, static_cast<uint32_t>(inventory_items.size()), nullptr};
     if(description_img_path != "") {
         item.description_img = std::make_shared<Img>(glm::vec2(0,0), description_img_path);
         item.description_img->pos = glm::vec2(width/2-item.description_img->size.x/2, height/2-item.description_img->size.y/2);
         imgs.push_back(item.description_img);
+        extra_imgs.push_back(item.description_img);
     }
     inventory_items.push_back(item);
     img_ptr->hide = inventory_img->hide;
@@ -536,6 +550,19 @@ uint32_t UI::get_inventory_item_id(std::string item_name) {
         }
     }
     throw std::runtime_error("Item "+item_name+" not found in inventory");
+}
+
+void UI::handle_inventory_selection(std::string description,std::vector<std::string> choices) {
+    if(description != "") {
+        if(choices.size() == 0) {
+            show_description(description);
+        } else {
+            show_description(description, choices[0], choices[1]);
+        }
+        showing_inventory_description = true;
+    } else {
+        show_inventory_description_img(inventory_slot_selected_id);
+    }
 }
 
 void UI::show_notification(std::string notification) {
@@ -621,4 +648,50 @@ void UI::set_menu_button(bool hide) {
 
 void UI::set_title(std::string title) {
     title_text->text = title;
+}
+
+std::shared_ptr<UI::Img> UI::add_img(std::string path) {
+    auto img_ptr = std::make_shared<Img>(glm::vec2(0,0), path);
+    img_ptr->pos = glm::vec2(width/2-img_ptr->size.x/2, height/2-img_ptr->size.y/2);
+    imgs.push_back(img_ptr);
+    extra_imgs.push_back(img_ptr);
+    return img_ptr;
+}
+
+void UI::show_img(std::shared_ptr<Img> img) {
+    hide_all();
+    img->hide = false;
+    description_img_box->hide = false;
+    showing_image = true;
+
+    need_update_texture = true;
+}
+
+void UI::hide_img() {
+    hide_all();
+    set_menu_button(false);
+    set_inventory_button(false);
+    set_restart_button(false);
+    title_text->hide = false;
+    showing_image = false;
+
+    need_update_texture = true;
+}
+
+bool UI::should_pause() {
+    return showing_description || showing_image || showing_inventory_description || showing_menu;
+}
+
+std::shared_ptr<UI::Box> UI::add_box(glm::vec4 rect, glm::u8vec4 color) {
+    auto box = std::make_shared<UI::Box>(rect, color);
+    boxes.push_back(box);
+    extra_boxes.push_back(box);
+    return box;
+}
+
+std::shared_ptr<Text> UI::add_text(std::string text, glm::vec2 start_pos, std::shared_ptr<Font> font) {
+    auto text_ptr = std::make_shared<Text>(text, /*line length*/85, start_pos, font);
+    texts.push_back(text_ptr);
+    extra_texts.push_back(text_ptr);
+    return text_ptr;
 }

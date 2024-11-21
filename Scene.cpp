@@ -145,9 +145,19 @@ void Scene::draw(glm::mat4 const &world_to_clip, glm::mat4x3 const &world_to_lig
 				glBindTexture(pipeline.textures[i].target, pipeline.textures[i].texture);
 			}
 		}
+		if(drawable.texture != 0) {
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, drawable.texture);
+		} 
+		
 
 		//draw the object:
 		glDrawArrays(pipeline.type, pipeline.start, pipeline.count);
+
+		if(drawable.texture != 0) {
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, 0);
+		} 
 
 		//un-bind textures:
 		for (uint32_t i = 0; i < Drawable::Pipeline::TextureCount; ++i) {

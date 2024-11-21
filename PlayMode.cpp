@@ -9,8 +9,7 @@
 #include "gl_errors.hpp"
 #include "data_path.hpp"
 #include "Ray.hpp"
-#include "Level.hpp"
-#include "Level1.hpp"
+
 #include "Sound.hpp"
 
 #include <glm/gtc/type_ptr.hpp>
@@ -29,11 +28,16 @@ Load< Sound::Sample > toggle_inventory_sample(LoadTagDefault, []() -> Sound::Sam
 
 PlayMode::PlayMode() {
 	ui = std::make_shared<UI>();
+	game_info = std::make_shared<GameInfo>();
 
-	auto level1 = std::make_shared<Level1>(ui);
+	auto level1 = std::make_shared<Level1>(ui, game_info);
 	levels.push_back(level1);
-	auto level2 = std::make_shared<Level2>(ui);
+	auto level2 = std::make_shared<Level2>(ui, game_info);
 	levels.push_back(level2);
+	auto level3 = std::make_shared<Level3>(ui, game_info);
+	levels.push_back(level3);
+	auto level0 = std::make_shared<Level0>(ui, game_info);
+	levels.push_back(level0);
 	level = level1;
 
 	player.transform = level->player_transform;
@@ -49,7 +53,6 @@ PlayMode::PlayMode() {
 	//start player walking at nearest walk point:
 	player.at = level->walkmesh->nearest_walk_point(player.transform->position);
 
-	game_info = GameInfo();
 	ui->set_title("Level 1");
 }
 
@@ -132,7 +135,9 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_f) {
 			key_f.pressed = false;
-			level->handle_interact_key();
+			if(!game_over && !paused) {
+				level->handle_interact_key();
+			}
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_RETURN) {
 			auto before_time = std::chrono::high_resolution_clock::now();
@@ -147,7 +152,7 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 				level = levels[level_id];
 				restart(true);
 			} else if(ui->showing_menu) {
-				if(ui->menu_slot_selected_id <= game_info.highest_level) {
+				if(ui->menu_slot_selected_id <= game_info->highest_level || ui->menu_slot_selected_id == 3) {
 					level_id = ui->menu_slot_selected_id;
 					level = levels[level_id];
 					restart(true);
@@ -158,7 +163,7 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_e) {
 			key_e.pressed = false;
-			if(!game_over) {
+			if(!game_over && !paused) {
 				Sound::play(*toggle_inventory_sample, 0.2f, 0.0f);
 				ui->set_inventory(ui->showing_inventory);
 			}
@@ -166,15 +171,27 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_r) {
 			key_r.pressed = false;
-			if(!game_over) {
+			if(!game_over && !paused) {
 				restart();
 			}
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_q) {
 			key_q.pressed = false;
-			if(!game_over) {
+			if((!game_over && !paused) || ui->showing_menu) {
 				ui->set_menu(ui->showing_menu);
 			}
+			return true;
+		} else if (evt.key.keysym.sym ==  SDLK_0 ||
+				   evt.key.keysym.sym ==  SDLK_1 ||
+				   evt.key.keysym.sym ==  SDLK_2 ||
+				   evt.key.keysym.sym ==  SDLK_3 ||
+				   evt.key.keysym.sym ==  SDLK_4 ||
+				   evt.key.keysym.sym ==  SDLK_5 ||
+				   evt.key.keysym.sym ==  SDLK_6 ||
+				   evt.key.keysym.sym ==  SDLK_7 ||
+				   evt.key.keysym.sym ==  SDLK_8 ||
+				   evt.key.keysym.sym ==  SDLK_9) {
+			level->handle_numeric_key(evt.key.keysym.sym - SDLK_0);
 			return true;
 		}
 	}
@@ -184,12 +201,17 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 
 void PlayMode::update(float elapsed) {
 	//player walking:
-	paused = ui->showing_inventory_description || ui->showing_description;
-	if(game_over || paused) 
+	if(game_over && !ui->showing_game_over && level->is_exit_finished()) {
+		ui->show_game_over(true);
+		game_info->update_target_obtained(level->level_targets);
+		game_info->update_game_info();
 		return;
+	}
+	paused = ui->should_pause();
+	
 	constexpr float player_speed = 20.0f;
 
-	{
+	if(!paused && !game_over) {
 		// play footstep sounds
 		if (left.pressed || right.pressed || down.pressed || up.pressed ) {
 			if (speed_percent <= 0.25) speed_percent += elapsed;
@@ -205,7 +227,7 @@ void PlayMode::update(float elapsed) {
 		}
 	}
 
-	{
+	if(!paused && !game_over) {
 		//combine inputs into a move:
 		glm::vec2 move = glm::vec2(0.0f);
 		if (left.pressed && !right.pressed) {
@@ -307,11 +329,9 @@ void PlayMode::update(float elapsed) {
 	}
 
 	
-	{
+	if(!paused && !game_over) {
 		level->update();
-	}
 
-	{
 		if(seen_by_guard_timer > 0.5f) {
 			// player caught, restart game
 			restart();
@@ -328,10 +348,12 @@ void PlayMode::update(float elapsed) {
 		}
 	}
 
-	{
+	if(!paused && !game_over) {
 		// player and item interaction
-		curr_item = level->get_closest_item(player.transform->position);
-		if(!ui->showing_interactable_button && curr_item!=nullptr) {
+		auto new_item = level->get_closest_item(player.transform->position);
+		if(new_item!=nullptr && (!ui->showing_interactable_button || curr_item != new_item)) {
+			curr_item = new_item;
+			// show interaction button
 			ui->set_interactable_button(/*hide=*/false);
 			if(!curr_item->show_description_box) {
 				// show short interaction message next to the button
@@ -339,19 +361,19 @@ void PlayMode::update(float elapsed) {
 			} else {
 				ui->show_interact_bt_msg("Interact");
 			}
-		} else if (ui->showing_interactable_button && curr_item==nullptr) {
+		} else if (ui->showing_interactable_button && new_item==nullptr) {
+			// hide interaction button
 			ui->set_interactable_button(/*hide=*/true);
 			ui->hide_interact_bt_msg();
 		}
 
-		if(get_distance(player.transform->position, level->target_transform->position) < 1.5f) {
-			// TODO: add exit door
+		if(level->is_target_obtained() && get_distance(player.transform->position, level->exit_transform->position) < 0.5f) {
 			game_over = true;
 			++level_id; 
-			if((uint32_t)level_id > game_info.highest_level) {
-				game_info.update_highest_level(level_id);
+			if((uint32_t)level_id > game_info->highest_level) {
+				game_info->highest_level = level_id;
 			}
-			ui->show_game_over(true);
+			level->exit();
 		}
 	}
 
@@ -395,13 +417,12 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 	/* In case you are wondering if your walkmesh is lining up with your scene, try:
 	{
 		glDisable(GL_DEPTH_TEST);
-		for (auto const &tri : walkmesh->triangles) {
-			lines.draw(walkmesh->vertices[tri.x], walkmesh->vertices[tri.y], glm::u8vec4(0x88, 0x00, 0xff, 0xff));
-			lines.draw(walkmesh->vertices[tri.y], walkmesh->vertices[tri.z], glm::u8vec4(0x88, 0x00, 0xff, 0xff));
-			lines.draw(walkmesh->vertices[tri.z], walkmesh->vertices[tri.x], glm::u8vec4(0x88, 0x00, 0xff, 0xff));
+		for (auto const &tri : level->walkmesh->triangles) {
+			lines.draw(level->walkmesh->vertices[tri.x], level->walkmesh->vertices[tri.y], glm::u8vec4(0x88, 0x00, 0xff, 0xff));
+			lines.draw(level->walkmesh->vertices[tri.y], level->walkmesh->vertices[tri.z], glm::u8vec4(0x88, 0x00, 0xff, 0xff));
+			lines.draw(level->walkmesh->vertices[tri.z], level->walkmesh->vertices[tri.x], glm::u8vec4(0x88, 0x00, 0xff, 0xff));
 		}
-	}
-	*/
+	}*/
 
 	// Draw UI
     {	
