@@ -177,13 +177,15 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     laser_1_ptr->transform = laser_1;
     laser_1_ptr->spawn_point = laser_1->position;
     laser_1_ptr->on = true;
+    laser_1_ptr->target_time = 3;
     lasers.push_back(laser_1_ptr);
 
     auto laser_2_ptr = std::make_shared<Laser>();
     laser_2_ptr->name = "Laser.002";
     laser_2_ptr->transform = laser_2;
     laser_2_ptr->spawn_point = laser_2->position;
-    laser_2_ptr->on = true;
+    laser_2_ptr->on = false;
+    laser_2_ptr->target_time = 2;
     lasers.push_back(laser_2_ptr);
 
     auto laser_3_ptr = std::make_shared<Laser>();
@@ -191,6 +193,7 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     laser_3_ptr->transform = laser_3;
     laser_3_ptr->spawn_point = laser_3->position;
     laser_3_ptr->on = true;
+    laser_3_ptr->target_time = 5;
     lasers.push_back(laser_3_ptr);
 
     auto laser_4_ptr = std::make_shared<Laser>();
@@ -198,6 +201,7 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     laser_4_ptr->transform = laser_4;
     laser_4_ptr->spawn_point = laser_4->position;
     laser_4_ptr->on = true;
+    laser_4_ptr->target_time = 1.5;
     lasers.push_back(laser_4_ptr);
 
     auto laser_5_ptr = std::make_shared<Laser>();
@@ -205,6 +209,7 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     laser_5_ptr->transform = laser_5;
     laser_5_ptr->spawn_point = laser_5->position;
     laser_5_ptr->on = true;
+    laser_5_ptr->target_time = -1;
     lasers.push_back(laser_5_ptr);
 
     auto laser_6_ptr = std::make_shared<Laser>();
@@ -212,6 +217,7 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     laser_6_ptr->transform = laser_6;
     laser_6_ptr->spawn_point = laser_6->position;
     laser_6_ptr->on = true;
+    laser_6_ptr->target_time = -1;
     lasers.push_back(laser_6_ptr);
 
     auto laser_7_ptr = std::make_shared<Laser>();
@@ -219,6 +225,7 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     laser_7_ptr->transform = laser_7;
     laser_7_ptr->spawn_point = laser_7->position;
     laser_7_ptr->on = true;
+    laser_7_ptr->target_time = -1;
     lasers.push_back(laser_7_ptr);
 
     auto laser_8_ptr = std::make_shared<Laser>();
@@ -226,6 +233,7 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     laser_8_ptr->transform = laser_8;
     laser_8_ptr->spawn_point = laser_8->position;
     laser_8_ptr->on = true;
+    laser_8_ptr->target_time = -1;
     lasers.push_back(laser_8_ptr);
 
     auto laser_9_ptr = std::make_shared<Laser>();
@@ -233,6 +241,7 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     laser_9_ptr->transform = laser_9;
     laser_9_ptr->spawn_point = laser_9->position;
     laser_9_ptr->on = true;
+    laser_9_ptr->target_time = -1;
     lasers.push_back(laser_9_ptr);
 
     // initialize animation drivers
@@ -470,6 +479,7 @@ void Level2::handle_numeric_key(uint32_t key) {
             if(player_input == password) {
                 // correct password
                 // TODO: disable laser
+                disable_lasers = true;
                 hide_control_panel();
                 items["ControlPanel"]->interactable = false;
             } else {

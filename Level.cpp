@@ -235,6 +235,7 @@ void Level::move_lasers() {
 		if (laser->on) {
 			laser->transform->position = laser->spawn_point;
 		} else {
+			// std::cout<<laser->name<<std::endl;
 			laser->transform->position = glm::vec3(100, 100, 100);
 		}
 	}

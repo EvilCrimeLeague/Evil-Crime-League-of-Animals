@@ -93,6 +93,8 @@ struct Level {
         Scene::Transform *transform;
         glm::vec3 spawn_point;
         bool on = true;
+        float timer = 0;
+        float target_time = 0;
     };
 
     const float interactable_distance = 2.0f;
@@ -152,7 +154,9 @@ struct Level {
     void update_guard_detection();
     void update_guard_fov();
     void update_animation(const float deltaTime);
+
     bool check_laser_hits();
+    bool disable_lasers = false;
     void move_lasers();
 
     virtual void restart() = 0;

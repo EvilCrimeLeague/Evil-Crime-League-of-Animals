@@ -207,7 +207,7 @@ void PlayMode::update(float elapsed) {
 		game_info->update_game_info();
 		return;
 	}
-	paused = ui->should_pause();
+	paused = ui->should_pause() || laser_pause;
 	
 	constexpr float player_speed = 20.0f;
 
@@ -324,8 +324,24 @@ void PlayMode::update(float elapsed) {
 	}
 	{
 		//laser check
+		if (!level->disable_lasers) {
+			for (auto laser : level->lasers) {
+				laser->timer += elapsed;
+				if (laser->timer >= laser->target_time) {
+					laser->on = !laser->on;
+					laser->timer = 0;
+				}
+			}
+		} else {
+			for (auto laser: level->lasers) laser->on = false;
+		}
+
 		level->move_lasers();
-		if (level->check_laser_hits()) restart();
+		if (level->check_laser_hits()) {
+			laser_pause = true;
+		}
+		if (laser_pause == true) laser_timer += elapsed;
+		if (laser_timer >= 0.75) restart();
 	}
 
 	{
@@ -381,9 +397,6 @@ void PlayMode::update(float elapsed) {
 			level->exit();
 		}
 
-		for (auto laser : level->lasers) {
-			if (laser->on) game_over = true;
-		}
 	}
 
 	//reset button press counters:
@@ -469,11 +482,14 @@ void PlayMode::restart(bool new_level){
 	ui->reset();
 	seen_by_guard_timer = 0.0f;
 	game_over = false;
-	paused = false;
+	laser_timer = 0.0f;
+	laser_pause = false;
+	level->disable_lasers = false;
 
 	level->restart();
 	for (auto laser : level->lasers) {
-		laser->on = false;
+		laser->on = true;
+		laser->timer = 0;
 	}
 
 	if(new_level) {
@@ -493,6 +509,8 @@ void PlayMode::restart(bool new_level){
 
 		//start player walking at nearest walk point:
 		player.at = level->walkmesh->nearest_walk_point(player.transform->position);
+
+
 	} else {
 		player.transform->position = level->player_spawn_point;
 		player.at = level->walkmesh->nearest_walk_point(player.transform->position);

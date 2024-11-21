@@ -55,6 +55,9 @@ struct PlayMode : Mode {
 
 	bool game_over = false;
 	bool paused = false;
+	float laser_timer = 0;
+	bool laser_pause = false;
+
 
 	float seen_by_guard_timer = 0.0f;
 
