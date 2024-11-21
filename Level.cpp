@@ -2,6 +2,9 @@
 #include  "Mesh.hpp"
 #include "Level1.hpp"
 
+#include <algorithm>
+#include <glm/gtx/norm.hpp>
+
 Load< Sound::Sample > collect_sample(LoadTagDefault, []() -> Sound::Sample const * {
 	return new Sound::Sample(data_path("collect.wav"));
 });
@@ -170,4 +173,69 @@ GLint gen_texture_from_img(const std::string img_path) {
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	return tex;
+}
+
+bool Level::check_laser_hits() {
+	auto barycentric_weights = [&](glm::vec3 const &a, glm::vec3 const &b, glm::vec3 const &c, glm::vec3 const &pt) {
+		// Reference: https://gamedev.stackexchange.com/questions/23743/whats-the-most-efficient-way-to-find-barycentric-coordinates
+		glm::vec3 v0 = b - a, v1 = c - a, v2 = pt - a;
+		float d00 = glm::dot(v0, v0);
+		float d01 = glm::dot(v0, v1);
+		float d11 = glm::dot(v1, v1);
+		float d20 = glm::dot(v2, v0);
+		float d21 = glm::dot(v2, v1);
+		float denom = d00 * d11 - d01 * d01;
+		float v = (d11 * d20 - d01 * d21) / denom;
+		float w = (d00 * d21 - d01 * d20) / denom;
+		float u = 1.0f - v - w;
+		return glm::vec3(u,v,w);
+	};
+	for (Scene::Drawable &player: scene.drawables) {
+		if (player.transform->name == "RedPanda") {
+			GLuint player_start = player.mesh->start;
+			GLuint player_count = player.mesh->count;
+			glm::mat4x3 new_player_transform = player.transform->make_local_to_world();
+			for (GLuint j = player_start; j < player_start + player_count; j+= 10) {
+				glm::vec3 position = new_player_transform * glm::vec4(player.meshBuffer->data[j].Position, 1);
+				glm::vec3 dir = glm::normalize(player_transform->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
+				for (Scene::Drawable &d: scene.drawables) {
+					if (d.transform->name == "Laser.001" || d.transform->name == "Laser.002" || d.transform->name == "Laser.003" || d.transform->name == "Laser.004" || 
+						d.transform->name == "Laser.005" || d.transform->name == "Laser.006" || d.transform->name == "Laser.007" || d.transform->name == "Laser.008" || 
+						d.transform->name == "Laser.009") {
+						GLuint start = d.mesh->start;
+						GLuint count = d.mesh->count;
+						glm::mat4x3 transform = d.transform->make_local_to_world();
+						// glm::vec3 target_pos = position + glm::vec3(dir.x * distance, dir.y * distance, dir.z * distance);
+						for (GLuint i = start; i < start + count; i += 3) {
+							glm::vec3 const &a = transform * glm::vec4(d.meshBuffer->data[i].Position, 1);
+							glm::vec3 const &b = transform * glm::vec4(d.meshBuffer->data[i + 1].Position, 1);
+							glm::vec3 const &c = transform * glm::vec4(d.meshBuffer->data[i + 2].Position, 1);
+							glm::vec3 coords = barycentric_weights(a, b, c, position);
+							glm::vec3 worldCoords = coords.x * a + coords.y * b + coords.z * c;
+							if (coords.x >= 0 && coords.y >= 0 && coords.z >= 0) {
+								float dist = glm::length2(position - worldCoords);
+								if (dist < 0.005) {
+									for (auto l : lasers) {
+										if (l->name == d.transform->name) return true;
+									}
+								}
+								
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return false;
+}
+
+void Level::move_lasers() {
+	for (auto laser : lasers) {
+		if (laser->on) {
+			laser->transform->position = laser->spawn_point;
+		} else {
+			laser->transform->position = glm::vec3(100, 100, 100);
+		}
+	}
 }

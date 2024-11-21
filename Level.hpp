@@ -88,6 +88,13 @@ struct Level {
         glm::vec3 fov_spawn_point;
 	};
 
+    struct Laser {
+        std::string name;
+        Scene::Transform *transform;
+        glm::vec3 spawn_point;
+        bool on = true;
+    };
+
     const float interactable_distance = 2.0f;
     std::unordered_map<std::string, std::shared_ptr<Item> > items;
     std::unordered_map<std::string, bool> guard_detectables;
@@ -104,21 +111,22 @@ struct Level {
     Scene::Transform *player_transform = nullptr;
     glm::vec3 player_spawn_point;
     glm::quat player_spawn_rotation;
-<<<<<<< HEAD
     Scene::Transform *target_transform = nullptr;
     MeshBuffer *guard_fov_meshes;
-=======
     Scene::Transform *exit_transform = nullptr;
 
     std::vector<uint32_t> level_targets = {0, 0, 0, 0, 0};
     bool is_target_obtained();
->>>>>>> 3c2c72d37d144fa88b188b5653ce360c02c3cd3a
 
     // ui
     std::shared_ptr<UI> ui;
 
     // guards
     std::vector<std::shared_ptr<GuardDog> > guard_dogs;
+    
+    // lasers
+    std::vector<std::shared_ptr<Laser>> lasers;
+
 
     // animation
     std::vector<std::shared_ptr<Driver> > drivers;
@@ -144,6 +152,8 @@ struct Level {
     void update_guard_detection();
     void update_guard_fov();
     void update_animation(const float deltaTime);
+    bool check_laser_hits();
+    void move_lasers();
 
     virtual void restart() = 0;
     std::shared_ptr< Sound::PlayingSample > rolling_loop;

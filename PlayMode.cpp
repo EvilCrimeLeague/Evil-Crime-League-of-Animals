@@ -322,6 +322,11 @@ void PlayMode::update(float elapsed) {
 		camera->transform->position += move.x * right + move.y * forward;
 		*/
 	}
+	{
+		//laser check
+		level->move_lasers();
+		if (level->check_laser_hits()) restart();
+	}
 
 	{
 		// update animation
@@ -374,6 +379,10 @@ void PlayMode::update(float elapsed) {
 				game_info->highest_level = level_id;
 			}
 			level->exit();
+		}
+
+		for (auto laser : level->lasers) {
+			if (laser->on) game_over = true;
 		}
 	}
 
@@ -463,6 +472,9 @@ void PlayMode::restart(bool new_level){
 	paused = false;
 
 	level->restart();
+	for (auto laser : level->lasers) {
+		laser->on = false;
+	}
 
 	if(new_level) {
 		ui->set_title("Level " + std::to_string(level_id + 1));

@@ -18,10 +18,10 @@ Load< MeshBuffer > guard_fov(LoadTagDefault, []() -> MeshBuffer const * {
 	return ret;
 });
 
-Level::Level(std::shared_ptr<UI> ui_): ui(ui_) {
-	guard_fov_meshes = new MeshBuffer(data_path("guard_fov.pnct"));
-    guard_fov_meshes_for_lit_color_texture_program = guard_fov_meshes->make_vao_for_program(lit_color_texture_program->program);
-};
+// Level::Level(std::shared_ptr<UI> ui_): ui(ui_) {
+// 	guard_fov_meshes = new MeshBuffer(data_path("guard_fov.pnct"));
+//     guard_fov_meshes_for_lit_color_texture_program = guard_fov_meshes->make_vao_for_program(lit_color_texture_program->program);
+// };
 
 Load< Scene > level1_scene(LoadTagDefault, []() -> Scene const * {
 	return new Scene(data_path("level1.scene"), [&](Scene &scene, Scene::Transform *transform, std::string const &mesh_name){

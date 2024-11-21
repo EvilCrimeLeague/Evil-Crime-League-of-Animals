@@ -56,6 +56,15 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
         else if (transform.name == "Paper") paper_1 = &transform;
         else if (transform.name == "Paper.001") paper_2 = &transform;
         else if (transform.name == "Rope") exit_transform = &transform;
+        else if (transform.name == "Laser.001") laser_1 = &transform;
+        else if (transform.name == "Laser.002") laser_2 = &transform;
+        else if (transform.name == "Laser.003") laser_3 = &transform;
+        else if (transform.name == "Laser.004") laser_4 = &transform;
+        else if (transform.name == "Laser.005") laser_5 = &transform;
+        else if (transform.name == "Laser.006") laser_6 = &transform;
+        else if (transform.name == "Laser.007") laser_7 = &transform;
+        else if (transform.name == "Laser.008") laser_8 = &transform;
+        else if (transform.name == "Laser.009") laser_9 = &transform;
 	}
 
     if (head == nullptr) throw std::runtime_error("Target not found.");
@@ -69,6 +78,16 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     else if (paper_2 == nullptr) throw std::runtime_error("Paper 2 not found.");
     else if (exit_transform == nullptr) throw std::runtime_error("Exit not found.");
     else if (head == nullptr) throw std::runtime_error("Head not found.");
+    else if (laser_1 == nullptr) throw std::runtime_error("Laser 1 not found.");
+    else if (laser_2 == nullptr) throw std::runtime_error("Laser 2 not found.");
+    else if (laser_3 == nullptr) throw std::runtime_error("Laser 3 not found.");
+    else if (laser_4 == nullptr) throw std::runtime_error("Laser 4 not found.");
+    else if (laser_5 == nullptr) throw std::runtime_error("Laser 5 not found.");
+    else if (laser_6 == nullptr) throw std::runtime_error("Laser 6 not found.");
+    else if (laser_7 == nullptr) throw std::runtime_error("Laser 7 not found.");
+    else if (laser_8 == nullptr) throw std::runtime_error("Laser 8 not found.");
+    else if (laser_9 == nullptr) throw std::runtime_error("Laser 9 not found.");
+
 
     for (auto &drawable : scene.drawables) {
         if (drawable.transform->name == "Painting") {
@@ -152,6 +171,69 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     guardDog_2_ptr->transform = guardDog_2;
     guardDog_2_ptr->spawn_point = guardDog_2->position;
     guard_dogs.push_back(guardDog_2_ptr);
+
+    auto laser_1_ptr = std::make_shared<Laser>();
+    laser_1_ptr->name = "Laser.001";
+    laser_1_ptr->transform = laser_1;
+    laser_1_ptr->spawn_point = laser_1->position;
+    laser_1_ptr->on = true;
+    lasers.push_back(laser_1_ptr);
+
+    auto laser_2_ptr = std::make_shared<Laser>();
+    laser_2_ptr->name = "Laser.002";
+    laser_2_ptr->transform = laser_2;
+    laser_2_ptr->spawn_point = laser_2->position;
+    laser_2_ptr->on = true;
+    lasers.push_back(laser_2_ptr);
+
+    auto laser_3_ptr = std::make_shared<Laser>();
+    laser_3_ptr->name = "Laser.003";
+    laser_3_ptr->transform = laser_3;
+    laser_3_ptr->spawn_point = laser_3->position;
+    laser_3_ptr->on = true;
+    lasers.push_back(laser_3_ptr);
+
+    auto laser_4_ptr = std::make_shared<Laser>();
+    laser_4_ptr->name = "Laser.004";
+    laser_4_ptr->transform = laser_4;
+    laser_4_ptr->spawn_point = laser_4->position;
+    laser_4_ptr->on = true;
+    lasers.push_back(laser_4_ptr);
+
+    auto laser_5_ptr = std::make_shared<Laser>();
+    laser_5_ptr->name = "Laser.005";
+    laser_5_ptr->transform = laser_5;
+    laser_5_ptr->spawn_point = laser_5->position;
+    laser_5_ptr->on = true;
+    lasers.push_back(laser_5_ptr);
+
+    auto laser_6_ptr = std::make_shared<Laser>();
+    laser_6_ptr->name = "Laser.006";
+    laser_6_ptr->transform = laser_6;
+    laser_6_ptr->spawn_point = laser_6->position;
+    laser_6_ptr->on = true;
+    lasers.push_back(laser_6_ptr);
+
+    auto laser_7_ptr = std::make_shared<Laser>();
+    laser_7_ptr->name = "Laser.007";
+    laser_7_ptr->transform = laser_7;
+    laser_7_ptr->spawn_point = laser_7->position;
+    laser_7_ptr->on = true;
+    lasers.push_back(laser_7_ptr);
+
+    auto laser_8_ptr = std::make_shared<Laser>();
+    laser_8_ptr->name = "Laser.008";
+    laser_8_ptr->transform = laser_8;
+    laser_8_ptr->spawn_point = laser_8->position;
+    laser_8_ptr->on = true;
+    lasers.push_back(laser_8_ptr);
+
+    auto laser_9_ptr = std::make_shared<Laser>();
+    laser_9_ptr->name = "Laser.009";
+    laser_9_ptr->transform = laser_9;
+    laser_9_ptr->spawn_point = laser_9->position;
+    laser_9_ptr->on = true;
+    lasers.push_back(laser_9_ptr);
 
     // initialize animation drivers
     driver_guardDog1_walk = std::make_shared<Driver>(level2_animations->animations.at("GuardDog.001-translation"));
@@ -377,7 +459,7 @@ void Level2::handle_numeric_key(uint32_t key) {
     if(showing_control_panel) {
         if(control_panel_inputs.size() < 6) {
             player_input += std::to_string(key);
-            uint32_t i = control_panel_inputs.size();
+            uint32_t i = (uint32_t)control_panel_inputs.size();
             auto img = ui->add_img("UI/Level2/"+std::to_string(key)+".png");
             img->pos = control_panel_slots[i]->pos;
             img->hide = false;
