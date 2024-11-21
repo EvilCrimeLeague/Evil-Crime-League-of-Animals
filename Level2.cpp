@@ -52,6 +52,11 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
         else if (transform.name == "GuardDog.001") guardDog_2 = &transform;
         else if (transform.name == "Painting") painting_1 = &transform;
         else if (transform.name == "Painting.001") painting_2 = &transform;
+        else if (transform.name == "Painting.002") painting_3 = &transform;
+        else if (transform.name == "Painting.003") painting_4 = &transform;
+        else if (transform.name == "Painting.004") painting_5 = &transform;
+        else if (transform.name == "Painting.005") painting_6 = &transform;
+        else if (transform.name == "Painting.006") painting_7 = &transform;
         else if (transform.name == "ControlPanel") control_panel = &transform;
         else if (transform.name == "Paper") paper_1 = &transform;
         else if (transform.name == "Paper.001") paper_2 = &transform;
@@ -71,8 +76,6 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     else if (player_transform == nullptr) throw std::runtime_error("Player not found.");
 	else if (guardDog_1 == nullptr) throw std::runtime_error("GuardDog 1 not found.");
     else if (guardDog_2 == nullptr) throw std::runtime_error("GuardDog 2 not found.");
-    else if (painting_1 == nullptr) throw std::runtime_error("Painting 1 not found.");
-    else if (painting_2 == nullptr) throw std::runtime_error("Painting 2 not found.");
     else if (control_panel == nullptr) throw std::runtime_error("ControlPanel not found.");
     else if (paper_1 == nullptr) throw std::runtime_error("Paper 1 not found.");
     else if (paper_2 == nullptr) throw std::runtime_error("Paper 2 not found.");
@@ -94,6 +97,18 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
             drawable.texture = gen_texture_from_img("UI/Level2/256test.png");
         } else if (drawable.transform->name == "Painting.001") {
             drawable.texture = gen_texture_from_img("UI/Level2/256test.png");
+        } else if (drawable.transform->name == "Painting.002") {
+            drawable.texture = gen_texture_from_img("UI/Level2/256test.png");
+        } else if (drawable.transform->name == "Painting.003") {
+            drawable.texture = gen_texture_from_img("UI/Level2/256test.png");
+        } else if (drawable.transform->name == "Painting.004") {
+            drawable.texture = gen_texture_from_img("UI/Level2/256test.png");
+        } else if (drawable.transform->name == "Painting.005") {
+            drawable.texture = gen_texture_from_img("UI/Level2/256test.png");
+        } else if (drawable.transform->name == "Painting.006") {
+            drawable.texture = gen_texture_from_img("UI/Level2/256test.png");
+        } else if (drawable.transform->name == "Painting.007") {
+            drawable.texture = gen_texture_from_img("UI/Level2/256test.png");
         }
 	}
 
@@ -106,21 +121,18 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     guard_detectables["Wall"] = false;
 
     // initialize items
-    auto painting_1_ptr = std::make_shared<Item>();
-    painting_1_ptr->name = "Painting1";
-    painting_1_ptr->interaction_description = "Look at it";
-    painting_1_ptr->transform = painting_1;
-    painting_1_ptr->description_img_path = "UI/Level2/256test.png";
-    painting_1_ptr->spawn_point = painting_1->position;
-    items["Painting1"] = painting_1_ptr;
-
-    auto painting_2_ptr = std::make_shared<Item>();
-    painting_2_ptr->name = "Painting2";
-    painting_2_ptr->interaction_description = "Look at it";
-    painting_2_ptr->transform = painting_2;
-    painting_2_ptr->description_img_path = "UI/Level2/256test.png";
-    painting_2_ptr->spawn_point = painting_2->position;
-    items["Painting2"] = painting_2_ptr;
+    std::vector<Scene::Transform *> paintings = {painting_1, painting_2, painting_3, painting_4, painting_5, painting_6, painting_7};
+    for(int i=1; i<=7; i++){
+        auto painting = paintings[i-1];
+        if (painting == nullptr) throw std::runtime_error("Painting"+std::to_string(i)+"not found.");
+        auto painting_ptr = std::make_shared<Item>();
+        painting_ptr->name = "Painting"+std::to_string(i);
+        painting_ptr->interaction_description = "Look at it";
+        painting_ptr->transform = painting;
+        painting_ptr->description_img_path = "UI/Level2/256test.png";
+        painting_ptr->spawn_point = painting->position;
+        items[painting_ptr->name] = painting_ptr;
+    }
 
     auto controll_panel_ptr = std::make_shared<Item>();
     controll_panel_ptr->name = "ControlPanel";
@@ -134,7 +146,7 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     paper_ptr->interaction_description = "Pick it up";
     paper_ptr->transform = paper_1;
     paper_ptr->img_path = "UI/Level2/paper.png";
-    paper_ptr->inventory_description = "The paper contains a note: \"The secret is hidden in the paintings.\"";
+    paper_ptr->inventory_description = "The paper contains a note: \"The secret is hidden in the paintings. What are they looking at?\"";
     paper_ptr->inventory_choices = {};
     paper_ptr->spawn_point = paper_1->position;
     items["Paper"] = paper_ptr;
@@ -144,7 +156,7 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     paper_2_ptr->interaction_description = "Pick it up";
     paper_2_ptr->transform = paper_2;
     paper_2_ptr->img_path = "UI/Level2/paper.png";
-    paper_2_ptr->inventory_description = "The paper contains a note: \"The order of the secret is also hidden in the painting.\"";
+    paper_2_ptr->inventory_description = "The paper contains a note: \"The order of the secret is also hidden in a painting.\"";
     paper_2_ptr->inventory_choices = {};
     paper_2_ptr->spawn_point = paper_2->position;
     items["Paper_2"] = paper_2_ptr;

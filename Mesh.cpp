@@ -147,7 +147,7 @@ GLuint MeshBuffer::make_vao_for_program(GLuint program) const {
 void MeshBuffer::ChangeBuffer(std::vector< Vertex > &new_data) {
 	this->data = new_data;
 
-	GLuint total = 0;
+	// GLuint total = 0;
 
 	static_assert(sizeof(Vertex) == 3*4+3*4+4*1+2*4, "Vertex is packed.");
 	// std::vector< Vertex > data;
@@ -160,7 +160,7 @@ void MeshBuffer::ChangeBuffer(std::vector< Vertex > &new_data) {
     glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(Vertex), data.data(), GL_DYNAMIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    total = GLuint(data.size()); //store total for later checks on index
+    // total = GLuint(data.size()); //store total for later checks on index
 
     //store attrib locations:
     // Position = Attrib(3, GL_FLOAT, GL_FALSE, sizeof(Vertex), offsetof(Vertex, Position));

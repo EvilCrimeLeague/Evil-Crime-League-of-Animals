@@ -197,7 +197,7 @@ bool Level::check_laser_hits() {
 			glm::mat4x3 new_player_transform = player.transform->make_local_to_world();
 			for (GLuint j = player_start; j < player_start + player_count; j+= 10) {
 				glm::vec3 position = new_player_transform * glm::vec4(player.meshBuffer->data[j].Position, 1);
-				glm::vec3 dir = glm::normalize(player_transform->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
+				// glm::vec3 dir = glm::normalize(player_transform->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
 				for (Scene::Drawable &d: scene.drawables) {
 					if (d.transform->name == "Laser.001" || d.transform->name == "Laser.002" || d.transform->name == "Laser.003" || d.transform->name == "Laser.004" || 
 						d.transform->name == "Laser.005" || d.transform->name == "Laser.006" || d.transform->name == "Laser.007" || d.transform->name == "Laser.008" || 

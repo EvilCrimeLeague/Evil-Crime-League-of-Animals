@@ -11,6 +11,11 @@ struct Level2 : Level {
     Scene::Transform *vase = nullptr;
     Scene::Transform *painting_1 = nullptr;
     Scene::Transform *painting_2 = nullptr;
+    Scene::Transform *painting_3 = nullptr;
+    Scene::Transform *painting_4 = nullptr;
+    Scene::Transform *painting_5 = nullptr;
+    Scene::Transform *painting_6 = nullptr;
+    Scene::Transform *painting_7 = nullptr;
     Scene::Transform *control_panel = nullptr;
     Scene::Transform *paper_1 = nullptr;
     Scene::Transform *paper_2 = nullptr;
