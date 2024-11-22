@@ -19,6 +19,7 @@ struct Level2 : Level {
     Scene::Transform *control_panel = nullptr;
     Scene::Transform *paper_1 = nullptr;
     Scene::Transform *paper_2 = nullptr;
+    Scene::Transform *brochure = nullptr;
 
     Scene::Transform *laser_1 = nullptr;
     Scene::Transform *laser_2 = nullptr;

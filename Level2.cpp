@@ -60,6 +60,7 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
         else if (transform.name == "ControlPanel") control_panel = &transform;
         else if (transform.name == "Paper") paper_1 = &transform;
         else if (transform.name == "Paper.001") paper_2 = &transform;
+        else if (transform.name == "Brochure") brochure = &transform;
         else if (transform.name == "Rope") exit_transform = &transform;
         else if (transform.name == "Laser.001") laser_1 = &transform;
         else if (transform.name == "Laser.002") laser_2 = &transform;
@@ -81,6 +82,7 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     else if (paper_2 == nullptr) throw std::runtime_error("Paper 2 not found.");
     else if (exit_transform == nullptr) throw std::runtime_error("Exit not found.");
     else if (head == nullptr) throw std::runtime_error("Head not found.");
+    else if (brochure == nullptr) throw std::runtime_error("Brochure not found.");
     else if (laser_1 == nullptr) throw std::runtime_error("Laser 1 not found.");
     else if (laser_2 == nullptr) throw std::runtime_error("Laser 2 not found.");
     else if (laser_3 == nullptr) throw std::runtime_error("Laser 3 not found.");
@@ -126,7 +128,7 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
         auto painting = paintings[i-1];
         if (painting == nullptr) throw std::runtime_error("Painting"+std::to_string(i)+"not found.");
         auto painting_ptr = std::make_shared<Item>();
-        painting_ptr->name = "Painting"+std::to_string(i);
+        painting_ptr->name = painting->name;
         painting_ptr->interaction_description = "Look at it";
         painting_ptr->transform = painting;
         painting_ptr->description_img_path = "UI/Level2/256test.png";
@@ -155,11 +157,20 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     paper_2_ptr->name = "Paper_2";
     paper_2_ptr->interaction_description = "Pick it up";
     paper_2_ptr->transform = paper_2;
-    paper_2_ptr->img_path = "UI/Level2/paper.png";
+    paper_2_ptr->img_path = "UI/Level2/paper2.png";
     paper_2_ptr->inventory_description = "The paper contains a note: \"The order of the secret is also hidden in a painting.\"";
     paper_2_ptr->inventory_choices = {};
     paper_2_ptr->spawn_point = paper_2->position;
     items["Paper_2"] = paper_2_ptr;
+
+    auto brochure_ptr = std::make_shared<Item>();
+    brochure_ptr->name = "Brochure";
+    brochure_ptr->interaction_description = "Take a brochure";
+    brochure_ptr->transform = brochure;
+    brochure_ptr->img_path = "UI/Level2/brochure_64.png";
+    brochure_ptr->description_img_path = "UI/Level2/brochure.png";
+    brochure_ptr->spawn_point = brochure->position;
+    items[brochure_ptr->name] = brochure_ptr;
 
     auto head_ptr = std::make_shared<Item>();
     head_ptr->name = "Head";
@@ -347,11 +358,21 @@ void Level2::handle_interact_key() {
             if (!curr_item->added) {
                 curr_item->added = true;
                 ui->add_inventory_item(curr_item->name, curr_item->img_path, curr_item->description_img_path);
+                // uint32_t id = ui->get_inventory_item_id(curr_item->name);
+                // ui->show_inventory_description_img(id);
+                ui->set_inventory(false);
+                Sound::play(*pop_sample, 0.05f, 0.0f);
+                curr_item->transform->position.x = -1000.0f;
             }
-            // uint32_t id = ui->get_inventory_item_id(curr_item->name);
-            // ui->show_inventory_description_img(id);
-            Sound::play(*pop_sample, 0.05f, 0.0f);
-            curr_item->transform->position.x = -1000.0f;
+        } else if(curr_item->name == "Brochure") {
+            if (!curr_item->added) {
+                curr_item->added = true;
+                curr_item->interactable = false;
+                ui->add_inventory_item(curr_item->name, curr_item->img_path, curr_item->description_img_path);
+                ui->set_inventory(false);
+                Sound::play(*pop_sample, 0.05f, 0.0f);
+            }
+            
         } else if (curr_item->name.find("Painting") != std::string::npos) {
             if (!curr_item->added) {
                 curr_item->img = ui->add_img(curr_item->description_img_path);
