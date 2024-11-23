@@ -112,7 +112,7 @@ void Level::update_guard_detection() {
 				guard_detectables[closest_item] = true;
 				// std::cout<<r.at(closest_t).x<<" "<<r.at(closest_t).y<<" "<<r.at(closest_t).z<<std::endl;
 				Vertex ray_vertex;
-				ray_vertex.Position = guard_fov_transform->make_world_to_local() * glm::vec4(r.at(closest_t), 1);
+				// ray_vertex.Position = guard_fov_transform->make_world_to_local() * glm::vec4(r.at(closest_t), 1);
 				ray_vertex.Color = glm::u8vec4(0x88, 0x00, 0xff, 0xff);
 				// add vertices
 				if (x == 0 && z == 0) {
@@ -127,7 +127,7 @@ void Level::update_guard_detection() {
 				}
 			}
 		}
-		guard_fov_meshes->ChangeBuffer(guard_fov_data);
+		// guard_fov_meshes->ChangeBuffer(guard_fov_data);
 		// std::cout<<guard_fov_meshes->data[0].Position.x<<" "<<guard_fov_meshes->data[0].Position.y<<" "<<guard_fov_meshes->data[0].Position.z<<std::endl;
 		// std::cout<<guardDog->transform->position.x<<" "<<guardDog->transform->position.y<<" "<<guardDog->transform->position.z<<std::endl;
     }

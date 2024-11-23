@@ -14,7 +14,9 @@ struct Level1 : Level {
     Scene::Transform *shell = nullptr;
 
     std::shared_ptr<Driver> driver_guardDog_walk = nullptr;
+    std::shared_ptr<Driver> driver_fov_move = nullptr;
     std::shared_ptr<Driver> driver_guardDog_rotate = nullptr;
+    std::shared_ptr<Driver> driver_fov_rotate = nullptr;
     std::shared_ptr<Driver> driver_bone_rotate = nullptr;
     std::shared_ptr<Driver> driver_bone_move = nullptr;
 
