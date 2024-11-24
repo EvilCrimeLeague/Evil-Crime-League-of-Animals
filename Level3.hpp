@@ -5,6 +5,19 @@
 struct Level3 : Level {
     Scene::Transform *head = nullptr;
 
+    Scene::Transform *diamond = nullptr;
+    Scene::Transform *quartz = nullptr;
+    Scene::Transform *corundum = nullptr;
+    Scene::Transform *diamond_podium = nullptr;
+    Scene::Transform *quartz_podium = nullptr;
+    Scene::Transform *corundum_podium = nullptr;
+    std::map<std::string, int> gem_to_podium;;
+    std::vector<Scene::Transform *> podiums;
+    std::vector<bool> podium_occupied;
+
+    Scene::Transform *paper_scale = nullptr;
+    Scene::Transform *paper_passwd = nullptr;
+
     const float guard_dog_speed = 1.0f;
 
     // UI
