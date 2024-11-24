@@ -56,7 +56,7 @@ Level3::Level3(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
         else if (transform.name == "QuartzPodium") quartz_podium = &transform;
         else if (transform.name == "CorundumPodium") corundum_podium = &transform;
         else if (transform.name == "Paper") paper_passwd = &transform;
-        else if (transform.name == "Paper.001") paper_scale = &transform;
+        else if (transform.name == "Paper.001") paper_scale = &transform;else if (transform.name == "ControlPanel") control_panel = &transform;
 	}
 
     if (player_transform == nullptr) throw std::runtime_error("Player not found.");
@@ -69,6 +69,7 @@ Level3::Level3(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     else if (corundum_podium == nullptr) throw std::runtime_error("CorundumPodium not found.");
     else if (paper_passwd == nullptr) throw std::runtime_error("Paper password not found.");
     else if (paper_scale == nullptr) throw std::runtime_error("Paper scale not found.");
+    else if (control_panel == nullptr) throw std::runtime_error("ControlPanel not found.");
 
     player_spawn_point = player_transform->position;
     player_spawn_rotation = player_transform->rotation;
@@ -128,6 +129,13 @@ Level3::Level3(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     paper_passwd_ptr->description_img_path = "UI/Level3/password.png";
     paper_passwd_ptr->spawn_point = paper_passwd->position;
     items[paper_passwd_ptr->name] = paper_passwd_ptr;
+
+    auto controll_panel_ptr = std::make_shared<Item>();
+    controll_panel_ptr->name = "ControlPanel";
+    controll_panel_ptr->interaction_description = "Interact with it";
+    controll_panel_ptr->transform = control_panel;
+    controll_panel_ptr->spawn_point = control_panel->position;
+    items["ControlPanel"] = controll_panel_ptr;
     
     // initialize guard dogs
 
@@ -157,7 +165,10 @@ Level3::Level3(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
 }
 
 void Level3::handle_enter_key() {
-    if(ui->showing_inventory_description) {
+    if(showing_control_panel) {
+        // hide control panel
+        hide_control_panel();
+    }else if(ui->showing_inventory_description) {
         handle_inventory_choice(ui->choice_id);
     } else if (ui->showing_image) {
         ui->hide_img();
@@ -202,6 +213,32 @@ void Level3::handle_interact_key() {
             ui->set_inventory(false);
             Sound::play(*pop_sample, 0.05f, 0.0f);
             curr_item->transform->position.x = -1000.0f;
+        } else if (curr_item->name == "ControlPanel") {
+            ui->hide_all();
+            // show control panel
+            if(!control_panel_box) {
+                control_panel_box = ui->add_box(glm::vec4(200, 100, 1080, 620), glm::u8vec4(0, 0, 0, 200));
+            }
+            if(control_panel_slots.size()==0) {
+                glm::vec2 pivot = glm::vec2(300, 180);
+                for (uint32_t i = 0; i < 6; i++) {
+                    glm::vec2 pos = pivot + glm::vec2(i*120, 0);
+                    control_panel_slots.push_back(ui->add_img("UI/Slot2.png"));
+                    control_panel_slots[i]->pos = pos;
+                }
+            }
+            if(!control_panel_text) {
+                control_panel_text = ui->add_text("Enter a 6 digits password. Press enter to exit.", glm::vec2(240, 500), ui->font_manual);
+            }
+            control_panel_box->hide = false;
+            for(auto &slot: control_panel_slots) {
+                slot->hide = false;
+            }
+            control_panel_text->text = "Enter a 6 digits password. (Press enter to exit)";
+            control_panel_text->hide = false;
+            showing_control_panel = true;
+            ui->showing_image = true;
+            ui->need_update_texture = true;
         } else {
             // show description box
             if(curr_item->interaction_choices.size() > 0) {
@@ -291,6 +328,13 @@ void Level3::restart() {
     podium_occupied = {false, false, false};
     gem_to_podium.clear();
 
+    control_panel_slots = {};
+    control_panel_inputs = {};
+    items["ControlPanel"]->interactable = true;
+    control_panel_box = nullptr;
+    control_panel_text = nullptr;
+    showing_control_panel = false;
+    player_input = "";
 }
 
 void Level3::update() {
@@ -302,4 +346,52 @@ void Level3::update() {
 }
 
 void Level3::handle_numeric_key(uint32_t key) {
+    if(showing_control_panel) {
+        if(control_panel_inputs.size() < 6) {
+            player_input += std::to_string(key);
+            uint32_t i = (uint32_t)control_panel_inputs.size();
+            auto img = ui->add_img("UI/Level2/"+std::to_string(key)+".png");
+            img->pos = control_panel_slots[i]->pos;
+            img->hide = false;
+            control_panel_inputs.push_back(img);
+        }
+        if(control_panel_inputs.size() == 6) {
+            // check password
+            if(player_input == password) {
+                // correct password
+                // TODO: disable laser
+                disable_lasers = true;
+                hide_control_panel();
+                items["ControlPanel"]->interactable = false;
+            } else {
+                // wrong password
+                control_panel_text->text = "Wrong password. Try again. (Press enter to exit)";
+            }
+            // clear input
+            for(auto &img: control_panel_inputs) {
+                ui->imgs.erase(std::remove(ui->imgs.begin(), ui->imgs.end(), img), ui->imgs.end());
+            }
+            control_panel_inputs.clear();
+            player_input = "";
+        }
+        ui->need_update_texture = true;
+    }
+}
+
+void Level3::hide_control_panel() {
+    control_panel_box->hide = true;
+    for(auto &slot: control_panel_slots) {
+        slot->hide = true;
+    }
+    for(auto &img: control_panel_inputs) {
+        ui->imgs.erase(std::remove(ui->imgs.begin(), ui->imgs.end(), img), ui->imgs.end());
+    }
+    control_panel_inputs.clear();
+    control_panel_text->hide = true;
+    showing_control_panel = false;
+    ui->showing_image = false;
+    ui->set_menu_button(false);
+    ui->set_inventory_button(false);
+    ui->set_restart_button(false);
+    ui->set_menu_button(false);
 }

@@ -189,7 +189,7 @@ Level1::Level1(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     // driver_fov_rotate->transform = fov;
     // driver_fov_rotate->times = driver_guardDog_rotate->times;
     // driver_fov_rotate->values4d = driver_guardDog_rotate->values4d;
-    glm::quat rotate_90 = glm::angleAxis(glm::radians(-90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    // glm::quat rotate_90 = glm::angleAxis(glm::radians(-90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     // for(int i=0; i<driver_fov_rotate->values4d.size(); i++){
     //     driver_fov_rotate->values4d[i] = driver_fov_rotate->values4d[i] * rotate_90;
     // }

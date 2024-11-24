@@ -18,6 +18,15 @@ struct Level3 : Level {
     Scene::Transform *paper_scale = nullptr;
     Scene::Transform *paper_passwd = nullptr;
 
+    Scene::Transform *control_panel = nullptr;
+    std::shared_ptr<UI::Box> control_panel_box = nullptr;
+    std::shared_ptr<Text> control_panel_text = nullptr;
+    std::vector<std::shared_ptr<UI::Img> > control_panel_slots = {};
+    std::vector<std::shared_ptr<UI::Img> > control_panel_inputs = {};
+    bool showing_control_panel = false;
+    const std::string password = "153241";
+    std::string player_input = "";
+
     const float guard_dog_speed = 1.0f;
 
     // UI
@@ -33,4 +42,6 @@ struct Level3 : Level {
     void update();
 
     void restart();
+
+    void hide_control_panel();
 };
