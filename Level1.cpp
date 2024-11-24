@@ -202,13 +202,13 @@ Level1::Level1(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     rope_up_pos.z = 5.0f;
     glm::vec3 rope_down_pos = rope_up_pos;
     rope_down_pos.z = 0.0f;
-    driver_rope_descend->add_move_in_straight_line_anim(rope_up_pos, rope_down_pos, 5.0f, 3);
+    driver_rope_descend->add_move_in_straight_line_anim(rope_up_pos, rope_down_pos, rope_move_time, 3);
     driver_rope_descend->loop = false;
     drivers.push_back(driver_rope_descend);
 
     driver_rope_ascend = std::make_shared<Driver>("Rope-ascend", CHANEL_TRANSLATION);
     driver_rope_ascend->transform = exit_transform;
-    driver_rope_ascend->add_move_in_straight_line_anim(rope_down_pos, rope_up_pos, 5.0f, 3);
+    driver_rope_ascend->add_move_in_straight_line_anim(rope_down_pos, rope_up_pos, rope_move_time, 3);
     driver_rope_ascend->loop = false;
     drivers.push_back(driver_rope_ascend);
 

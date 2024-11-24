@@ -4,6 +4,8 @@
 
 struct Level3 : Level {
     Scene::Transform *head = nullptr;
+    Scene::Transform *guardDog_1 = nullptr;
+    Scene::Transform *guardDog_2 = nullptr;
 
     Scene::Transform *diamond = nullptr;
     Scene::Transform *quartz = nullptr;
@@ -28,6 +30,11 @@ struct Level3 : Level {
     std::string player_input = "";
 
     const float guard_dog_speed = 1.0f;
+
+    std::shared_ptr<Driver> driver_guardDog1_walk = nullptr;
+    std::shared_ptr<Driver> driver_guardDog1_rotate = nullptr;
+    std::shared_ptr<Driver> driver_guardDog2_walk = nullptr;
+    std::shared_ptr<Driver> driver_guardDog2_rotate = nullptr;
 
     // UI
 

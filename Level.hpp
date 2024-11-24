@@ -137,6 +137,7 @@ struct Level {
     std::shared_ptr<Driver> driver_rope_descend = nullptr;
     std::shared_ptr<Driver> driver_rope_ascend = nullptr;
     std::shared_ptr<Driver> driver_player_ascend = nullptr;
+    float rope_move_time = 3.0f;
 
     // game info
     std::shared_ptr<GameInfo> info;

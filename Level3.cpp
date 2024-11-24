@@ -37,10 +37,10 @@ Load< WalkMesh > level3_walkmesh(LoadTagDefault, []() -> WalkMesh const * {
 	return walkmesh;
 });
 
-// Load< Animation > level3_animations(LoadTagDefault, []() -> Animation const * {
-// 	Animation *anim = new Animation(data_path("level3.anim"));
-// 	return anim;
-// });
+Load< Animation > level3_animations(LoadTagDefault, []() -> Animation const * {
+	Animation *anim = new Animation(data_path("level3.anim"));
+	return anim;
+});
 
 Level3::Level3(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(ui_, info_) {
     scene = *level3_scene;
@@ -56,7 +56,12 @@ Level3::Level3(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
         else if (transform.name == "QuartzPodium") quartz_podium = &transform;
         else if (transform.name == "CorundumPodium") corundum_podium = &transform;
         else if (transform.name == "Paper") paper_passwd = &transform;
-        else if (transform.name == "Paper.001") paper_scale = &transform;else if (transform.name == "ControlPanel") control_panel = &transform;
+        else if (transform.name == "Paper.001") paper_scale = &transform;
+        else if (transform.name == "ControlPanel") control_panel = &transform;
+        else if (transform.name == "GuardDog") guardDog_1 = &transform;
+        else if (transform.name == "GuardDog.001") guardDog_2 = &transform;
+        else if (transform.name == "Head") head = &transform;
+
 	}
 
     if (player_transform == nullptr) throw std::runtime_error("Player not found.");
@@ -70,6 +75,9 @@ Level3::Level3(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     else if (paper_passwd == nullptr) throw std::runtime_error("Paper password not found.");
     else if (paper_scale == nullptr) throw std::runtime_error("Paper scale not found.");
     else if (control_panel == nullptr) throw std::runtime_error("ControlPanel not found.");
+    else if (guardDog_1 == nullptr) throw std::runtime_error("GuardDog 1 not found.");
+    else if (guardDog_2 == nullptr) throw std::runtime_error("GuardDog 2 not found.");
+    else if (head == nullptr) throw std::runtime_error("Head not found.");
 
     player_spawn_point = player_transform->position;
     player_spawn_rotation = player_transform->rotation;
@@ -136,23 +144,64 @@ Level3::Level3(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     controll_panel_ptr->transform = control_panel;
     controll_panel_ptr->spawn_point = control_panel->position;
     items["ControlPanel"] = controll_panel_ptr;
+
+    auto head_ptr = std::make_shared<Item>();
+    head_ptr->name = "Head";
+    head_ptr->interaction_description = "Collect it.";
+    head_ptr->transform = head;
+    head_ptr->img_path = "UI/sheep.png";
+    head_ptr->spawn_point = head->position;
+    head_ptr->inventory_description = "This is the Old Summer Palace bronze head of Sheep. It was looted by during the Second Opium War and went missing since then.";
+    head_ptr->inventory_choices = {};
+    items["Head"] = head_ptr;
     
     // initialize guard dogs
 
     // initialize animation drivers
+    driver_guardDog1_walk = std::make_shared<Driver>(level3_animations->animations.at("GuardDog-translation"));
+    driver_guardDog1_walk->transform = guardDog_1;
+    driver_guardDog1_walk->loop = true;
+    driver_guardDog1_walk->start();
+    drivers.push_back(driver_guardDog1_walk);
+
+    driver_guardDog2_walk = std::make_shared<Driver>(level3_animations->animations.at("GuardDog.001-translation"));
+    driver_guardDog2_walk->transform = guardDog_2;
+    driver_guardDog2_walk->loop = true;
+    driver_guardDog2_walk->start();
+    drivers.push_back(driver_guardDog2_walk);
+
+    driver_guardDog1_rotate = std::make_shared<Driver>(level3_animations->animations.at("GuardDog-rotation"));
+    driver_guardDog1_rotate->transform = guardDog_1;
+    driver_guardDog1_rotate->loop = true;
+    driver_guardDog1_rotate->start();
+    drivers.push_back(driver_guardDog1_rotate);
+
+    driver_guardDog2_rotate = std::make_shared<Driver>(level3_animations->animations.at("GuardDog.001-rotation"));
+    driver_guardDog2_rotate->transform = guardDog_2;
+    driver_guardDog2_rotate->loop = true;
+    driver_guardDog2_rotate->start();
+    drivers.push_back(driver_guardDog2_rotate);
+
+    for(auto& driver: drivers) {
+        for(int i=0; i<driver->times.size(); i++){
+            driver->times[i] = driver->times[i] * 4.0f;
+        }
+    }
+
+    
     driver_rope_descend = std::make_shared<Driver>("Rope-descend", CHANEL_TRANSLATION);
     driver_rope_descend->transform = exit_transform;
     glm::vec3 rope_up_pos = exit_transform->position;
     rope_up_pos.z = 5.0f;
     glm::vec3 rope_down_pos = rope_up_pos;
     rope_down_pos.z = 0.0f;
-    driver_rope_descend->add_move_in_straight_line_anim(rope_up_pos, rope_down_pos, 5.0f, 3);
+    driver_rope_descend->add_move_in_straight_line_anim(rope_up_pos, rope_down_pos, rope_move_time, 3);
     driver_rope_descend->loop = false;
     drivers.push_back(driver_rope_descend);
 
     driver_rope_ascend = std::make_shared<Driver>("Rope-ascend", CHANEL_TRANSLATION);
     driver_rope_ascend->transform = exit_transform;
-    driver_rope_ascend->add_move_in_straight_line_anim(rope_down_pos, rope_up_pos, 5.0f, 3);
+    driver_rope_ascend->add_move_in_straight_line_anim(rope_down_pos, rope_up_pos, rope_move_time, 3);
     driver_rope_ascend->loop = false;
     drivers.push_back(driver_rope_ascend);
 
@@ -194,7 +243,7 @@ void Level3::handle_interact_key() {
             ui->add_inventory_item(curr_item->name, curr_item->img_path);
             curr_item->transform->position.x = -1000.0f;
             Sound::play(*pop_sample, 0.05f, 0.0f);
-            level_targets[1] = 1;
+            level_targets[2] = 1;
             driver_rope_descend->start();
         } else if (curr_item->name == "Diamond" || curr_item->name == "Quartz" || curr_item->name == "Corundum") {
             if(gem_to_podium.find(curr_item->name) != gem_to_podium.end()) {
@@ -320,6 +369,13 @@ void Level3::restart() {
     }
 
     driver_player_ascend->clear();
+
+    driver_guardDog2_rotate->start();
+    driver_guardDog2_walk->start();
+    driver_guardDog1_rotate->start();
+    driver_guardDog1_walk->start();
+
+    
 
     for(auto &item: guard_detectables) {
         item.second = false;
