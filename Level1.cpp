@@ -12,8 +12,11 @@ Load< MeshBuffer > level1_meshes(LoadTagDefault, []() -> MeshBuffer const * {
 	return ret;
 });
 
-Load< MeshBuffer > guard_fov(LoadTagDefault, []() -> MeshBuffer const * {
-	MeshBuffer const *ret = new MeshBuffer(data_path("guard_fov.pnct"));
+MeshBuffer *guard_fov = nullptr;
+
+Load< MeshBuffer > guard_fov_load(LoadTagDefault, []() -> MeshBuffer const * {
+	MeshBuffer *ret = new MeshBuffer(data_path("guard_fov.pnct"));
+    guard_fov = ret;
 	guard_fov_meshes_for_lit_color_texture_program = ret->make_vao_for_program(lit_color_texture_program->program);
 	return ret;
 });
@@ -76,6 +79,9 @@ Level1::Level1(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
 	else if (guardDog == nullptr) throw std::runtime_error("GuardDog not found.");
 	else if (fov == nullptr) throw std::runtime_error("FOV not found.");
     else if (exit_transform == nullptr) throw std::runtime_error("Exit not found.");
+
+    guard_fov_meshes = &(*guard_fov);
+    guard_fov_transform = fov;
 
 
     // fov->parent = guardDog;
@@ -152,6 +158,8 @@ Level1::Level1(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     guardDog_ptr->fov_spawn_point = fov->position;
     guard_dogs.push_back(guardDog_ptr);
 
+    guard_fov_meshes = guard_fov;
+
     // initialize drivers
     driver_guardDog_walk = std::make_shared<Driver>("GuardDog-walk", CHANEL_TRANSLATION);
     driver_guardDog_walk->transform = guardDog;
@@ -172,21 +180,21 @@ Level1::Level1(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     driver_bone_rotate->transform = bone;
     drivers.push_back(driver_bone_rotate);
 
-    driver_fov_move = std::make_shared<Driver>("FOV-move", CHANEL_TRANSLATION);
-    driver_fov_move->transform = fov;
-    driver_fov_move->loop = false;
-    drivers.push_back(driver_fov_move);
+    // driver_fov_move = std::make_shared<Driver>("FOV-move", CHANEL_TRANSLATION);
+    // driver_fov_move->transform = fov;
+    // driver_fov_move->loop = false;
+    // drivers.push_back(driver_fov_move);
 
-    driver_fov_rotate = std::make_shared<Driver>("FOV-rotation", CHANEL_ROTATION);
-    driver_fov_rotate->transform = fov;
-    driver_fov_rotate->times = driver_guardDog_rotate->times;
-    driver_fov_rotate->values4d = driver_guardDog_rotate->values4d;
+    // driver_fov_rotate = std::make_shared<Driver>("FOV-rotation", CHANEL_ROTATION);
+    // driver_fov_rotate->transform = fov;
+    // driver_fov_rotate->times = driver_guardDog_rotate->times;
+    // driver_fov_rotate->values4d = driver_guardDog_rotate->values4d;
     glm::quat rotate_90 = glm::angleAxis(glm::radians(-90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    for(int i=0; i<driver_fov_rotate->values4d.size(); i++){
-        driver_fov_rotate->values4d[i] = driver_fov_rotate->values4d[i] * rotate_90;
-    }
-    driver_fov_rotate->start();
-    drivers.push_back(driver_fov_rotate);
+    // for(int i=0; i<driver_fov_rotate->values4d.size(); i++){
+    //     driver_fov_rotate->values4d[i] = driver_fov_rotate->values4d[i] * rotate_90;
+    // }
+    // driver_fov_rotate->start();
+    // drivers.push_back(driver_fov_rotate);
 
     driver_rope_descend = std::make_shared<Driver>("Rope-descend", CHANEL_TRANSLATION);
     driver_rope_descend->transform = exit_transform;
@@ -323,7 +331,7 @@ void Level1::restart() {
 
     for(auto &guard_dog: guard_dogs) {
         guard_dog->transform->position = guard_dog->spawn_point;
-        guard_dog->fov->position = guard_dog->fov_spawn_point;
+        // guard_dog->fov->position = guard_dog->fov_spawn_point;
     }
 
     for(auto &driver: drivers) {
@@ -336,10 +344,10 @@ void Level1::restart() {
     }
 
     driver_guardDog_walk->clear();
-    driver_fov_move->clear();
+    // driver_fov_move->clear();
 
     driver_guardDog_rotate->start();
-    driver_fov_rotate->start();
+    // driver_fov_rotate->start();
 
     driver_bone_move->clear();
 
@@ -347,8 +355,8 @@ void Level1::restart() {
 
     driver_bone_rotate->values4d = level1_animations->animations.at("Bone-rotation").values4d;
 
-    fov->position.x = guardDog->position.x;
-    fov->position.y = guardDog->position.y;
+    // fov->position.x = guardDog->position.x;
+    // fov->position.y = guardDog->position.y;
 
     rolling_loop = Sound::loop(*rolling_sample, 0.07f, 0.0f);
     rolling_loop->paused = true;
@@ -363,29 +371,29 @@ void Level1::update() {
     if(guard_detectables["RedPanda"] || driver_guardDog_walk->playing) {
         // stop guard animation
         driver_guardDog_rotate->stop();
-        driver_fov_rotate->stop();
+        // driver_fov_rotate->stop();
     } else {
         driver_guardDog_rotate->start();
-        driver_fov_rotate->start();
+        // driver_fov_rotate->start();
     }
     if (guard_detectables["Bone"]) {
         float dist = glm::distance(guardDog->position, bone->position);
         if(dist > 1.25f) {
             driver_guardDog_rotate->stop();
-            driver_fov_rotate->stop();
+            // driver_fov_rotate->stop();
             glm::vec3 guardDirectionWorld = glm::normalize(guardDog->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
             driver_guardDog_walk->clear();
             float duration = dist/guard_dog_speed;
             driver_guardDog_walk->add_move_in_straight_line_anim(guardDog->position, bone->position - guardDirectionWorld, duration, std::max(static_cast<int>(duration),1));
             driver_guardDog_walk->restart();
-            driver_fov_move->clear();
-            driver_fov_move->add_move_in_straight_line_anim(fov->position, bone->position - guardDirectionWorld, duration, std::max(static_cast<int>(duration),1));
-            driver_fov_move->restart();
+            // driver_fov_move->clear();
+            // driver_fov_move->add_move_in_straight_line_anim(fov->position, bone->position - guardDirectionWorld, duration, std::max(static_cast<int>(duration),1));
+            // driver_fov_move->restart();
         } 
         if(dist <= 1.25f && driver_guardDog_walk->playing) {
             // stop guard when close to bone
             driver_guardDog_walk->stop();
-            driver_fov_move->stop();
+            // driver_fov_move->stop();
             driver_bone_move->stop();
             driver_bone_move->finished = true;
             driver_bone_rotate->stop();

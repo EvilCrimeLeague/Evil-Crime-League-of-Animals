@@ -433,11 +433,13 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 
 	level->scene.draw(*player.camera);
 	// DrawLines lines(player.camera->make_projection() * glm::mat4(player.camera->transform->make_world_to_local()));
-	// lines.draw(player.transform->position, level->first, glm::u8vec4(0x88, 0x00, 0xff, 0xff));
-	// lines.draw(player.transform->position, level->second, glm::u8vec4(0x88, 0x00, 0xff, 0xff));
-	// lines.draw(player.transform->position, level->third, glm::u8vec4(0x88, 0x00, 0xff, 0xff));
-	// lines.draw(player.transform->position, level->fourth, glm::u8vec4(0x88, 0x00, 0xff, 0xff));
+	// for (auto point : level->guard_fov_data) {
+	// 	for (auto guard: level->guard_dogs) {
+	// 		lines.draw(guard->transform, point.Position, glm::u8vec4(0x88, 0x00, 0xff, 0xff));
 
+	// 	}
+	// }
+	
 	/* In case you are wondering if your walkmesh is lining up with your scene, try:
 	{
 		glDisable(GL_DEPTH_TEST);

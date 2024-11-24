@@ -37,6 +37,7 @@ std::shared_ptr<Level::Item> Level::get_closest_item(glm::vec3 player_position) 
 
 void Level::update_guard_detection() {
 	// MeshBuffer *guard_fov_meshbuffer = guard_fov_meshes;
+	guard_fov_data.clear();
 	for (auto &item: guard_detectables) {
 		item.second = false;
 	}
@@ -50,10 +51,9 @@ void Level::update_guard_detection() {
 		float visionDistance = 5.2f;
 		glm::vec3 point = guardDog->transform->position;
 		Vertex point_vertex;
-		point_vertex.Position = point;
+		point_vertex.Position = guardDog->transform->make_world_to_local() * glm::vec4(point, 1);
 		point_vertex.Color = glm::u8vec4(0x88, 0x00, 0xff, 0xff);
 		glm::vec3 guardDogDirectionWorld = glm::normalize(guardDog->transform->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
-		//std::cout<<guardDogDirectionWorld.x<<" "<<guardDogDirectionWorld.y<<" "<<guardDogDirectionWorld.z<<std::endl;
 		for (uint32_t x = 0; x < horizontalRays; x++) {
 			float horizontalAngle = - (guardDogHorizontalFov / 2) + (x * horizontalStep);
 			glm::vec3 horizontalDirection = glm::angleAxis(glm::radians(horizontalAngle), glm::vec3(0.0f, 0.0f, 1.0f)) * guardDogDirectionWorld;
@@ -61,12 +61,14 @@ void Level::update_guard_detection() {
 			for (uint32_t z = 0; z < verticalRays; z++) {
 				float verticalAngle = - (guardDogVerticalFov / 2) + (z * verticalStep);
 				glm::vec3 direction = glm::angleAxis(glm::radians(verticalAngle), glm::vec3(1.0f, 0.0f, 0.0f)) * horizontalDirection;
-				Ray r = Ray(point, direction, glm::vec2(0.0f, 2.0f), (uint32_t)0);
-				float closest_t = 10000000;
+				Ray r = Ray(point, direction, glm::vec2(0.0f, 5.2f), (uint32_t)0);
+				float closest_t = 5;
 				std::string closest_item = "Wall";
 				// loop through primitives 
 				for (Scene::Drawable &d : scene.drawables) {
-					
+					// if (d.transform->name == "GuardDog") {
+					// 	std::cout<<d.meshBuffer->data[1].Position.x<<" "<<d.meshBuffer->data[1].Position.y<<" "<<d.meshBuffer->data[1].Position.z<<std::endl;
+					// }
 					auto item_seen = guard_detectables.find(d.transform->name);
 					if ( item_seen != guard_detectables.end()) {
 						GLuint start = d.mesh->start;
@@ -96,20 +98,21 @@ void Level::update_guard_detection() {
 									if (glm::dot(glm::cross(ac, ab), glm::cross(ac, ap)) > 0 && 
 										glm::dot(glm::cross(cb, ca), glm::cross(cb, cp)) > 0 &&
 										glm::dot(glm::cross(ba, bc), glm::cross(ba, bp)) > 0) {
-											closest_t = std::min(t, closest_t);
-											if (t <= closest_t) {
-												// guard sees something
-												closest_item = d.transform->name;
-											}
+										closest_t = std::min(t, closest_t);
+										if (t <= closest_t) {
+											// guard sees something
+											closest_item = d.transform->name;
 										}
+									}
 								}
 							}
 						}
 					}
 				}
 				guard_detectables[closest_item] = true;
+				// std::cout<<r.at(closest_t).x<<" "<<r.at(closest_t).y<<" "<<r.at(closest_t).z<<std::endl;
 				Vertex ray_vertex;
-				ray_vertex.Position = r.at(closest_t);
+				ray_vertex.Position = guard_fov_transform->make_world_to_local() * glm::vec4(r.at(closest_t), 1);
 				ray_vertex.Color = glm::u8vec4(0x88, 0x00, 0xff, 0xff);
 				// add vertices
 				if (x == 0 && z == 0) {
@@ -124,13 +127,9 @@ void Level::update_guard_detection() {
 				}
 			}
 		}
-		// guard_fov_meshes->ChangeBuffer(guard_fov_data);
-		// for (Scene::Drawable &d : scene.drawables) {
-		// 	if (d.transform->name == "FOV") {
-		// 		d.meshBuffer = guard_fov_meshes;
-		// 	}
-		// }
-
+		guard_fov_meshes->ChangeBuffer(guard_fov_data);
+		// std::cout<<guard_fov_meshes->data[0].Position.x<<" "<<guard_fov_meshes->data[0].Position.y<<" "<<guard_fov_meshes->data[0].Position.z<<std::endl;
+		// std::cout<<guardDog->transform->position.x<<" "<<guardDog->transform->position.y<<" "<<guardDog->transform->position.z<<std::endl;
     }
 }
 
