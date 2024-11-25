@@ -75,6 +75,7 @@ struct UI {
 
     int32_t width = 1280;
     int32_t height = 720;
+    int32_t scale = 6;
 
     // state of the description box when interact with an item
     uint32_t choice_id = 0;
@@ -109,6 +110,7 @@ struct UI {
     bool showing_menu = false; // when menu is showing, disable other UI elements
     bool showing_image = false;
     bool showing_game_over = false;
+    bool showing_highres_img = false;
 
     bool need_update_texture = true;
 

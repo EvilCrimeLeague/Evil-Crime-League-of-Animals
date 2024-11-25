@@ -246,6 +246,10 @@ std::vector<std::string> UI::wrapText(const std::string& text, size_t line_lengt
 }
 
 void UI::gen_img_texture() {
+    if(showing_highres_img) {
+        width *= scale;
+        height *= scale;
+    }
     std::vector<std::vector<glm::u8vec4>> image(height, std::vector<glm::u8vec4>(width));
     // glm::u8vec4 image[height][width];
     for (int i = 0; i < height; i++ ){
@@ -284,6 +288,11 @@ void UI::gen_img_texture() {
     // glGenerateMipmap(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, 0);
     GL_ERRORS();
+
+    if(showing_highres_img) {
+        width /= scale;
+        height /= scale;
+    }
 }
 
 void UI::update_choice(bool left) {
@@ -396,6 +405,7 @@ void UI::hide_all() {
     showing_menu = false;
     showing_image = false;
     showing_game_over = false;
+    showing_highres_img = false;
 }
 
 void UI::reset() {
@@ -530,6 +540,7 @@ void UI::show_inventory_description_img(uint32_t slot_id){
 
 void UI::hide_inventory_description_img() {
     showing_inventory_description = false;
+    showing_highres_img = false;
     description_img_box->hide = true;
     for(auto& item: inventory_items) {
         if(item.description_img != nullptr) {
@@ -652,7 +663,13 @@ void UI::set_title(std::string title) {
 
 std::shared_ptr<UI::Img> UI::add_img(std::string path) {
     auto img_ptr = std::make_shared<Img>(glm::vec2(0,0), path);
-    img_ptr->pos = glm::vec2(width/2-img_ptr->size.x/2, height/2-img_ptr->size.y/2);
+    if(img_ptr->size.x > width || img_ptr->size.y > height) {
+        // high res image
+        img_ptr->pos = glm::vec2(width*scale/2-img_ptr->size.x/2, height*scale/2-img_ptr->size.y/2);
+    } else {
+        img_ptr->pos = glm::vec2(width/2-img_ptr->size.x/2, height/2-img_ptr->size.y/2);
+    }
+    
     imgs.push_back(img_ptr);
     extra_imgs.push_back(img_ptr);
     return img_ptr;
@@ -660,7 +677,15 @@ std::shared_ptr<UI::Img> UI::add_img(std::string path) {
 
 void UI::show_img(std::shared_ptr<Img> img) {
     hide_all();
+    showing_highres_img = true;
     img->hide = false;
+    if(img->size.x > img->size.y) {
+        // landscape
+        description_img_box->rect = glm::vec4(200, 100, 1080, 620);
+    } else {
+        // portrait
+        description_img_box->rect = glm::vec4(400, 50, 880, 670);
+    }
     description_img_box->hide = false;
     showing_image = true;
 
