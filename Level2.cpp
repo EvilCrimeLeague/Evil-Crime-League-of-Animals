@@ -179,7 +179,7 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     paper_2_ptr->interaction_description = "Pick it up";
     paper_2_ptr->transform = paper_2;
     paper_2_ptr->img_path = "UI/Level2/paper2.png";
-    paper_2_ptr->inventory_description = "The paper contains a note: \"The order of the secret is also hidden in a painting.\"";
+    paper_2_ptr->inventory_description = "The paper contains a note: \"Check the brochure. It contains the order of the secrets.\"";
     paper_2_ptr->inventory_choices = {};
     paper_2_ptr->spawn_point = paper_2->position;
     items["Paper_2"] = paper_2_ptr;
@@ -197,9 +197,9 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     head_ptr->name = "Head";
     head_ptr->interaction_description = "Collect it.";
     head_ptr->transform = head;
-    head_ptr->img_path = "UI/dragon.png";
+    head_ptr->img_path = "UI/chicken.png";
     head_ptr->spawn_point = head->position;
-    head_ptr->inventory_description = "This is the Old Summer Palace bronze head of Dragon. It was looted by during the Second Opium War and went missing since then.";
+    head_ptr->inventory_description = "This is the Old Summer Palace bronze head of Chicken. It was looted by during the Second Opium War and went missing since then.";
     head_ptr->inventory_choices = {};
     items["Head"] = head_ptr;
     
@@ -381,7 +381,6 @@ void Level2::handle_interact_key() {
                 ui->add_inventory_item(curr_item->name, curr_item->img_path, curr_item->description_img_path);
                 // uint32_t id = ui->get_inventory_item_id(curr_item->name);
                 // ui->show_inventory_description_img(id);
-                ui->set_inventory(false);
                 Sound::play(*pop_sample, 0.05f, 0.0f);
                 curr_item->transform->position.x = -1000.0f;
             }
@@ -390,7 +389,6 @@ void Level2::handle_interact_key() {
                 curr_item->added = true;
                 curr_item->interactable = false;
                 ui->add_inventory_item(curr_item->name, curr_item->img_path, curr_item->description_img_path);
-                ui->set_inventory(false);
                 Sound::play(*pop_sample, 0.05f, 0.0f);
             }
             

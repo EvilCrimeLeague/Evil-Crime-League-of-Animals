@@ -507,6 +507,7 @@ void UI::add_inventory_item(std::string item_name, std::string img_path, std::st
     inventory_items.push_back(item);
     img_ptr->hide = inventory_img->hide;
     inventory_slot_selected_id = (uint32_t)inventory_items.size()-1;
+    set_inventory(false);
     need_update_texture = true;
 }
 

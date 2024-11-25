@@ -188,7 +188,7 @@ Level3::Level3(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
         }
     }
 
-    
+
     driver_rope_descend = std::make_shared<Driver>("Rope-descend", CHANEL_TRANSLATION);
     driver_rope_descend->transform = exit_transform;
     glm::vec3 rope_up_pos = exit_transform->position;
@@ -252,14 +252,12 @@ void Level3::handle_interact_key() {
                 gem_to_podium.erase(curr_item->name);
             }
             ui->add_inventory_item(curr_item->name, curr_item->img_path);
-            ui->set_inventory(false);
             curr_item->transform->position.x = -1000.0f;
             Sound::play(*pop_sample, 0.05f, 0.0f);
         } else if (curr_item->name.find("Paper") != std::string::npos) {
             ui->add_inventory_item(curr_item->name, curr_item->img_path, curr_item->description_img_path);
             // uint32_t id = ui->get_inventory_item_id(curr_item->name);
             // ui->show_inventory_description_img(id);
-            ui->set_inventory(false);
             Sound::play(*pop_sample, 0.05f, 0.0f);
             curr_item->transform->position.x = -1000.0f;
         } else if (curr_item->name == "ControlPanel") {
