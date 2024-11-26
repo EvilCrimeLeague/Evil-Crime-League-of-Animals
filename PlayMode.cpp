@@ -319,7 +319,7 @@ void PlayMode::update(float elapsed) {
 		camera->transform->position += move.x * right + move.y * forward;
 		*/
 	}
-	{
+	if(!paused && !game_over) {
 		//laser check
 		if (!level->disable_lasers) {
 			for (auto laser : level->lasers) {
@@ -343,7 +343,7 @@ void PlayMode::update(float elapsed) {
 		if (laser_timer >= 0.75) restart();
 	}
 
-	{
+	if(!paused && !game_over) {
 		// update animation
 		level->update_animation(elapsed);
 	}
