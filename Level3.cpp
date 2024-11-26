@@ -380,12 +380,17 @@ void Level3::handle_interact_key() {
             curr_item->transform->position.x = -1000.0f;
             Sound::play(*pop_sample, 0.05f, 0.0f);
             level_targets[2] = 1;
-            driver_rope_descend->start();
+            if(!driver_rope_descend->finished) {
+                driver_rope_descend->start();
+            }
         } else if (curr_item->name == "Collectible") {
             ui->add_inventory_item(curr_item->name, curr_item->img_path);
             curr_item->transform->position.x = -1000.0f;
             Sound::play(*pop_sample, 0.05f, 0.0f);
             level_targets[4] = 1;
+            if(!driver_rope_descend->finished) {
+                driver_rope_descend->start();
+            }
         } else if (curr_item->name == "Diamond" || curr_item->name == "Quartz" || curr_item->name == "Corundum") {
             if(gem_to_podium.find(curr_item->name) != gem_to_podium.end()) {
                 // remove from podium

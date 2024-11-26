@@ -275,12 +275,17 @@ void Level1::handle_interact_key() {
             curr_item->transform->position.x = -1000.0f;
             Sound::play(*pop_sample, 0.05f, 0.0f);
             level_targets[0] = 1;
-            driver_rope_descend->start();
+            if(!driver_rope_descend->finished) {
+                driver_rope_descend->start();
+            }
         } else if (curr_item->name == "Collectible") {
             ui->add_inventory_item(curr_item->name, curr_item->img_path);
             curr_item->transform->position.x = -1000.0f;
             Sound::play(*pop_sample, 0.05f, 0.0f);
             level_targets[3] = 1;
+            if(!driver_rope_descend->finished) {
+                driver_rope_descend->start();
+            }
         } else {
             // show description box
             if(curr_item->interaction_choices.size() > 0) {
