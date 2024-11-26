@@ -42,27 +42,27 @@ void Level::update_guard_detection() {
 		item.second = false;
 	}
     for (auto guardDog: guard_dogs) {
-        constexpr float guardDogVerticalFov = 120.0f;
-		constexpr float guardDogHorizontalFov = 90.0f;
-		constexpr uint32_t horizontalRays = 5;
-		constexpr uint32_t verticalRays = 20;
-		float horizontalStep = guardDogHorizontalFov / horizontalRays;
+        constexpr float guardDogHorizontalFov = 120.0f;
+		constexpr float guardDogVerticalFov = 90.0f;
+		constexpr uint32_t verticalRays = 15;
+		constexpr uint32_t horizontalRays = 20;
 		float verticalStep = guardDogVerticalFov / verticalRays;
+		float horizontalStep = guardDogHorizontalFov / horizontalRays;
 		float visionDistance = 5.2f;
-		glm::vec3 point = guardDog->transform->position;
+		glm::vec3 point = guardDog->transform->position + glm::vec3(0.0, 0.0, 0.7);
 		Vertex point_vertex;
-		point_vertex.Position = guardDog->transform->make_world_to_local() * glm::vec4(point, 1);
-		point_vertex.Color = glm::u8vec4(0x88, 0x00, 0xff, 0xff);
+		point_vertex.Position = guard_fov_transform->make_world_to_local() * glm::vec4(point, 1);
+		point_vertex.Color = glm::u8vec4(0xff, 0x00, 0x00, 0x7);
 		glm::vec3 guardDogDirectionWorld = glm::normalize(guardDog->transform->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
-		for (uint32_t x = 0; x < horizontalRays; x++) {
-			float horizontalAngle = - (guardDogHorizontalFov / 2) + (x * horizontalStep);
-			glm::vec3 horizontalDirection = glm::angleAxis(glm::radians(horizontalAngle), glm::vec3(0.0f, 0.0f, 1.0f)) * guardDogDirectionWorld;
-
-			for (uint32_t z = 0; z < verticalRays; z++) {
-				float verticalAngle = - (guardDogVerticalFov / 2) + (z * verticalStep);
-				glm::vec3 direction = glm::angleAxis(glm::radians(verticalAngle), glm::vec3(1.0f, 0.0f, 0.0f)) * horizontalDirection;
+		for (uint32_t x = 0; x < verticalRays; x++) {
+			float verticalAngle = - (guardDogVerticalFov / 2) + (x * verticalStep);
+			glm::vec3 verticalDirection = glm::angleAxis(glm::radians(verticalAngle), glm::vec3(1.0f, 0.0f, 0.0f)) * guardDogDirectionWorld;
+			for (uint32_t z = 0; z < horizontalRays; z++) {
+				float horizontalAngle = - (guardDogHorizontalFov / 2) + (z * horizontalStep);
+				// std::cout<<"vertical angle: "<<horizontalAngle<<std::endl;
+				glm::vec3 direction = glm::angleAxis(glm::radians(horizontalAngle), glm::vec3(0.0f, 0.0f, 1.0f)) * verticalDirection;
 				Ray r = Ray(point, direction, glm::vec2(0.0f, 5.2f), (uint32_t)0);
-				float closest_t = 5;
+				float closest_t = 5.2f;
 				std::string closest_item = "Wall";
 				// loop through primitives 
 				for (Scene::Drawable &d : scene.drawables) {
@@ -112,13 +112,13 @@ void Level::update_guard_detection() {
 				guard_detectables[closest_item] = true;
 				// std::cout<<r.at(closest_t).x<<" "<<r.at(closest_t).y<<" "<<r.at(closest_t).z<<std::endl;
 				Vertex ray_vertex;
-				// ray_vertex.Position = guard_fov_transform->make_world_to_local() * glm::vec4(r.at(closest_t), 1);
-				ray_vertex.Color = glm::u8vec4(0x88, 0x00, 0xff, 0xff);
+				ray_vertex.Position = guard_fov_transform->make_world_to_local() * glm::vec4(r.at(closest_t), 1);
+				ray_vertex.Color = glm::u8vec4(0xff, 0x00, 0x00, 0x20);
 				// add vertices
 				if (x == 0 && z == 0) {
 					guard_fov_data.push_back(ray_vertex);
 					guard_fov_data.push_back(point_vertex);
-				} else if (x == horizontalRays - 1 && z == horizontalRays - 1) {
+				} else if (x == verticalRays - 1 && z == verticalRays - 1) {
 					guard_fov_data.push_back(ray_vertex);
 				} else {
 					guard_fov_data.push_back(ray_vertex);
@@ -127,7 +127,8 @@ void Level::update_guard_detection() {
 				}
 			}
 		}
-		// guard_fov_meshes->ChangeBuffer(guard_fov_data);
+		std::reverse(guard_fov_data.begin(), guard_fov_data.end());
+		guard_fov_meshes->ChangeBuffer(guard_fov_data);
 		// std::cout<<guard_fov_meshes->data[0].Position.x<<" "<<guard_fov_meshes->data[0].Position.y<<" "<<guard_fov_meshes->data[0].Position.z<<std::endl;
 		// std::cout<<guardDog->transform->position.x<<" "<<guardDog->transform->position.y<<" "<<guardDog->transform->position.z<<std::endl;
     }
