@@ -352,11 +352,11 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     drivers.push_back(driver_guardDog2_rotate);
 
     // slow done guard movement
-    for(auto& driver: drivers) {
-        for(int i=0; i<driver->times.size(); i++){
-            driver->times[i] = driver->times[i] * 2.0f;
-        }
-    }
+    // for(auto& driver: drivers) {
+    //     for(int i=0; i<(int)driver->times.size(); i++){
+    //         driver->times[i] = driver->times[i] * 2.0f;
+    //     }
+    // }
 
     driver_guardDog1_rotate->setPlaybackTime(driver_guardDog1_rotate->times[static_cast<int>(driver_guardDog1_rotate->times.size()/2)]);
     driver_guardDog1_walk->setPlaybackTime(driver_guardDog1_walk->times[static_cast<int>(driver_guardDog1_walk->times.size()/2)]);
