@@ -479,9 +479,9 @@ void Level3::handle_inventory_choice(uint32_t choice_id) {
                 if(podium_occupied[0] && podium_occupied[1] && podium_occupied[2]) {
                     if(gem_to_podium["Diamond"] == 0 && gem_to_podium["Quartz"] == 2 && gem_to_podium["Corundum"] == 1) {
                         // TODO: open door
-                        for(auto &laser: door1) {
-                            laser->on = false;
-                            laser->transform->position.z = -10.0f;
+                        for(auto laser_pt: door1) {
+                            laser_pt->on = false;
+                            laser_pt->transform->position.z = -10.0f;
                         }
                     }
                 }
@@ -584,9 +584,9 @@ void Level3::handle_numeric_key(uint32_t key) {
                 // correct password
                 // TODO: disable laser
                 // disable_lasers = true;
-                for(auto &laser: door2) {
-                    laser->on = false;
-                    laser->transform->position.z = -10.0f;
+                for(auto laser_pt: door2) {
+                    laser_pt->on = false;
+                    laser_pt->transform->position.z = -10.0f;
                 }
                 hide_control_panel();
                 items["ControlPanel"]->interactable = false;
