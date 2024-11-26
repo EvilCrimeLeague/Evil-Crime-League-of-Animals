@@ -138,7 +138,7 @@ void Level0::restart() {
         item.second->transform->position = item.second->spawn_point;
     }
     
-    for(int i=0; i<heads.size(); i++){
+    for(int i=0; i<(int)heads.size(); i++){
         if(info->targets_obtained[i] == 1) {
             heads[i]->position.z = 1.3f; // show the heads
         } else {

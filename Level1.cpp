@@ -293,7 +293,7 @@ void Level1::handle_inventory_choice(uint32_t choice_id) {
                 driver_bone_move->add_move_in_straight_line_anim(player_transform->position, bone_target_pos, static_cast<int>(glm::distance(player_transform->position, bone_target_pos)), 3);
                 driver_bone_rotate->values4d = level1_animations->animations.at("Bone-rotation").values4d;
                 bone->rotation = player_transform->rotation;
-                for(int i=0; i<driver_bone_rotate->values4d.size(); i++){
+                for(size_t i=0; i<(int)driver_bone_rotate->values4d.size(); i++){
                     driver_bone_rotate->values4d[i] = bone->rotation * driver_bone_rotate->values4d[i];
                 }
 

@@ -183,7 +183,7 @@ Level3::Level3(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     drivers.push_back(driver_guardDog2_rotate);
 
     for(auto& driver: drivers) {
-        for(int i=0; i<driver->times.size(); i++){
+        for(int i=0; i<(int)driver->times.size(); i++){
             driver->times[i] = driver->times[i] * 4.0f;
         }
     }
