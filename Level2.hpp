@@ -22,6 +22,8 @@ struct Level2 : Level {
     Scene::Transform *paper_1 = nullptr;
     Scene::Transform *paper_2 = nullptr;
     Scene::Transform *brochure = nullptr;
+    Scene::Transform *fov_1 = nullptr;
+    Scene::Transform *fov_2 = nullptr;
 
     Scene::Transform *laser_1 = nullptr;
     Scene::Transform *laser_2 = nullptr;
@@ -29,9 +31,13 @@ struct Level2 : Level {
     Scene::Transform *laser_4 = nullptr;
     Scene::Transform *laser_5 = nullptr;
     Scene::Transform *laser_6 = nullptr;
-    Scene::Transform *laser_7 = nullptr;
-    Scene::Transform *laser_8 = nullptr;
-    Scene::Transform *laser_9 = nullptr;
+
+    Scene::Transform *podium_1 = nullptr;
+    Scene::Transform *podium_2 = nullptr;
+    Scene::Transform *podium_3 = nullptr;
+    Scene::Transform *podium_4 = nullptr;
+    Scene::Transform *podium_5 = nullptr;
+    Scene::Transform *podium = nullptr;
 
     std::shared_ptr<Driver> driver_guardDog1_walk = nullptr;
     std::shared_ptr<Driver> driver_guardDog1_rotate = nullptr;

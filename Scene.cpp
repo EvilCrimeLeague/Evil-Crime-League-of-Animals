@@ -157,7 +157,7 @@ void Scene::draw(glm::mat4 const &world_to_clip, glm::mat4x3 const &world_to_lig
 		
 
 		//draw the object:
-		if (drawable.transform->name == "fov") {
+		if (drawable.transform->name == "fov" || drawable.transform->name == "fov1" || drawable.transform->name == "fov2") {
 			glDrawArrays(pipeline.type, pipeline.start, 410);
 		} else glDrawArrays(pipeline.type, pipeline.start, pipeline.count);
 

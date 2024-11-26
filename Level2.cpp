@@ -4,28 +4,48 @@
 
 
 GLuint level2_meshes_for_lit_color_texture_program = 0;
+GLuint guard_fov_1_meshes_for_lit_color_texture_program = 0;
+GLuint guard_fov_2_meshes_for_lit_color_texture_program = 0;
+
 Load< MeshBuffer > level2_meshes(LoadTagDefault, []() -> MeshBuffer const * {
 	MeshBuffer const *ret = new MeshBuffer(data_path("level2.pnct"));
 	level2_meshes_for_lit_color_texture_program = ret->make_vao_for_program(lit_color_texture_program->program);
 	return ret;
 });
 
+MeshBuffer *guard_fov_1 = nullptr;
+MeshBuffer *guard_fov_2 = nullptr;
+
+Load< MeshBuffer > guard_fov_1_load(LoadTagDefault, []() -> MeshBuffer const * {
+	MeshBuffer *ret = new MeshBuffer(data_path("guard_fov_1.pnct"));
+    guard_fov_1 = ret;
+	guard_fov_1_meshes_for_lit_color_texture_program = ret->make_vao_for_program(lit_color_texture_program->program);
+	return ret;
+});
+
+Load< MeshBuffer > guard_fov_2_load(LoadTagDefault, []() -> MeshBuffer const * {
+	MeshBuffer *ret = new MeshBuffer(data_path("guard_fov_2.pnct"));
+    guard_fov_2 = ret;
+	guard_fov_2_meshes_for_lit_color_texture_program = ret->make_vao_for_program(lit_color_texture_program->program);
+	return ret;
+});
+
 Load< Scene > level2_scene(LoadTagDefault, []() -> Scene const * {
 	return new Scene(data_path("level2.scene"), [&](Scene &scene, Scene::Transform *transform, std::string const &mesh_name){
-		Mesh const &mesh = level2_meshes->lookup(mesh_name);
+		Mesh const &mesh = (mesh_name == "fov1") ? guard_fov_1->lookup("Cube") : ((mesh_name == "fov2") ? guard_fov_2->lookup("Cube") : level2_meshes->lookup(mesh_name));
 
 		scene.drawables.emplace_back(transform);
 		Scene::Drawable &drawable = scene.drawables.back();
 
 		drawable.pipeline = lit_color_texture_program_pipeline;
 
-		drawable.pipeline.vao = level2_meshes_for_lit_color_texture_program;
+		drawable.pipeline.vao = (mesh_name == "fov1") ? guard_fov_1_meshes_for_lit_color_texture_program : ((mesh_name == "fov2") ? guard_fov_2_meshes_for_lit_color_texture_program : level2_meshes_for_lit_color_texture_program);
 		drawable.pipeline.type = mesh.type;
 		drawable.pipeline.start = mesh.start;
 		drawable.pipeline.count = mesh.count;
 
 		// if this doenst work, ask on discord, ping Jim
-		drawable.meshBuffer = &(*level2_meshes);
+		drawable.meshBuffer = (mesh_name == "fov1") ? &(*guard_fov_1) : ((mesh_name == "fov2") ? &(*guard_fov_2) : &(*level2_meshes));
 		drawable.mesh = &mesh;
 	});
 });
@@ -70,9 +90,14 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
         else if (transform.name == "Laser.004") laser_4 = &transform;
         else if (transform.name == "Laser.005") laser_5 = &transform;
         else if (transform.name == "Laser.006") laser_6 = &transform;
-        else if (transform.name == "Laser.007") laser_7 = &transform;
-        else if (transform.name == "Laser.008") laser_8 = &transform;
-        else if (transform.name == "Laser.009") laser_9 = &transform;
+        else if (transform.name == "fov1") fov_1 = &transform;
+        else if (transform.name == "fov2") fov_2 = &transform;
+        else if (transform.name == "Podium.001") podium_1 = &transform;
+        else if (transform.name == "Podium.002") podium_2 = &transform;
+        else if (transform.name == "Podium.003") podium_3 = &transform;
+        else if (transform.name == "Podium.004") podium_4 = &transform;
+        else if (transform.name == "Podium.005") podium_5 = &transform;
+        else if (transform.name == "Podium") podium = &transform;
 	}
 
     if (head == nullptr) throw std::runtime_error("Target not found.");
@@ -91,9 +116,6 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     else if (laser_4 == nullptr) throw std::runtime_error("Laser 4 not found.");
     else if (laser_5 == nullptr) throw std::runtime_error("Laser 5 not found.");
     else if (laser_6 == nullptr) throw std::runtime_error("Laser 6 not found.");
-    else if (laser_7 == nullptr) throw std::runtime_error("Laser 7 not found.");
-    else if (laser_8 == nullptr) throw std::runtime_error("Laser 8 not found.");
-    else if (laser_9 == nullptr) throw std::runtime_error("Laser 9 not found.");
     else if (painting_1 == nullptr) throw std::runtime_error("Painting 1 not found.");
     else if (painting_2 == nullptr) throw std::runtime_error("Painting 2 not found.");
     else if (painting_3 == nullptr) throw std::runtime_error("Painting 3 not found.");
@@ -103,6 +125,7 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     else if (painting_7 == nullptr) throw std::runtime_error("Painting 7 not found.");
     else if (painting_8 == nullptr) throw std::runtime_error("Painting 8 not found.");
     else if (painting_9 == nullptr) throw std::runtime_error("Painting 9 not found.");
+    else if (fov_1 == nullptr) throw std::runtime_error("fov1 not found.");
 
 
     for (auto &drawable : scene.drawables) {
@@ -134,6 +157,14 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     camera = &scene.cameras.front();
     camera_spawn_point = camera->transform->position;
     guard_detectables["Wall"] = false;
+    guard_detectables["Floor"] = false;
+    guard_detectables["Podium"] = false;
+    guard_detectables["Podium.001"] = false;
+    guard_detectables["Podium.002"] = false;
+    guard_detectables["Podium.003"] = false;
+    guard_detectables["Podium.004"] = false;
+    guard_detectables["Podium.005"] = false;
+    guard_detectables["RedPanda"] = false;
 
     // initialize items
     std::vector<Scene::Transform *> paintings = {painting_1, painting_2, painting_3, painting_4, painting_5, painting_6, painting_7, painting_8, painting_9};
@@ -208,12 +239,16 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     guardDog_1_ptr->name = "GuardDog1";
     guardDog_1_ptr->transform = guardDog_1;
     guardDog_1_ptr->spawn_point = guardDog_1->position;
+    guardDog_1_ptr->guard_fov_meshes = &(*guard_fov_1);
+    guardDog_1_ptr->guard_fov_transform = fov_1;
     guard_dogs.push_back(guardDog_1_ptr);
 
     auto guardDog_2_ptr = std::make_shared<GuardDog>();
     guardDog_2_ptr->name = "GuardDog2";
     guardDog_2_ptr->transform = guardDog_2;
     guardDog_2_ptr->spawn_point = guardDog_2->position;
+    guardDog_2_ptr->guard_fov_meshes = &(*guard_fov_2);
+    guardDog_2_ptr->guard_fov_transform = fov_2;
     guard_dogs.push_back(guardDog_2_ptr);
 
     auto laser_1_ptr = std::make_shared<Laser>();
@@ -261,27 +296,6 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     laser_6_ptr->spawn_point = laser_6->position;
     laser_6_ptr->on = true;
     lasers.push_back(laser_6_ptr);
-
-    auto laser_7_ptr = std::make_shared<Laser>();
-    laser_7_ptr->name = "Laser.007";
-    laser_7_ptr->transform = laser_7;
-    laser_7_ptr->spawn_point = laser_7->position;
-    laser_7_ptr->on = true;
-    lasers.push_back(laser_7_ptr);
-
-    auto laser_8_ptr = std::make_shared<Laser>();
-    laser_8_ptr->name = "Laser.008";
-    laser_8_ptr->transform = laser_8;
-    laser_8_ptr->spawn_point = laser_8->position;
-    laser_8_ptr->on = true;
-    lasers.push_back(laser_8_ptr);
-
-    auto laser_9_ptr = std::make_shared<Laser>();
-    laser_9_ptr->name = "Laser.009";
-    laser_9_ptr->transform = laser_9;
-    laser_9_ptr->spawn_point = laser_9->position;
-    laser_9_ptr->on = true;
-    lasers.push_back(laser_9_ptr);
 
     // initialize animation drivers
     driver_guardDog1_walk = std::make_shared<Driver>(level2_animations->animations.at("GuardDog.001-translation"));
@@ -345,6 +359,8 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     // drivers.push_back(driver_fov_move);
 
     // sound
+    // get_laser_drawables();
+    // get_detectable_drawables();
 }
 
 void Level2::handle_enter_key() {
@@ -505,8 +521,7 @@ void Level2::restart() {
 
 void Level2::update() {
     // Field of view collisions
-    // update_guard_detection();
-    
+    update_guard_detection();
     
     // animation
 }

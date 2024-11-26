@@ -110,6 +110,9 @@ struct Level {
     Scene scene;
     const WalkMesh* walkmesh;
 
+    std::vector< Scene::Drawable > laser_drawables;
+    std::vector< Scene::Drawable > detectable_drawables;
+
     Scene::Camera *camera = nullptr;
     glm::vec3 camera_spawn_point;
     Scene::Transform *player_transform = nullptr;
@@ -153,6 +156,8 @@ struct Level {
     void update_guard_detection();
     void update_guard_fov();
     void update_animation(const float deltaTime);
+    void get_laser_drawables();
+    void get_detectable_drawables();
 
     bool check_laser_hits();
     bool disable_lasers = false;

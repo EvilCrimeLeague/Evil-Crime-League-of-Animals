@@ -15,7 +15,7 @@ Load< MeshBuffer > level1_meshes(LoadTagDefault, []() -> MeshBuffer const * {
 MeshBuffer *guard_fov = nullptr;
 
 Load< MeshBuffer > guard_fov_load(LoadTagDefault, []() -> MeshBuffer const * {
-	MeshBuffer *ret = new MeshBuffer(data_path("guard_fov.pnct"));
+	MeshBuffer *ret = new MeshBuffer(data_path("guard_fov_1.pnct"));
     guard_fov = ret;
 	guard_fov_meshes_for_lit_color_texture_program = ret->make_vao_for_program(lit_color_texture_program->program);
 	return ret;
@@ -91,6 +91,7 @@ Level1::Level1(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     camera_spawn_point = camera->transform->position;
     guard_detectables["Wall"] = false;
     guard_detectables["Floor"] = false;
+    guard_detectables["RedPanda"] = false;
 
     // initialize items
     auto bone_ptr = std::make_shared<Item>();
@@ -219,6 +220,8 @@ Level1::Level1(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     // sound
     rolling_loop = Sound::loop(*rolling_sample, 0.07f, 0.0f);
     rolling_loop->paused = true;
+    // get_detectable_drawables();
+
 }
 
 void Level1::handle_enter_key() {

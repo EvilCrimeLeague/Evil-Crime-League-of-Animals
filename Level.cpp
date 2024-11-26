@@ -40,26 +40,27 @@ void Level::update_guard_detection() {
 	for (auto &item: guard_detectables) {
 		item.second = false;
 	}
+	for (auto guardDog: guard_dogs) guardDog->guard_fov_data.clear();
+
     for (auto guardDog: guard_dogs) {
-		guardDog->guard_fov_data.clear();
-        constexpr float guardDogHorizontalFov = 120.0f;
+		// if (guardDog->name == "GuardDog1") {
+        constexpr float guardDogHorizontalFov = 100.0f;
 		constexpr float guardDogVerticalFov = 90.0f;
 		constexpr uint32_t verticalRays = 15;
-		constexpr uint32_t horizontalRays = 20;
+		constexpr uint32_t horizontalRays = 17;
 		float verticalStep = guardDogVerticalFov / verticalRays;
 		float horizontalStep = guardDogHorizontalFov / horizontalRays;
 		float visionDistance = 5.2f;
 		glm::vec3 point = guardDog->transform->position + glm::vec3(0.0, 0.0, 0.7);
 		Vertex point_vertex;
 		point_vertex.Position = guardDog->guard_fov_transform->make_world_to_local() * glm::vec4(point, 1);
-		point_vertex.Color = glm::u8vec4(0x00, 0x00, 0x00, 0x7);
+		point_vertex.Color = glm::u8vec4(0xff, 0x00, 0x00, 0x7);
 		glm::vec3 guardDogDirectionWorld = glm::normalize(guardDog->transform->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
 		for (uint32_t x = 0; x < verticalRays; x++) {
 			float verticalAngle = - (guardDogVerticalFov / 2) + (x * verticalStep);
 			glm::vec3 verticalDirection = glm::angleAxis(glm::radians(verticalAngle), glm::vec3(1.0f, 0.0f, 0.0f)) * guardDogDirectionWorld;
 			for (uint32_t z = 0; z < horizontalRays; z++) {
 				float horizontalAngle = - (guardDogHorizontalFov / 2) + (z * horizontalStep);
-				// std::cout<<"vertical angle: "<<horizontalAngle<<std::endl;
 				glm::vec3 direction = glm::angleAxis(glm::radians(horizontalAngle), glm::vec3(0.0f, 0.0f, 1.0f)) * verticalDirection;
 				Ray r = Ray(point, direction, glm::vec2(0.0f, 5.2f), (uint32_t)0);
 				float closest_t = 5.2f;
@@ -113,12 +114,12 @@ void Level::update_guard_detection() {
 				// std::cout<<r.at(closest_t).x<<" "<<r.at(closest_t).y<<" "<<r.at(closest_t).z<<std::endl;
 				Vertex ray_vertex;
 				ray_vertex.Position = guardDog->guard_fov_transform->make_world_to_local() * glm::vec4(r.at(closest_t), 1);
-				ray_vertex.Color = glm::u8vec4(0x00, 0x00, 0x00, 0x20);
+				ray_vertex.Color = glm::u8vec4(0xff, 0x00, 0x00, 0x20);
 				// add vertices
 				if (x == 0 && z == 0) {
 					guardDog->guard_fov_data.push_back(ray_vertex);
 					guardDog->guard_fov_data.push_back(point_vertex);
-				} else if (x == verticalRays - 1 && z == verticalRays - 1) {
+				} else if (x == verticalRays - 1 && z == horizontalRays - 1) {
 					guardDog->guard_fov_data.push_back(ray_vertex);
 				} else {
 					guardDog->guard_fov_data.push_back(ray_vertex);
@@ -131,7 +132,7 @@ void Level::update_guard_detection() {
 		guardDog->guard_fov_meshes->ChangeBuffer(guardDog->guard_fov_data);
 		// std::cout<<guard_fov_meshes->data[0].Position.x<<" "<<guard_fov_meshes->data[0].Position.y<<" "<<guard_fov_meshes->data[0].Position.z<<std::endl;
 		// std::cout<<guardDog->transform->position.x<<" "<<guardDog->transform->position.y<<" "<<guardDog->transform->position.z<<std::endl;
-    }
+    }//}
 }
 
 void Level::update_animation(const float deltaTime) {
@@ -195,13 +196,12 @@ bool Level::check_laser_hits() {
 			GLuint player_start = player.mesh->start;
 			GLuint player_count = player.mesh->count;
 			glm::mat4x3 new_player_transform = player.transform->make_local_to_world();
-			for (GLuint j = player_start; j < player_start + player_count; j+= 10) {
+			for (GLuint j = player_start; j < player_start + player_count; j+= 12) {
 				glm::vec3 position = new_player_transform * glm::vec4(player.meshBuffer->data[j].Position, 1);
 				// glm::vec3 dir = glm::normalize(player_transform->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
 				for (Scene::Drawable &d: scene.drawables) {
 					if (d.transform->name == "Laser.001" || d.transform->name == "Laser.002" || d.transform->name == "Laser.003" || d.transform->name == "Laser.004" || 
-						d.transform->name == "Laser.005" || d.transform->name == "Laser.006" || d.transform->name == "Laser.007" || d.transform->name == "Laser.008" || 
-						d.transform->name == "Laser.009") {
+						d.transform->name == "Laser.005" || d.transform->name == "Laser.006") {
 						GLuint start = d.mesh->start;
 						GLuint count = d.mesh->count;
 						glm::mat4x3 transform = d.transform->make_local_to_world();

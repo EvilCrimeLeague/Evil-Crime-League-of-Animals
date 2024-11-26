@@ -145,6 +145,8 @@ GLuint MeshBuffer::make_vao_for_program(GLuint program) const {
 }
 
 void MeshBuffer::ChangeBuffer(std::vector< Vertex > &new_data) {
+	// std::cout<<"new data: "<<new_data.size()<<std::endl;
+
 	this->data = new_data;
 
 	// GLuint total = 0;
