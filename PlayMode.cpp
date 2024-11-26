@@ -343,7 +343,7 @@ void PlayMode::update(float elapsed) {
 		if (laser_timer >= 0.75) restart();
 	}
 
-	if(!paused && !game_over) {
+	if(!paused) {
 		// update animation
 		level->update_animation(elapsed);
 	}
