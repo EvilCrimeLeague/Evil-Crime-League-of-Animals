@@ -370,7 +370,7 @@ void Level1::update() {
     // Field of view collisions
     update_guard_detection();
     
-    if(guard_detectables["RedPanda"] || driver_guardDog_walk->playing) {
+    if(guard_detectables["RedPanda"]) {
         // stop guard animation
         driver_guardDog_rotate->stop();
         driver_guardDog_walk->stop();
@@ -381,7 +381,7 @@ void Level1::update() {
     }
     if (guard_detectables["Bone"]) {
         float dist = glm::distance(guardDog->position, bone->position);
-        if(dist > 0.5f) {
+        if(dist > 0.5f && !driver_guardDog_walk->playing) {
             driver_guardDog_rotate->stop();
             // driver_fov_rotate->stop();
             glm::vec3 guardDirectionWorld = glm::normalize(guardDog->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
