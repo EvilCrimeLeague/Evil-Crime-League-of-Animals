@@ -28,18 +28,17 @@ Load< MeshBuffer > guard_fov_load(LoadTagDefault, []() -> MeshBuffer const * {
 
 Load< Scene > level1_scene(LoadTagDefault, []() -> Scene const * {
 	return new Scene(data_path("level1.scene"), [&](Scene &scene, Scene::Transform *transform, std::string const &mesh_name){
-        Mesh const &mesh = (mesh_name == "FOV") ? guard_fov->lookup("Cube") : level1_meshes->lookup(mesh_name);
-
+        Mesh const &mesh = (mesh_name == "fov") ? guard_fov->lookup("Cube") : level1_meshes->lookup(mesh_name);
 		scene.drawables.emplace_back(transform);
 		Scene::Drawable &drawable = scene.drawables.back();
 
 		drawable.pipeline = lit_color_texture_program_pipeline;
 
-		drawable.pipeline.vao = (mesh_name == "FOV") ? guard_fov_meshes_for_lit_color_texture_program : level1_meshes_for_lit_color_texture_program;
+		drawable.pipeline.vao = (mesh_name == "fov") ? guard_fov_meshes_for_lit_color_texture_program : level1_meshes_for_lit_color_texture_program;
 		drawable.pipeline.type = mesh.type;
 		drawable.pipeline.start = mesh.start;
 		drawable.pipeline.count = mesh.count;
-		drawable.meshBuffer = (mesh_name == "FOV") ? &(*guard_fov) : &(*level1_meshes);
+		drawable.meshBuffer = (mesh_name == "fov") ? &(*guard_fov) : &(*level1_meshes);
 		drawable.mesh = &mesh;
 
 	});
@@ -65,7 +64,7 @@ Level1::Level1(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
         else if (transform.name == "Head") head = &transform;
 		else if (transform.name == "Bone") bone = &transform;
 		else if (transform.name == "GuardDog") guardDog = &transform;
-		else if (transform.name == "FOV") fov = &transform;
+		else if (transform.name == "fov") fov = &transform;
         else if (transform.name == "Vase.001") vase = &transform;
         else if (transform.name == "Painting.002") painting_1 = &transform;
         else if (transform.name == "Painting.003") painting_2 = &transform;
@@ -80,8 +79,6 @@ Level1::Level1(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
 	else if (fov == nullptr) throw std::runtime_error("FOV not found.");
     else if (exit_transform == nullptr) throw std::runtime_error("Exit not found.");
 
-    guard_fov_meshes = &(*guard_fov);
-    guard_fov_transform = fov;
 
 
     // fov->parent = guardDog;
@@ -93,6 +90,7 @@ Level1::Level1(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     camera = &scene.cameras.front();
     camera_spawn_point = camera->transform->position;
     guard_detectables["Wall"] = false;
+    guard_detectables["Floor"] = false;
 
     // initialize items
     auto bone_ptr = std::make_shared<Item>();
@@ -154,11 +152,12 @@ Level1::Level1(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     guardDog_ptr->name = "GuardDog";
     guardDog_ptr->transform = guardDog;
     guardDog_ptr->spawn_point = guardDog->position;
-    guardDog_ptr->fov = fov;
     guardDog_ptr->fov_spawn_point = fov->position;
+    guardDog_ptr->guard_fov_meshes = &(*guard_fov);
+    guardDog_ptr->guard_fov_transform = fov;
     guard_dogs.push_back(guardDog_ptr);
 
-    guard_fov_meshes = guard_fov;
+    // guard_fov_meshes = guard_fov;
 
     // initialize drivers
     driver_guardDog_walk = std::make_shared<Driver>("GuardDog-walk", CHANEL_TRANSLATION);
@@ -431,7 +430,7 @@ float Level1::update_bone_dist_infront() {
     float distance = 0.76f;
     while (distance < 2.1f) {
         for (Scene::Drawable &d: scene.drawables) {
-            if (d.transform->name != "Floor" && d.transform->name != "WalkMesh" && d.transform->name != "RedPanda" && d.transform->name != "Bone" && d.transform->name != "FOV") {
+            if (d.transform->name != "Floor" && d.transform->name != "WalkMesh" && d.transform->name != "RedPanda" && d.transform->name != "Bone" && d.transform->name != "fov") {
                 GLuint start = d.mesh->start;
                 GLuint count = d.mesh->count;
                 glm::mat4x3 transform = d.transform->make_local_to_world();

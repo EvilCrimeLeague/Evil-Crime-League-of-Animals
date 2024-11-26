@@ -94,6 +94,11 @@ void Scene::draw(glm::mat4 const &world_to_clip, glm::mat4x3 const &world_to_lig
 	for (auto const &drawable : drawables) {
 		//Reference to drawable's pipeline for convenience:
 		Scene::Drawable::Pipeline const &pipeline = drawable.pipeline;
+		if (drawable.transform->name == "fov") {
+			glDepthMask(false);
+			// glEnable(GL_BLEND);
+			// glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		}
 
 		//skip any drawables without a shader program set:
 		if (pipeline.program == 0) continue;
@@ -152,7 +157,9 @@ void Scene::draw(glm::mat4 const &world_to_clip, glm::mat4x3 const &world_to_lig
 		
 
 		//draw the object:
-		glDrawArrays(pipeline.type, pipeline.start, pipeline.count);
+		if (drawable.transform->name == "fov") {
+			glDrawArrays(pipeline.type, pipeline.start, 410);
+		} else glDrawArrays(pipeline.type, pipeline.start, pipeline.count);
 
 		if(drawable.texture != 0) {
 			glActiveTexture(GL_TEXTURE0);
@@ -171,6 +178,8 @@ void Scene::draw(glm::mat4 const &world_to_clip, glm::mat4x3 const &world_to_lig
 	}
 
 	glUseProgram(0);
+	glDepthMask(true);
+	//glBlendFunc, additive blend function
 	glBindVertexArray(0);
 
 	GL_ERRORS();

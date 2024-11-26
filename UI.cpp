@@ -664,7 +664,7 @@ void UI::set_title(std::string title) {
 
 std::shared_ptr<UI::Img> UI::add_img(std::string path) {
     auto img_ptr = std::make_shared<Img>(glm::vec2(0,0), path);
-    if(img_ptr->size.x > width || img_ptr->size.y > height) {
+    if(img_ptr->size.x > (float)width || img_ptr->size.y > (float)height) {
         // high res image
         img_ptr->pos = glm::vec2(width*scale/2-img_ptr->size.x/2, height*scale/2-img_ptr->size.y/2);
     } else {

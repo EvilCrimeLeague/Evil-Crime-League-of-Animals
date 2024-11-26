@@ -108,7 +108,7 @@ LitColorTextureProgram::LitColorTextureProgram() {
 		"	vec4 albedo;\n"
 		"	if(textureSize2d.x!=1) { albedo = texture(TEX, texCoord);} \n"
 		"	else {\n"
-		" 		albedo = texture(TEX, texCoord) * vec4((color.rgb / 3.1415926) * LIGHT_ENERGY * (smoothstep(0.0,0.1,nl) * 0.6 + 0.4) * (smoothstep(-1.0,0.1,nl) * 0.6 + 0.4),1);\n"
+		" 		albedo = texture(TEX, texCoord) * vec4((color.rgb / 3.1415926) * LIGHT_ENERGY * (smoothstep(0.0,0.1,nl) * 0.6 + 0.4) * (smoothstep(-1.0,0.1,nl) * 0.6 + 0.4),color.a);\n"
 		"	}\n"
 		"	fragColor = vec4(e*albedo.rgb, albedo.a);\n"
 		"}\n"
