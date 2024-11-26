@@ -16,6 +16,8 @@ struct Level2 : Level {
     Scene::Transform *painting_5 = nullptr;
     Scene::Transform *painting_6 = nullptr;
     Scene::Transform *painting_7 = nullptr;
+    Scene::Transform *painting_8 = nullptr;
+    Scene::Transform *painting_9 = nullptr;
     Scene::Transform *control_panel = nullptr;
     Scene::Transform *paper_1 = nullptr;
     Scene::Transform *paper_2 = nullptr;
@@ -45,7 +47,7 @@ struct Level2 : Level {
     std::vector<std::shared_ptr<UI::Img> > control_panel_slots = {};
     std::vector<std::shared_ptr<UI::Img> > control_panel_inputs = {};
     bool showing_control_panel = false;
-    const std::string password = "202411";
+    const std::string password = "386743";
     std::string player_input = "";
 
     Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_);

@@ -145,7 +145,7 @@ void Level::exit() {
 	player_transform->position.x = exit_transform->position.x+0.5f;
 	player_transform->position.y = exit_transform->position.y;
 	player_transform->rotation = glm::angleAxis(glm::radians(90.f),glm::vec3(0.0f, 0.0f, 1.0f));
-	driver_player_ascend->add_move_in_straight_line_anim(player_transform->position+glm::vec3(0,0,0.5f), player_transform->position+glm::vec3(0,0,5.0f), 5.0f, 3);
+	driver_player_ascend->add_move_in_straight_line_anim(player_transform->position+glm::vec3(0,0,0.5f), player_transform->position+glm::vec3(0,0,5.0f), rope_move_time, 3);
 	driver_player_ascend->start();
 }
 

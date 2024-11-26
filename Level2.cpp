@@ -57,6 +57,8 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
         else if (transform.name == "Painting.004") painting_5 = &transform;
         else if (transform.name == "Painting.005") painting_6 = &transform;
         else if (transform.name == "Painting.006") painting_7 = &transform;
+        else if (transform.name == "Painting.007") painting_8 = &transform;
+        else if (transform.name == "Painting.008") painting_9 = &transform;
         else if (transform.name == "ControlPanel") control_panel = &transform;
         else if (transform.name == "Paper") paper_1 = &transform;
         else if (transform.name == "Paper.001") paper_2 = &transform;
@@ -92,25 +94,36 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     else if (laser_7 == nullptr) throw std::runtime_error("Laser 7 not found.");
     else if (laser_8 == nullptr) throw std::runtime_error("Laser 8 not found.");
     else if (laser_9 == nullptr) throw std::runtime_error("Laser 9 not found.");
+    else if (painting_1 == nullptr) throw std::runtime_error("Painting 1 not found.");
+    else if (painting_2 == nullptr) throw std::runtime_error("Painting 2 not found.");
+    else if (painting_3 == nullptr) throw std::runtime_error("Painting 3 not found.");
+    else if (painting_4 == nullptr) throw std::runtime_error("Painting 4 not found.");
+    else if (painting_5 == nullptr) throw std::runtime_error("Painting 5 not found.");
+    else if (painting_6 == nullptr) throw std::runtime_error("Painting 6 not found.");
+    else if (painting_7 == nullptr) throw std::runtime_error("Painting 7 not found.");
+    else if (painting_8 == nullptr) throw std::runtime_error("Painting 8 not found.");
+    else if (painting_9 == nullptr) throw std::runtime_error("Painting 9 not found.");
 
 
     for (auto &drawable : scene.drawables) {
         if (drawable.transform->name == "Painting") {
-            drawable.texture = gen_texture_from_img("UI/Level2/256test.png");
+            drawable.texture = gen_texture_from_img("UI/Level2/Duckweeds_.png");
         } else if (drawable.transform->name == "Painting.001") {
-            drawable.texture = gen_texture_from_img("UI/Level2/256test.png");
+            drawable.texture = gen_texture_from_img("UI/Level2/Quableau_I.png");
         } else if (drawable.transform->name == "Painting.002") {
-            drawable.texture = gen_texture_from_img("UI/Level2/256test.png");
+            drawable.texture = gen_texture_from_img("UI/Level2/Madame_Quack.png");
         } else if (drawable.transform->name == "Painting.003") {
-            drawable.texture = gen_texture_from_img("UI/Level2/256test.png");
+            drawable.texture = gen_texture_from_img("UI/Level2/Wheat_Field_With_Duck.png");
         } else if (drawable.transform->name == "Painting.004") {
-            drawable.texture = gen_texture_from_img("UI/Level2/256test.png");
+            drawable.texture = gen_texture_from_img("UI/Level2/PlaceHolderH.png");
         } else if (drawable.transform->name == "Painting.005") {
-            drawable.texture = gen_texture_from_img("UI/Level2/256test.png");
+            drawable.texture = gen_texture_from_img("UI/Level2/The_Quack.png");
         } else if (drawable.transform->name == "Painting.006") {
-            drawable.texture = gen_texture_from_img("UI/Level2/256test.png");
+            drawable.texture = gen_texture_from_img("UI/Level2/Reptile_Sunset.png");
         } else if (drawable.transform->name == "Painting.007") {
-            drawable.texture = gen_texture_from_img("UI/Level2/256test.png");
+            drawable.texture = gen_texture_from_img("UI/Level2/The_Old_Bluebird.png");
+        } else if (drawable.transform->name == "Painting.008") {
+            drawable.texture = gen_texture_from_img("UI/Level2/PlaceHolderV.png");
         }
 	}
 
@@ -123,18 +136,26 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     guard_detectables["Wall"] = false;
 
     // initialize items
-    std::vector<Scene::Transform *> paintings = {painting_1, painting_2, painting_3, painting_4, painting_5, painting_6, painting_7};
-    for(int i=1; i<=7; i++){
+    std::vector<Scene::Transform *> paintings = {painting_1, painting_2, painting_3, painting_4, painting_5, painting_6, painting_7, painting_8, painting_9};
+    for(int i=1; i<=9; i++){
         auto painting = paintings[i-1];
         if (painting == nullptr) throw std::runtime_error("Painting"+std::to_string(i)+"not found.");
         auto painting_ptr = std::make_shared<Item>();
         painting_ptr->name = painting->name;
         painting_ptr->interaction_description = "Look at it";
         painting_ptr->transform = painting;
-        painting_ptr->description_img_path = "UI/Level2/256test.png";
         painting_ptr->spawn_point = painting->position;
         items[painting_ptr->name] = painting_ptr;
     }
+    items[painting_1->name]->description_img_path = "UI/Level2/Duckweeds_.png";
+    items[painting_2->name]->description_img_path = "UI/Level2/Quableau_I.png";
+    items[painting_3->name]->description_img_path = "UI/Level2/Madame_Quack_s.png";
+    items[painting_4->name]->description_img_path = "UI/Level2/Wheat_Field_With_Duck.png";
+    items[painting_5->name]->description_img_path = "UI/Level2/PlaceHolderH.png";
+    items[painting_6->name]->description_img_path = "UI/Level2/The_Quack.png";
+    items[painting_7->name]->description_img_path = "UI/Level2/Reptile_Sunset.png";
+    items[painting_8->name]->description_img_path = "UI/Level2/The_Old_Bluebird.png";
+    items[painting_9->name]->description_img_path = "UI/Level2/PlaceHolderV.png";
 
     auto controll_panel_ptr = std::make_shared<Item>();
     controll_panel_ptr->name = "ControlPanel";
@@ -158,7 +179,7 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     paper_2_ptr->interaction_description = "Pick it up";
     paper_2_ptr->transform = paper_2;
     paper_2_ptr->img_path = "UI/Level2/paper2.png";
-    paper_2_ptr->inventory_description = "The paper contains a note: \"The order of the secret is also hidden in a painting.\"";
+    paper_2_ptr->inventory_description = "The paper contains a note: \"Check the brochure. It contains the order of the secrets.\"";
     paper_2_ptr->inventory_choices = {};
     paper_2_ptr->spawn_point = paper_2->position;
     items["Paper_2"] = paper_2_ptr;
@@ -176,9 +197,9 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     head_ptr->name = "Head";
     head_ptr->interaction_description = "Collect it.";
     head_ptr->transform = head;
-    head_ptr->img_path = "UI/dragon.png";
+    head_ptr->img_path = "UI/chicken.png";
     head_ptr->spawn_point = head->position;
-    head_ptr->inventory_description = "This is the Old Summer Palace bronze head of Dragon. It was looted by during the Second Opium War and went missing since then.";
+    head_ptr->inventory_description = "This is the Old Summer Palace bronze head of Chicken. It was looted by during the Second Opium War and went missing since then.";
     head_ptr->inventory_choices = {};
     items["Head"] = head_ptr;
     
@@ -303,13 +324,13 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     rope_up_pos.z = 5.0f;
     glm::vec3 rope_down_pos = rope_up_pos;
     rope_down_pos.z = 0.0f;
-    driver_rope_descend->add_move_in_straight_line_anim(rope_up_pos, rope_down_pos, 5.0f, 3);
+    driver_rope_descend->add_move_in_straight_line_anim(rope_up_pos, rope_down_pos, rope_move_time, 3);
     driver_rope_descend->loop = false;
     drivers.push_back(driver_rope_descend);
 
     driver_rope_ascend = std::make_shared<Driver>("Rope-ascend", CHANEL_TRANSLATION);
     driver_rope_ascend->transform = exit_transform;
-    driver_rope_ascend->add_move_in_straight_line_anim(rope_down_pos, rope_up_pos, 5.0f, 3);
+    driver_rope_ascend->add_move_in_straight_line_anim(rope_down_pos, rope_up_pos, rope_move_time, 3);
     driver_rope_ascend->loop = false;
     drivers.push_back(driver_rope_ascend);
 
@@ -360,7 +381,6 @@ void Level2::handle_interact_key() {
                 ui->add_inventory_item(curr_item->name, curr_item->img_path, curr_item->description_img_path);
                 // uint32_t id = ui->get_inventory_item_id(curr_item->name);
                 // ui->show_inventory_description_img(id);
-                ui->set_inventory(false);
                 Sound::play(*pop_sample, 0.05f, 0.0f);
                 curr_item->transform->position.x = -1000.0f;
             }
@@ -369,7 +389,6 @@ void Level2::handle_interact_key() {
                 curr_item->added = true;
                 curr_item->interactable = false;
                 ui->add_inventory_item(curr_item->name, curr_item->img_path, curr_item->description_img_path);
-                ui->set_inventory(false);
                 Sound::play(*pop_sample, 0.05f, 0.0f);
             }
             
@@ -486,7 +505,7 @@ void Level2::restart() {
 
 void Level2::update() {
     // Field of view collisions
-    update_guard_detection();
+    // update_guard_detection();
     
     
     // animation

@@ -61,7 +61,7 @@ Level1::Level1(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
 
     for (auto &transform : scene.transforms) {
         if (transform.name == "RedPanda") player_transform = &transform;
-        else if (transform.name == "Jewel") head = &transform;
+        else if (transform.name == "Head") head = &transform;
 		else if (transform.name == "Bone") bone = &transform;
 		else if (transform.name == "GuardDog") guardDog = &transform;
 		else if (transform.name == "fov") fov = &transform;
@@ -189,7 +189,7 @@ Level1::Level1(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     // driver_fov_rotate->transform = fov;
     // driver_fov_rotate->times = driver_guardDog_rotate->times;
     // driver_fov_rotate->values4d = driver_guardDog_rotate->values4d;
-    glm::quat rotate_90 = glm::angleAxis(glm::radians(-90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    // glm::quat rotate_90 = glm::angleAxis(glm::radians(-90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     // for(int i=0; i<driver_fov_rotate->values4d.size(); i++){
     //     driver_fov_rotate->values4d[i] = driver_fov_rotate->values4d[i] * rotate_90;
     // }
@@ -202,13 +202,13 @@ Level1::Level1(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     rope_up_pos.z = 5.0f;
     glm::vec3 rope_down_pos = rope_up_pos;
     rope_down_pos.z = 0.0f;
-    driver_rope_descend->add_move_in_straight_line_anim(rope_up_pos, rope_down_pos, 5.0f, 3);
+    driver_rope_descend->add_move_in_straight_line_anim(rope_up_pos, rope_down_pos, rope_move_time, 3);
     driver_rope_descend->loop = false;
     drivers.push_back(driver_rope_descend);
 
     driver_rope_ascend = std::make_shared<Driver>("Rope-ascend", CHANEL_TRANSLATION);
     driver_rope_ascend->transform = exit_transform;
-    driver_rope_ascend->add_move_in_straight_line_anim(rope_down_pos, rope_up_pos, 5.0f, 3);
+    driver_rope_ascend->add_move_in_straight_line_anim(rope_down_pos, rope_up_pos, rope_move_time, 3);
     driver_rope_ascend->loop = false;
     drivers.push_back(driver_rope_ascend);
 
