@@ -483,6 +483,7 @@ void PlayMode::restart(bool new_level){
 	ui->reset();
 	seen_by_guard_timer = 0.0f;
 	game_over = false;
+	paused = false;
 	laser_timer = 0.0f;
 	laser_pause = false;
 	level->disable_lasers = false;
