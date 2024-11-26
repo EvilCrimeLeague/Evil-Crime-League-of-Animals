@@ -369,11 +369,13 @@ void Level1::restart() {
 void Level1::update() {
     // Field of view collisions
     update_guard_detection();
-    
     if(guard_detectables["RedPanda"]) {
         // stop guard animation
         driver_guardDog_rotate->stop();
         driver_guardDog_walk->stop();
+        // driver_fov_rotate->stop();
+    } else if (driver_guardDog_walk->playing) {
+        driver_guardDog_rotate->stop();
         // driver_fov_rotate->stop();
     } else {
         driver_guardDog_rotate->start();
