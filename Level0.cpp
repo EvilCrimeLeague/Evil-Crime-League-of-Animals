@@ -91,7 +91,7 @@ Level0::Level0(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
 
     auto head_chicken_ptr = std::make_shared<Item>();
     head_chicken_ptr->name = "Head-Chicken";
-    head_chicken_ptr->interaction_description = "This is the Old Summer Palace bronze head of Chicken. It was looted by during the Second Opium War and went missing since then.";
+    head_chicken_ptr->interaction_description = "This is the Old Summer Palace bronze head of Rooster. It was looted by during the Second Opium War and went missing since then.";
     head_chicken_ptr->transform = head_chicken;
     head_chicken_ptr->show_description_box = true;
     head_chicken_ptr->spawn_point = head_chicken->position;
