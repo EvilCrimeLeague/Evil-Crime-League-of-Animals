@@ -381,7 +381,7 @@ void Level1::update() {
     }
     if (guard_detectables["Bone"]) {
         float dist = glm::distance(guardDog->position, bone->position);
-        if(dist > 1.25f) {
+        if(dist > 0.5f) {
             driver_guardDog_rotate->stop();
             // driver_fov_rotate->stop();
             glm::vec3 guardDirectionWorld = glm::normalize(guardDog->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
@@ -393,7 +393,7 @@ void Level1::update() {
             // driver_fov_move->add_move_in_straight_line_anim(fov->position, bone->position - guardDirectionWorld, duration, std::max(static_cast<int>(duration),1));
             // driver_fov_move->restart();
         } 
-        if(dist <= 1.25f && driver_guardDog_walk->playing) {
+        if(dist <= 0.5f && driver_guardDog_walk->playing) {
             // stop guard when close to bone
             driver_guardDog_walk->stop();
             // driver_fov_move->stop();
