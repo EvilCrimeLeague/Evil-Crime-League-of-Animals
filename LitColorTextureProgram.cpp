@@ -104,7 +104,6 @@ LitColorTextureProgram::LitColorTextureProgram() {
 		"		e = max(0.0, dot(n,-LIGHT_DIRECTION)) * LIGHT_ENERGY;\n"
 		"	}\n"
 		"	float nl = dot(n,l);\n"
-		" 	vec4 albedo = texture(TEX, texCoord) * vec4((color.rgb / 3.1415926) * LIGHT_ENERGY * (smoothstep(0.0,0.1,nl) * 0.6 + 0.4) * (smoothstep(-1.0,0.1,nl) * 0.6 + 0.4),color.a);\n"
 		"	ivec2 textureSize2d = textureSize(TEX,0);\n"
 		"	vec4 albedo;\n"
 		"	if(textureSize2d.x!=1) { albedo = texture(TEX, texCoord);} \n"

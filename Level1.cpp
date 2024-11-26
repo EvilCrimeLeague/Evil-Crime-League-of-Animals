@@ -79,8 +79,6 @@ Level1::Level1(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
 	else if (fov == nullptr) throw std::runtime_error("FOV not found.");
     else if (exit_transform == nullptr) throw std::runtime_error("Exit not found.");
 
-    guard_fov_meshes = &(*guard_fov);
-    guard_fov_transform = fov;
 
 
     // fov->parent = guardDog;
@@ -154,11 +152,12 @@ Level1::Level1(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     guardDog_ptr->name = "GuardDog";
     guardDog_ptr->transform = guardDog;
     guardDog_ptr->spawn_point = guardDog->position;
-    guardDog_ptr->fov = fov;
     guardDog_ptr->fov_spawn_point = fov->position;
+    guardDog_ptr->guard_fov_meshes = &(*guard_fov);
+    guardDog_ptr->guard_fov_transform = fov;
     guard_dogs.push_back(guardDog_ptr);
 
-    guard_fov_meshes = guard_fov;
+    // guard_fov_meshes = guard_fov;
 
     // initialize drivers
     driver_guardDog_walk = std::make_shared<Driver>("GuardDog-walk", CHANEL_TRANSLATION);

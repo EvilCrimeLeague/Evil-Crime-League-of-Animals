@@ -84,8 +84,11 @@ struct Level {
 		std::string name;
 		Scene::Transform * transform;
 		glm::vec3 spawn_point;
-        Scene::Transform * fov;
         glm::vec3 fov_spawn_point;
+        // fovs
+        MeshBuffer *guard_fov_meshes = nullptr;
+        Scene::Transform *guard_fov_transform = nullptr;
+        std::vector< Vertex > guard_fov_data;
 	};
 
     struct Laser {
@@ -127,11 +130,6 @@ struct Level {
     // lasers
     std::vector<std::shared_ptr<Laser>> lasers;
 
-    // fovs
-    MeshBuffer *guard_fov_meshes = nullptr;
-    Scene::Transform *guard_fov_transform = nullptr;
-
-
     // animation
     std::vector<std::shared_ptr<Driver> > drivers;
     std::shared_ptr<Driver> driver_rope_descend = nullptr;
@@ -151,8 +149,6 @@ struct Level {
     virtual void handle_interact_key() = 0;
     virtual void handle_numeric_key(uint32_t key) = 0;
     virtual void update() = 0; // any update particular to that level
-
-    std::vector< Vertex > guard_fov_data;
     
     void update_guard_detection();
     void update_guard_fov();
