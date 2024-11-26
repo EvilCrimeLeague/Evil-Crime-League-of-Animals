@@ -148,7 +148,7 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			float elapsed = std::chrono::duration< float >(after_time - before_time).count();
 			std::cout<<"update guard detection took "<<elapsed * 1000 / 10<<"milliseconds"<<std::endl;
 			enter.pressed = false;
-			if(game_over && level_id < levels.size()) {
+			if(game_over && level_id < (int)levels.size()) {
 				level = levels[level_id];
 				restart(true);
 			} else if(ui->showing_menu) {

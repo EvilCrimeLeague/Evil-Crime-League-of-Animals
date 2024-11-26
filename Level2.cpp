@@ -324,7 +324,7 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
 
     // slow done guard movement
     for(auto& driver: drivers) {
-        for(int i=0; i<driver->times.size(); i++){
+        for(int i=0; i<(int)driver->times.size(); i++){
             driver->times[i] = driver->times[i] * 2.0f;
         }
     }

@@ -29,6 +29,8 @@ struct Level3 : Level {
     const std::string password = "153241";
     std::string player_input = "";
 
+    Scene::Transform *computer = nullptr;
+
     const float guard_dog_speed = 1.0f;
 
     std::shared_ptr<Driver> driver_guardDog1_walk = nullptr;

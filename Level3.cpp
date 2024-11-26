@@ -61,7 +61,7 @@ Level3::Level3(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
         else if (transform.name == "GuardDog") guardDog_1 = &transform;
         else if (transform.name == "GuardDog.001") guardDog_2 = &transform;
         else if (transform.name == "Head") head = &transform;
-
+        else if (transform.name == "Computer") computer = &transform;
 	}
 
     if (player_transform == nullptr) throw std::runtime_error("Player not found.");
@@ -134,7 +134,7 @@ Level3::Level3(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     paper_passwd_ptr->interaction_description = "Pick it up";
     paper_passwd_ptr->transform = paper_passwd;
     paper_passwd_ptr->img_path = "UI/Level3/paper_passwd.png";
-    paper_passwd_ptr->description_img_path = "UI/Level3/password.png";
+    paper_passwd_ptr->description_img_path = "UI/Level3/gem_hint.png";
     paper_passwd_ptr->spawn_point = paper_passwd->position;
     items[paper_passwd_ptr->name] = paper_passwd_ptr;
 
@@ -183,7 +183,7 @@ Level3::Level3(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     drivers.push_back(driver_guardDog2_rotate);
 
     for(auto& driver: drivers) {
-        for(int i=0; i<driver->times.size(); i++){
+        for(int i=0; i<(int)driver->times.size(); i++){
             driver->times[i] = driver->times[i] * 4.0f;
         }
     }
