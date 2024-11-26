@@ -5,7 +5,7 @@ on:
     types: [created]
 
 env:
-  BASE_NAME: game5
+  BASE_NAME: caught-red-panded
   NEST_LIBS_VERSION: v0.13
 
 jobs:
