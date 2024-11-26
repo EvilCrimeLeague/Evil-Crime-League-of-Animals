@@ -6,6 +6,12 @@ struct Level3 : Level {
     Scene::Transform *head = nullptr;
     Scene::Transform *guardDog_1 = nullptr;
     Scene::Transform *guardDog_2 = nullptr;
+    Scene::Transform *fov_1 = nullptr;
+    Scene::Transform *fov_2 = nullptr;
+    Scene::Transform *laser = nullptr;
+    Scene::Transform *laser_1 = nullptr;
+    Scene::Transform *laser_2 = nullptr;
+    Scene::Transform *laser_3 = nullptr;
 
     Scene::Transform *diamond = nullptr;
     Scene::Transform *quartz = nullptr;

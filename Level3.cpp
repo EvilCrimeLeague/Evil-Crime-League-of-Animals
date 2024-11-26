@@ -1,31 +1,52 @@
 #include "Level3.hpp"
+#include "PlayMode.hpp"
 
 #include <iostream>
 
 
 GLuint level3_meshes_for_lit_color_texture_program = 0;
+GLuint guard_fov_3_meshes_for_lit_color_texture_program = 0;
+GLuint guard_fov_4_meshes_for_lit_color_texture_program = 0;
 Load< MeshBuffer > level3_meshes(LoadTagDefault, []() -> MeshBuffer const * {
 	MeshBuffer const *ret = new MeshBuffer(data_path("level3.pnct"));
 	level3_meshes_for_lit_color_texture_program = ret->make_vao_for_program(lit_color_texture_program->program);
 	return ret;
 });
 
+
+MeshBuffer *guard_fov_3 = nullptr;
+MeshBuffer *guard_fov_4 = nullptr;
+
+Load< MeshBuffer > guard_fov_3_load(LoadTagDefault, []() -> MeshBuffer const * {
+	MeshBuffer *ret = new MeshBuffer(data_path("guard_fov_1.pnct"));
+    guard_fov_3 = ret;
+	guard_fov_3_meshes_for_lit_color_texture_program = ret->make_vao_for_program(lit_color_texture_program->program);
+	return ret;
+});
+
+Load< MeshBuffer > guard_fov_4_load(LoadTagDefault, []() -> MeshBuffer const * {
+	MeshBuffer *ret = new MeshBuffer(data_path("guard_fov_2.pnct"));
+    guard_fov_4 = ret;
+	guard_fov_4_meshes_for_lit_color_texture_program = ret->make_vao_for_program(lit_color_texture_program->program);
+	return ret;
+});
+
 Load< Scene > level3_scene(LoadTagDefault, []() -> Scene const * {
 	return new Scene(data_path("level3.scene"), [&](Scene &scene, Scene::Transform *transform, std::string const &mesh_name){
-		Mesh const &mesh = level3_meshes->lookup(mesh_name);
+		Mesh const &mesh = (mesh_name == "fov1") ? guard_fov_3->lookup("Cube") : ((mesh_name == "fov2") ? guard_fov_4->lookup("Cube") : level3_meshes->lookup(mesh_name));
 
 		scene.drawables.emplace_back(transform);
 		Scene::Drawable &drawable = scene.drawables.back();
 
 		drawable.pipeline = lit_color_texture_program_pipeline;
 
-		drawable.pipeline.vao = level3_meshes_for_lit_color_texture_program;
+		drawable.pipeline.vao = (mesh_name == "fov1") ? guard_fov_3_meshes_for_lit_color_texture_program : ((mesh_name == "fov2") ? guard_fov_4_meshes_for_lit_color_texture_program : level3_meshes_for_lit_color_texture_program);
 		drawable.pipeline.type = mesh.type;
 		drawable.pipeline.start = mesh.start;
 		drawable.pipeline.count = mesh.count;
 
 		// if this doenst work, ask on discord, ping Jim
-		drawable.meshBuffer = &(*level3_meshes);
+		drawable.meshBuffer = (mesh_name == "fov1") ? &(*guard_fov_3) : ((mesh_name == "fov2") ? &(*guard_fov_4) : &(*level3_meshes));
 		drawable.mesh = &mesh;
 
 	});
@@ -62,6 +83,12 @@ Level3::Level3(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
         else if (transform.name == "GuardDog.001") guardDog_2 = &transform;
         else if (transform.name == "Head") head = &transform;
         else if (transform.name == "Computer") computer = &transform;
+        else if (transform.name == "fov1") fov_1 = &transform;
+        else if (transform.name == "fov2") fov_2 = &transform;
+        else if (transform.name == "laser") laser = &transform;
+        else if (transform.name == "laser.001") laser_1 = &transform;
+        else if (transform.name == "laser.002") laser_2 = &transform;
+        else if (transform.name == "laser.003") laser_3 = &transform;
 	}
 
     if (player_transform == nullptr) throw std::runtime_error("Player not found.");
@@ -78,14 +105,20 @@ Level3::Level3(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     else if (guardDog_1 == nullptr) throw std::runtime_error("GuardDog 1 not found.");
     else if (guardDog_2 == nullptr) throw std::runtime_error("GuardDog 2 not found.");
     else if (head == nullptr) throw std::runtime_error("Head not found.");
+    else if (laser == nullptr) throw std::runtime_error("laser not found.");
+    else if (laser_1 == nullptr) throw std::runtime_error("laser 1 not found.");
+    else if (laser_2 == nullptr) throw std::runtime_error("laser 2 not found.");
+    else if (laser_3 == nullptr) throw std::runtime_error("laser 3 not found.");
 
     player_spawn_point = player_transform->position;
     player_spawn_rotation = player_transform->rotation;
+    lasers.clear();
 
     if (scene.cameras.size() != 1) throw std::runtime_error("Expecting scene to have exactly one camera, but it has " + std::to_string(scene.cameras.size()));
     camera = &scene.cameras.front();
     camera_spawn_point = camera->transform->position;
     guard_detectables["Wall"] = false;
+    guard_detectables["RedPanda"] = false;
 
     podiums = {diamond_podium, quartz_podium, corundum_podium};
 
@@ -156,6 +189,53 @@ Level3::Level3(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     items["Head"] = head_ptr;
     
     // initialize guard dogs
+    auto guardDog_1_ptr = std::make_shared<GuardDog>();
+    guardDog_1_ptr->name = "GuardDog";
+    guardDog_1_ptr->transform = guardDog_1;
+    guardDog_1_ptr->spawn_point = guardDog_1->position;
+    guardDog_1_ptr->guard_fov_meshes = &(*guard_fov_3);
+    guardDog_1_ptr->guard_fov_transform = fov_1;
+    guard_dogs.push_back(guardDog_1_ptr);
+
+    auto guardDog_2_ptr = std::make_shared<GuardDog>();
+    guardDog_2_ptr->name = "GuardDog.001";
+    guardDog_2_ptr->transform = guardDog_2;
+    guardDog_2_ptr->spawn_point = guardDog_2->position;
+    guardDog_2_ptr->guard_fov_meshes = &(*guard_fov_4);
+    guardDog_2_ptr->guard_fov_transform = fov_2;
+    guard_dogs.push_back(guardDog_2_ptr);
+
+    auto laser_1_ptr = std::make_shared<Laser>();
+    laser_1_ptr->name = "laser.001";
+    laser_1_ptr->transform = laser_1;
+    laser_1_ptr->spawn_point = laser_1->position;
+    laser_1_ptr->on = true;
+    laser_1_ptr->target_time = 0;
+    lasers.push_back(laser_1_ptr);
+
+    auto laser_2_ptr = std::make_shared<Laser>();
+    laser_2_ptr->name = "laser.002";
+    laser_2_ptr->transform = laser_2;
+    laser_2_ptr->spawn_point = laser_2->position;
+    laser_2_ptr->on = false;
+    laser_2_ptr->target_time = 0;
+    lasers.push_back(laser_2_ptr);
+
+    auto laser_3_ptr = std::make_shared<Laser>();
+    laser_3_ptr->name = "laser.003";
+    laser_3_ptr->transform = laser_3;
+    laser_3_ptr->spawn_point = laser_3->position;
+    laser_3_ptr->on = true;
+    laser_3_ptr->target_time = 0;
+    lasers.push_back(laser_3_ptr);
+
+    auto laser_4_ptr = std::make_shared<Laser>();
+    laser_4_ptr->name = "laser";
+    laser_4_ptr->transform = laser;
+    laser_4_ptr->spawn_point = laser->position;
+    laser_4_ptr->on = true;
+    laser_4_ptr->target_time = 0;
+    lasers.push_back(laser_4_ptr);
 
     // initialize animation drivers
     driver_guardDog1_walk = std::make_shared<Driver>(level3_animations->animations.at("GuardDog-translation"));
@@ -296,6 +376,17 @@ void Level3::handle_interact_key() {
                 ui->show_description(curr_item->interaction_description);
             }
         }
+        if (showing_control_panel) {
+            driver_guardDog1_walk->stop();
+            driver_guardDog1_rotate->stop();
+            driver_guardDog2_walk->stop();
+            driver_guardDog2_rotate->stop();
+        } else {
+            driver_guardDog1_walk->start();
+            driver_guardDog1_rotate->start();
+            driver_guardDog2_walk->start();
+            driver_guardDog2_rotate->start();
+        }
     }
 }
 
@@ -394,6 +485,18 @@ void Level3::restart() {
 void Level3::update() {
     // Field of view collisions
     update_guard_detection();
+    if(guard_detectables["RedPanda"] || pause_game) {
+        // stop guard animation
+        driver_guardDog1_walk->stop();
+        driver_guardDog1_rotate->stop();
+        driver_guardDog2_walk->stop();
+        driver_guardDog2_rotate->stop();
+    } else {
+        driver_guardDog1_walk->start();
+        driver_guardDog1_rotate->start();
+        driver_guardDog2_walk->start();
+        driver_guardDog2_rotate->start();
+    }
     
     
     // animation

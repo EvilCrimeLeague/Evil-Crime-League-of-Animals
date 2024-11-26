@@ -1,4 +1,5 @@
 #include "Level2.hpp"
+#include "PlayMode.hpp"
 
 #include <iostream>
 
@@ -90,6 +91,9 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
         else if (transform.name == "Laser.004") laser_4 = &transform;
         else if (transform.name == "Laser.005") laser_5 = &transform;
         else if (transform.name == "Laser.006") laser_6 = &transform;
+        else if (transform.name == "Laser.007") laser_7 = &transform;
+        else if (transform.name == "Laser.008") laser_8 = &transform;
+        else if (transform.name == "Laser.009") laser_9 = &transform;
         else if (transform.name == "fov1") fov_1 = &transform;
         else if (transform.name == "fov2") fov_2 = &transform;
         else if (transform.name == "Podium.001") podium_1 = &transform;
@@ -116,6 +120,9 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     else if (laser_4 == nullptr) throw std::runtime_error("Laser 4 not found.");
     else if (laser_5 == nullptr) throw std::runtime_error("Laser 5 not found.");
     else if (laser_6 == nullptr) throw std::runtime_error("Laser 6 not found.");
+    else if (laser_7 == nullptr) throw std::runtime_error("Laser 7 not found.");
+    else if (laser_8 == nullptr) throw std::runtime_error("Laser 8 not found.");
+    else if (laser_9 == nullptr) throw std::runtime_error("Laser 9 not found.");
     else if (painting_1 == nullptr) throw std::runtime_error("Painting 1 not found.");
     else if (painting_2 == nullptr) throw std::runtime_error("Painting 2 not found.");
     else if (painting_3 == nullptr) throw std::runtime_error("Painting 3 not found.");
@@ -152,6 +159,7 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
 
     player_spawn_point = player_transform->position;
     player_spawn_rotation = player_transform->rotation;
+    lasers.clear();
 
     if (scene.cameras.size() != 1) throw std::runtime_error("Expecting scene to have exactly one camera, but it has " + std::to_string(scene.cameras.size()));
     camera = &scene.cameras.front();
@@ -297,6 +305,27 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     laser_6_ptr->on = true;
     lasers.push_back(laser_6_ptr);
 
+    auto laser_7_ptr = std::make_shared<Laser>();
+    laser_7_ptr->name = "Laser.007";
+    laser_7_ptr->transform = laser_7;
+    laser_7_ptr->spawn_point = laser_7->position;
+    laser_7_ptr->on = true;
+    lasers.push_back(laser_7_ptr);
+
+    auto laser_8_ptr = std::make_shared<Laser>();
+    laser_8_ptr->name = "Laser.008";
+    laser_8_ptr->transform = laser_8;
+    laser_8_ptr->spawn_point = laser_8->position;
+    laser_8_ptr->on = true;
+    lasers.push_back(laser_8_ptr);
+
+    auto laser_9_ptr = std::make_shared<Laser>();
+    laser_9_ptr->name = "Laser.009";
+    laser_9_ptr->transform = laser_9;
+    laser_9_ptr->spawn_point = laser_9->position;
+    laser_9_ptr->on = true;
+    lasers.push_back(laser_9_ptr);
+
     // initialize animation drivers
     driver_guardDog1_walk = std::make_shared<Driver>(level2_animations->animations.at("GuardDog.001-translation"));
     driver_guardDog1_walk->transform = guardDog_1;
@@ -324,7 +353,7 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
 
     // slow done guard movement
     for(auto& driver: drivers) {
-        for(int i=0; i<(int)driver->times.size(); i++){
+        for(int i=0; i<driver->times.size(); i++){
             driver->times[i] = driver->times[i] * 2.0f;
         }
     }
@@ -359,8 +388,6 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     // drivers.push_back(driver_fov_move);
 
     // sound
-    // get_laser_drawables();
-    // get_detectable_drawables();
 }
 
 void Level2::handle_enter_key() {
@@ -456,6 +483,17 @@ void Level2::handle_interact_key() {
                 ui->show_description(curr_item->interaction_description);
             }
         }
+        if (showing_control_panel) {
+            driver_guardDog1_walk->stop();
+            driver_guardDog1_rotate->stop();
+            driver_guardDog2_walk->stop();
+            driver_guardDog2_rotate->stop();
+        } else {
+            driver_guardDog1_walk->start();
+            driver_guardDog1_rotate->start();
+            driver_guardDog2_walk->start();
+            driver_guardDog2_rotate->start();
+        }
     }
 }
 
@@ -522,7 +560,18 @@ void Level2::restart() {
 void Level2::update() {
     // Field of view collisions
     update_guard_detection();
-    
+    if(guard_detectables["RedPanda"] | pause_game) {
+        // stop guard animation
+        driver_guardDog1_walk->stop();
+        driver_guardDog1_rotate->stop();
+        driver_guardDog2_walk->stop();
+        driver_guardDog2_rotate->stop();
+    } else {
+        driver_guardDog1_walk->start();
+        driver_guardDog1_rotate->start();
+        driver_guardDog2_walk->start();
+        driver_guardDog2_rotate->start();
+    }
     // animation
 }
 

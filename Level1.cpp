@@ -373,6 +373,7 @@ void Level1::update() {
     if(guard_detectables["RedPanda"] || driver_guardDog_walk->playing) {
         // stop guard animation
         driver_guardDog_rotate->stop();
+        driver_guardDog_walk->stop();
         // driver_fov_rotate->stop();
     } else {
         driver_guardDog_rotate->start();

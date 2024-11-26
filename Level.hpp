@@ -162,6 +162,7 @@ struct Level {
     bool check_laser_hits();
     bool disable_lasers = false;
     void move_lasers();
+    bool pause_game = false;
 
     virtual void restart() = 0;
     std::shared_ptr< Sound::PlayingSample > rolling_loop;

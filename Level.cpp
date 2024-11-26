@@ -201,7 +201,8 @@ bool Level::check_laser_hits() {
 				// glm::vec3 dir = glm::normalize(player_transform->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
 				for (Scene::Drawable &d: scene.drawables) {
 					if (d.transform->name == "Laser.001" || d.transform->name == "Laser.002" || d.transform->name == "Laser.003" || d.transform->name == "Laser.004" || 
-						d.transform->name == "Laser.005" || d.transform->name == "Laser.006") {
+						d.transform->name == "Laser.005" || d.transform->name == "Laser.006" || d.transform->name == "laser.001" || d.transform->name == "laser.002" || 
+						d.transform->name == "laser.003" || d.transform->name == "laser") {
 						GLuint start = d.mesh->start;
 						GLuint count = d.mesh->count;
 						glm::mat4x3 transform = d.transform->make_local_to_world();

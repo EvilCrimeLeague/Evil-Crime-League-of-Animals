@@ -208,6 +208,7 @@ void PlayMode::update(float elapsed) {
 		return;
 	}
 	paused = ui->should_pause() || laser_pause;
+	level->pause_game = paused;
 	
 	constexpr float player_speed = 20.0f;
 

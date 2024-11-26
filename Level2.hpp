@@ -31,6 +31,9 @@ struct Level2 : Level {
     Scene::Transform *laser_4 = nullptr;
     Scene::Transform *laser_5 = nullptr;
     Scene::Transform *laser_6 = nullptr;
+    Scene::Transform *laser_7 = nullptr;
+    Scene::Transform *laser_8 = nullptr;
+    Scene::Transform *laser_9 = nullptr;
 
     Scene::Transform *podium_1 = nullptr;
     Scene::Transform *podium_2 = nullptr;
