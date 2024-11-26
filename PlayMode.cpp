@@ -140,13 +140,9 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			}
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_RETURN) {
-			auto before_time = std::chrono::high_resolution_clock::now();
 			for (uint32_t i = 0; i < 10; i++) {
 				level->update_guard_detection();
 			}
-			auto after_time = std::chrono::high_resolution_clock::now();
-			float elapsed = std::chrono::duration< float >(after_time - before_time).count();
-			std::cout<<"update guard detection took "<<elapsed * 1000 / 10<<"milliseconds"<<std::endl;
 			enter.pressed = false;
 			if(game_over && level_id < (int)levels.size()) {
 				level = levels[level_id];
