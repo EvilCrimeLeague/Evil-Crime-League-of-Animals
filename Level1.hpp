@@ -4,6 +4,7 @@
 
 struct Level1 : Level {
     Scene::Transform *head = nullptr;
+    Scene::Transform *collectible = nullptr;
 	Scene::Transform *guardDog = nullptr;
 	Scene::Transform *bone = nullptr;
 	Scene::Transform *fov = nullptr;

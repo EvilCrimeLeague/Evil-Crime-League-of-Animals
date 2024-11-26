@@ -70,6 +70,7 @@ Level1::Level1(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
         else if (transform.name == "Painting.003") painting_2 = &transform;
         else if (transform.name == "Rope") exit_transform = &transform;
         else if (transform.name == "Shell") shell = &transform;
+        else if (transform.name == "Collectible") collectible = &transform;
 	}
 
     if (head == nullptr) throw std::runtime_error("Target not found.");
@@ -78,6 +79,7 @@ Level1::Level1(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
 	else if (guardDog == nullptr) throw std::runtime_error("GuardDog not found.");
 	else if (fov == nullptr) throw std::runtime_error("FOV not found.");
     else if (exit_transform == nullptr) throw std::runtime_error("Exit not found.");
+    else if (collectible == nullptr) throw std::runtime_error("Collectible not found.");
 
 
 
@@ -147,6 +149,16 @@ Level1::Level1(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     head_ptr->inventory_description = "This is the Old Summer Palace bronze head of Goat. It was looted by during the Second Opium War and went missing since then.";
     head_ptr->inventory_choices = {};
     items["Head"] = head_ptr;
+
+    auto collectible_ptr = std::make_shared<Item>();
+    collectible_ptr->name = "Collectible";
+    collectible_ptr->interaction_description = "Collect it.";
+    collectible_ptr->transform = collectible;
+    collectible_ptr->img_path = "UI/dog.png";
+    collectible_ptr->spawn_point = collectible->position;
+    collectible_ptr->inventory_description = "This is the Old Summer Palace bronze head of Dog. It was looted by during the Second Opium War and went missing since then.";
+    collectible_ptr->inventory_choices = {};
+    items[collectible_ptr->name] = collectible_ptr;
     
     // initialize guard dogs
     auto guardDog_ptr = std::make_shared<GuardDog>();
@@ -264,6 +276,11 @@ void Level1::handle_interact_key() {
             Sound::play(*pop_sample, 0.05f, 0.0f);
             level_targets[0] = 1;
             driver_rope_descend->start();
+        } else if (curr_item->name == "Collectible") {
+            ui->add_inventory_item(curr_item->name, curr_item->img_path);
+            curr_item->transform->position.x = -1000.0f;
+            Sound::play(*pop_sample, 0.05f, 0.0f);
+            level_targets[3] = 1;
         } else {
             // show description box
             if(curr_item->interaction_choices.size() > 0) {

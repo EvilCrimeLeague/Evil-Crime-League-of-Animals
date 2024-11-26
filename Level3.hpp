@@ -4,6 +4,7 @@
 
 struct Level3 : Level {
     Scene::Transform *head = nullptr;
+    Scene::Transform *collectible = nullptr;
     Scene::Transform *guardDog_1 = nullptr;
     Scene::Transform *guardDog_2 = nullptr;
     Scene::Transform *fov_1 = nullptr;
@@ -12,6 +13,14 @@ struct Level3 : Level {
     Scene::Transform *laser_1 = nullptr;
     Scene::Transform *laser_2 = nullptr;
     Scene::Transform *laser_3 = nullptr;
+
+    Scene::Transform *laser_4 = nullptr;
+    Scene::Transform *laser_5 = nullptr;
+    Scene::Transform *laser_6 = nullptr;
+    Scene::Transform *laser_7 = nullptr;
+
+    std::vector<std::shared_ptr<Laser> > door1;
+    std::vector<std::shared_ptr<Laser> > door2;
 
     Scene::Transform *diamond = nullptr;
     Scene::Transform *quartz = nullptr;

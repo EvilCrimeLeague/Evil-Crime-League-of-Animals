@@ -89,6 +89,11 @@ Level3::Level3(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
         else if (transform.name == "laser.001") laser_1 = &transform;
         else if (transform.name == "laser.002") laser_2 = &transform;
         else if (transform.name == "laser.003") laser_3 = &transform;
+        else if (transform.name == "laser.004") laser_4 = &transform;
+        else if (transform.name == "laser.005") laser_5 = &transform;
+        else if (transform.name == "laser.006") laser_6 = &transform;
+        else if (transform.name == "laser.007") laser_7 = &transform;
+        else if (transform.name == "Collectible") collectible = &transform;
 	}
 
     if (player_transform == nullptr) throw std::runtime_error("Player not found.");
@@ -109,6 +114,11 @@ Level3::Level3(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     else if (laser_1 == nullptr) throw std::runtime_error("laser 1 not found.");
     else if (laser_2 == nullptr) throw std::runtime_error("laser 2 not found.");
     else if (laser_3 == nullptr) throw std::runtime_error("laser 3 not found.");
+    else if (laser_4 == nullptr) throw std::runtime_error("laser 4 not found.");
+    else if (laser_5 == nullptr) throw std::runtime_error("laser 5 not found.");
+    else if (laser_6 == nullptr) throw std::runtime_error("laser 6 not found.");
+    else if (laser_7 == nullptr) throw std::runtime_error("laser 7 not found.");
+    else if (collectible == nullptr) throw std::runtime_error("Collectible not found.");
 
     player_spawn_point = player_transform->position;
     player_spawn_rotation = player_transform->rotation;
@@ -120,7 +130,7 @@ Level3::Level3(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     guard_detectables["Wall"] = false;
     guard_detectables["RedPanda"] = false;
 
-    podiums = {diamond_podium, quartz_podium, corundum_podium};
+    podiums = {diamond_podium, corundum_podium, quartz_podium};
 
     // initialize items
     auto diamond_ptr = std::make_shared<Item>();
@@ -187,6 +197,16 @@ Level3::Level3(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     head_ptr->inventory_description = "This is the Old Summer Palace bronze head of Snake. It was looted by during the Second Opium War and went missing since then.";
     head_ptr->inventory_choices = {};
     items["Head"] = head_ptr;
+
+    auto collectible_ptr = std::make_shared<Item>();
+    collectible_ptr->name = "Collectible";
+    collectible_ptr->interaction_description = "Collect it.";
+    collectible_ptr->transform = collectible;
+    collectible_ptr->img_path = "UI/dragon.png";
+    collectible_ptr->spawn_point = collectible->position;
+    collectible_ptr->inventory_description = "This is the Old Summer Palace bronze head of Dragon. It was looted by during the Second Opium War and went missing since then.";
+    collectible_ptr->inventory_choices = {};
+    items[collectible_ptr->name] = collectible_ptr;
     
     // initialize guard dogs
     auto guardDog_1_ptr = std::make_shared<GuardDog>();
@@ -236,6 +256,42 @@ Level3::Level3(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     laser_4_ptr->on = true;
     laser_4_ptr->target_time = 0;
     lasers.push_back(laser_4_ptr);
+
+    auto laser_5_ptr = std::make_shared<Laser>();
+    laser_5_ptr->name = "laser.005";
+    laser_5_ptr->transform = laser_4;
+    laser_5_ptr->spawn_point = laser_4->position;
+    laser_5_ptr->on = true;
+    laser_5_ptr->target_time = 0;
+    lasers.push_back(laser_5_ptr);
+
+    auto laser_6_ptr = std::make_shared<Laser>();
+    laser_6_ptr->name = "laser.006";
+    laser_6_ptr->transform = laser_5;
+    laser_6_ptr->spawn_point = laser_5->position;
+    laser_6_ptr->on = true;
+    laser_6_ptr->target_time = 0;
+    lasers.push_back(laser_6_ptr);
+
+    auto laser_7_ptr = std::make_shared<Laser>();
+    laser_7_ptr->name = "laser.007";
+    laser_7_ptr->transform = laser_6;
+    laser_7_ptr->spawn_point = laser_6->position;
+    laser_7_ptr->on = true;
+    laser_7_ptr->target_time = 0;
+    lasers.push_back(laser_7_ptr);
+
+    auto laser_8_ptr = std::make_shared<Laser>();
+    laser_8_ptr->name = "laser.008";
+    laser_8_ptr->transform = laser_7;
+    laser_8_ptr->spawn_point = laser_7->position;
+    laser_8_ptr->on = true;
+    laser_8_ptr->target_time = 0;
+    lasers.push_back(laser_8_ptr);
+
+    door1 = {laser_1_ptr, laser_2_ptr, laser_3_ptr, laser_4_ptr};
+    door2 = {laser_5_ptr, laser_6_ptr, laser_7_ptr, laser_8_ptr};
+
 
     // initialize animation drivers
     driver_guardDog1_walk = std::make_shared<Driver>(level3_animations->animations.at("GuardDog-translation"));
@@ -325,6 +381,11 @@ void Level3::handle_interact_key() {
             Sound::play(*pop_sample, 0.05f, 0.0f);
             level_targets[2] = 1;
             driver_rope_descend->start();
+        } else if (curr_item->name == "Collectible") {
+            ui->add_inventory_item(curr_item->name, curr_item->img_path);
+            curr_item->transform->position.x = -1000.0f;
+            Sound::play(*pop_sample, 0.05f, 0.0f);
+            level_targets[4] = 1;
         } else if (curr_item->name == "Diamond" || curr_item->name == "Quartz" || curr_item->name == "Corundum") {
             if(gem_to_podium.find(curr_item->name) != gem_to_podium.end()) {
                 // remove from podium
@@ -416,8 +477,12 @@ void Level3::handle_inventory_choice(uint32_t choice_id) {
                 ui->remove_inventory_item();
                 // check if all gems are placed to correct position
                 if(podium_occupied[0] && podium_occupied[1] && podium_occupied[2]) {
-                    if(gem_to_podium["Diamond"] == 0 && gem_to_podium["Quartz"] == 2 && gem_to_podium["Corundum"] == 3) {
+                    if(gem_to_podium["Diamond"] == 0 && gem_to_podium["Quartz"] == 2 && gem_to_podium["Corundum"] == 1) {
                         // TODO: open door
+                        for(auto &laser: door1) {
+                            laser->on = false;
+                            laser->transform->position.z = -10.0f;
+                        }
                     }
                 }
             }
@@ -480,6 +545,7 @@ void Level3::restart() {
     control_panel_text = nullptr;
     showing_control_panel = false;
     player_input = "";
+    exit_transform->position.z = 20.0f;
 }
 
 void Level3::update() {
@@ -517,7 +583,11 @@ void Level3::handle_numeric_key(uint32_t key) {
             if(player_input == password) {
                 // correct password
                 // TODO: disable laser
-                disable_lasers = true;
+                // disable_lasers = true;
+                for(auto &laser: door2) {
+                    laser->on = false;
+                    laser->transform->position.z = -10.0f;
+                }
                 hide_control_panel();
                 items["ControlPanel"]->interactable = false;
             } else {
