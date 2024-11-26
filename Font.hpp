@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <string>
+#include <memory>
 
 #include "data_path.hpp"
 #include "GL.hpp"
