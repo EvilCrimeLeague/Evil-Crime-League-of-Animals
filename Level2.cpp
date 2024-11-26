@@ -145,7 +145,7 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
         } else if (drawable.transform->name == "Painting.003") {
             drawable.texture = gen_texture_from_img("UI/Level2/Wheat_Field_With_Duck.png");
         } else if (drawable.transform->name == "Painting.004") {
-            drawable.texture = gen_texture_from_img("UI/Level2/PlaceHolderH.png");
+            drawable.texture = gen_texture_from_img("UI/Level2/PlaceholderH.png");
         } else if (drawable.transform->name == "Painting.005") {
             drawable.texture = gen_texture_from_img("UI/Level2/The_Quack.png");
         } else if (drawable.transform->name == "Painting.006") {
@@ -153,7 +153,7 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
         } else if (drawable.transform->name == "Painting.007") {
             drawable.texture = gen_texture_from_img("UI/Level2/The_Old_Bluebird.png");
         } else if (drawable.transform->name == "Painting.008") {
-            drawable.texture = gen_texture_from_img("UI/Level2/PlaceHolderV.png");
+            drawable.texture = gen_texture_from_img("UI/Level2/PlaceholderV.png");
         }
 	}
 
