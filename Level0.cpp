@@ -49,16 +49,16 @@ Level0::Level0(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
 
     for (auto &transform : scene.transforms) {
         if (transform.name == "RedPanda") player_transform = &transform;
-        else if (transform.name == "Head") head_dog = &transform;
-        else if (transform.name == "Head.001") head_dragon = &transform;
-        else if (transform.name == "Head.002") head_chicken = &transform;
-        else if (transform.name == "Head.003") head_snake = &transform;
-        else if (transform.name == "Head.004") head_sheep = &transform;
+        else if (transform.name == "Head") head_sheep = &transform;
+        else if (transform.name == "Head.001") head_chicken = &transform;
+        else if (transform.name == "Head.002") head_snake = &transform;
+        else if (transform.name == "Head.003") head_dog = &transform;
+        else if (transform.name == "Head.004") head_dragon = &transform;
 	}
 
     if (player_transform == nullptr) throw std::runtime_error("Player not found.");
 
-    heads = {head_dog, head_dragon, head_chicken, head_snake, head_sheep};
+    heads = {head_sheep, head_chicken, head_snake, head_dog, head_dragon};
 
     for(auto head: heads){
         if (head == nullptr) throw std::runtime_error("Head not found.");
