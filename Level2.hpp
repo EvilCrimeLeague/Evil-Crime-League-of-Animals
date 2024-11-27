@@ -1,5 +1,6 @@
 #pragma once
 
+#include <unordered_set>
 #include "Level.hpp"
 
 struct Level2 : Level {
@@ -58,6 +59,9 @@ struct Level2 : Level {
     bool showing_control_panel = false;
     const std::string password = "386743";
     std::string player_input = "";
+
+    // Achievement paintings
+    std::unordered_set<std::string> paintings_seen;
 
     Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_);
     virtual ~Level2() {}

@@ -22,6 +22,7 @@ struct GameInfo {
     std::string file_path;
     uint32_t highest_level;
     std::vector<uint32_t> targets_obtained; //bronze head obtained: dog, dragon, chicken, sheep, snake
+    std::vector<uint32_t> achivements;
 
     GameInfo() {
         file_path = data_path("game.info");
@@ -33,13 +34,16 @@ struct GameInfo {
             highest_level_v = {0};
             highest_level = 0;
             targets_obtained = {0, 0, 0, 0, 0};
+            achivements = {0, 0, 0, 0};
             write_chunk("int0", highest_level_v, &new_file);
             write_chunk("bool", targets_obtained, &new_file);
+            write_chunk("boo2", achivements, &new_file);
             new_file.close();
         } else {
             read_chunk(file, "int0", &highest_level_v);
             highest_level = highest_level_v[0];
             read_chunk(file, "bool", &targets_obtained);
+            read_chunk(file, "boo2", &achivements);
         }
 	    file.close();
     }
@@ -49,6 +53,7 @@ struct GameInfo {
         std::vector<uint32_t> highest_level_v = {highest_level};
         write_chunk("int0", highest_level_v, &file);
         write_chunk("bool", targets_obtained, &file);
+        write_chunk("boo2", achivements, &file);
         file.close();
     }
 

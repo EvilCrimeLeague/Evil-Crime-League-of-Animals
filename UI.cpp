@@ -323,7 +323,7 @@ void UI::show_description(std::string description, std::string choice1, std::str
     description_text->hide = false;
     description_text->text = description;
     description_box->hide = false;
-    manual_text->start_pos = glm::vec2(680, 690);
+    
     manual_text->hide = false;
     if(choice1 != "" && choice2 != "") {
         enter_bt_img->hide = false;
@@ -335,9 +335,11 @@ void UI::show_description(std::string description, std::string choice1, std::str
         choice2_text->text = choice2;
         showing_choices = true;
         manual_text->text = "Press <- or -> to select, press 'return' to continue";
+        manual_text->start_pos = glm::vec2(680, 690);
     } else {
         showing_choices = false;
         manual_text->text = "Press 'return' to continue";
+        manual_text->start_pos = glm::vec2(780, 690);
     }
 
     need_update_texture = true;

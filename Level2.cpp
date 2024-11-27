@@ -441,6 +441,10 @@ void Level2::handle_interact_key() {
                 curr_item->added = true;
             }
             ui->show_img(curr_item->img);
+            paintings_seen.insert(curr_item->name);
+            if(paintings_seen.size() == 9) {
+                info->achivements[0] = 1;
+            }
         } else if (curr_item->name == "ControlPanel") {
             ui->hide_all();
             // show control panel

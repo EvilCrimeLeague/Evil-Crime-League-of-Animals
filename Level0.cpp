@@ -54,9 +54,22 @@ Level0::Level0(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
         else if (transform.name == "Head.002") head_snake = &transform;
         else if (transform.name == "Head.003") head_dog = &transform;
         else if (transform.name == "Head.004") head_dragon = &transform;
+        else if (transform.name == "Achievement") achievement_paintings = &transform;
+        else if (transform.name == "Achievement.001") achievement_die = &transform;
+        else if (transform.name == "Achievement.002") achievement_no_die = &transform;
+        else if (transform.name == "Achievement.003") achievement_collectibles = &transform;
 	}
 
     if (player_transform == nullptr) throw std::runtime_error("Player not found.");
+    else if (head_sheep == nullptr) throw std::runtime_error("Head-Sheep not found.");
+    else if (head_chicken == nullptr) throw std::runtime_error("Head-Chicken not found.");
+    else if (head_snake == nullptr) throw std::runtime_error("Head-Snake not found.");
+    else if (head_dog == nullptr) throw std::runtime_error("Head-Dog not found.");
+    else if (head_dragon == nullptr) throw std::runtime_error("Head-Dragon not found.");
+    else if (achievement_paintings == nullptr) throw std::runtime_error("Achievement not found.");
+    else if (achievement_die == nullptr) throw std::runtime_error("Achievement.001 not found.");
+    else if (achievement_no_die == nullptr) throw std::runtime_error("Achievement.002 not found.");
+    else if (achievement_collectibles == nullptr) throw std::runtime_error("Achievement.003 not found.");
 
     heads = {head_sheep, head_chicken, head_snake, head_dog, head_dragon};
 
@@ -118,6 +131,39 @@ Level0::Level0(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     // initialize drivers
 
     // sound
+
+    // initialize achievement
+    auto achievement_paintings_ptr = std::make_shared<Item>();
+    achievement_paintings_ptr->name = "Achievement-Paintings";
+    achievement_paintings_ptr->interaction_description = "???";
+    achievement_paintings_ptr->transform = achievement_paintings;
+    achievement_paintings_ptr->show_description_box = true;
+    achievement_paintings_ptr->spawn_point = achievement_paintings->position;
+    items[achievement_paintings_ptr->name] = achievement_paintings_ptr;
+
+    auto achievement_die_ptr = std::make_shared<Item>();
+    achievement_die_ptr->name = "Achievement-Die";
+    achievement_die_ptr->interaction_description = "???";
+    achievement_die_ptr->transform = achievement_die;
+    achievement_die_ptr->show_description_box = true;
+    achievement_die_ptr->spawn_point = achievement_die->position;
+    items[achievement_die_ptr->name] = achievement_die_ptr;
+
+    auto achievement_no_die_ptr = std::make_shared<Item>();
+    achievement_no_die_ptr->name = "Achievement-No-Die";
+    achievement_no_die_ptr->interaction_description = "???";
+    achievement_no_die_ptr->transform = achievement_no_die;
+    achievement_no_die_ptr->show_description_box = true;
+    achievement_no_die_ptr->spawn_point = achievement_no_die->position;
+    items[achievement_no_die_ptr->name] = achievement_no_die_ptr;
+
+    auto achievement_collectibles_ptr = std::make_shared<Item>();
+    achievement_collectibles_ptr->name = "Achievement-Collectibles";
+    achievement_collectibles_ptr->interaction_description = "???";
+    achievement_collectibles_ptr->transform = achievement_collectibles;
+    achievement_collectibles_ptr->show_description_box = true;
+    achievement_collectibles_ptr->spawn_point = achievement_collectibles->position;
+    items[achievement_collectibles_ptr->name] = achievement_collectibles_ptr;
 }
 
 void Level0::handle_enter_key() {
