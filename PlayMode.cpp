@@ -140,9 +140,6 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			}
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_RETURN) {
-			for (uint32_t i = 0; i < 10; i++) {
-				level->update_guard_detection();
-			}
 			enter.pressed = false;
 			if(game_over && level_id < (int)levels.size()) {
 				level = levels[level_id];

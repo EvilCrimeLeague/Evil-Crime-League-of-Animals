@@ -323,6 +323,7 @@ void UI::show_description(std::string description, std::string choice1, std::str
     description_text->hide = false;
     description_text->text = description;
     description_box->hide = false;
+    manual_text->start_pos = glm::vec2(680, 690);
     manual_text->hide = false;
     if(choice1 != "" && choice2 != "") {
         enter_bt_img->hide = false;
@@ -687,6 +688,9 @@ void UI::show_img(std::shared_ptr<Img> img) {
         // portrait
         description_img_box->rect = glm::vec4(400, 50, 880, 670);
     }
+    manual_text->start_pos.x = 480;
+    manual_text->text = "Press 'return' to continue";
+    manual_text->hide = false;
     description_img_box->hide = false;
     showing_image = true;
 
@@ -698,6 +702,7 @@ void UI::hide_img() {
     set_menu_button(false);
     set_inventory_button(false);
     set_restart_button(false);
+    manual_text->hide = true;
     title_text->hide = false;
     showing_image = false;
 
