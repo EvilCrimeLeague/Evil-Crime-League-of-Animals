@@ -191,6 +191,26 @@ void Level0::restart() {
             heads[i]->position.z = 100.0f; // hide the heads
         }
     }
+
+    if(info->achievements[3] == 0) {
+        if(std::all_of(info->targets_obtained.begin(), info->targets_obtained.end(), [](int i){return i==1;})) {
+            info->achievements[3] = 1;
+            info->update_game_info();
+        }
+    }
+
+    if(info->achievements[0] == 1) {
+        items["Achievement-Paintings"]->interaction_description = "Viewed all paintings in Level 2."; // show the achievement
+    } 
+    if(info->achievements[3] == 1) {
+        items["Achievement-Collectibles"]->interaction_description = "Collected all heads in all levels."; // show the achievement
+    }
+    if(info->achievements[1] == 1) {
+        items["Achievement-Die"]->interaction_description = "Died more than 10 times in a level."; // show the achievement
+    }
+    if(info->achievements[2] == 1) {
+        items["Achievement-No-Die"]->interaction_description = "Made through a level with no death."; // show the achievement
+    }
 }
 
 void Level0::update() {

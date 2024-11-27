@@ -334,10 +334,18 @@ void PlayMode::update(float elapsed) {
 
 		level->move_lasers();
 		if (level->check_laser_hits()) {
+			
 			laser_pause = true;
 		}
 		if (laser_pause == true) laser_timer += elapsed;
-		if (laser_timer >= 0.75) restart();
+		if (laser_timer >= 0.75) {
+			// caught by laser
+			level->death_count++;
+			if(level->death_count >= 10) {
+				game_info->achievements[1] = 1;
+				game_info->update_game_info();
+			}
+		}
 	}
 
 	if(!paused) {
@@ -351,6 +359,11 @@ void PlayMode::update(float elapsed) {
 
 		if(seen_by_guard_timer > 0.5f) {
 			// player caught, restart game
+			level->death_count++;
+			if(level->death_count >= 10) {
+				game_info->achievements[1] = 1;
+				game_info->update_game_info();
+			}
 			restart();
 		}
 		if(level->guard_detectables["RedPanda"]) {
@@ -386,6 +399,10 @@ void PlayMode::update(float elapsed) {
 
 		if(level->is_target_obtained() && get_distance(player.transform->position, level->exit_transform->position) < 0.5f) {
 			game_over = true;
+			if(level->death_count == 0) {
+				game_info->achievements[2] = 1;
+				game_info->update_game_info();
+			}
 			++level_id; 
 			if((uint32_t)level_id > game_info->highest_level) {
 				game_info->highest_level = level_id;
@@ -509,6 +526,7 @@ void PlayMode::restart(bool new_level){
 		//start player walking at nearest walk point:
 		player.at = level->walkmesh->nearest_walk_point(player.transform->position);
 
+		level->death_count = 0;
 
 	} else {
 		player.transform->position = level->player_spawn_point;

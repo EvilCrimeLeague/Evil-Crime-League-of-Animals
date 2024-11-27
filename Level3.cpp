@@ -551,6 +551,7 @@ void Level3::restart() {
     showing_control_panel = false;
     player_input = "";
     exit_transform->position.z = 20.0f;
+
 }
 
 void Level3::update() {

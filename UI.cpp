@@ -339,7 +339,7 @@ void UI::show_description(std::string description, std::string choice1, std::str
     } else {
         showing_choices = false;
         manual_text->text = "Press 'return' to continue";
-        manual_text->start_pos = glm::vec2(780, 690);
+        manual_text->start_pos = glm::vec2(880, 690);
     }
 
     need_update_texture = true;
