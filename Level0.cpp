@@ -88,7 +88,7 @@ Level0::Level0(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     // initialize items
     auto head_dog_ptr = std::make_shared<Item>();
     head_dog_ptr->name = "Head-Dog";
-    head_dog_ptr->interaction_description = "This is the Old Summer Palace bronze head of Dog. It was looted by during the Second Opium War and went missing since then.";
+    head_dog_ptr->interaction_description = "This is the Old Summer Palace bronze head of the Dog. In 1860 during the Second Opium War, the Old Summer Palace was ransacked and destroyed by British and French forces. To this day, the head's whereabouts remain unknown.";
     head_dog_ptr->transform = head_dog;
     head_dog_ptr->show_description_box = true;
     head_dog_ptr->spawn_point = head_dog->position;
@@ -96,7 +96,7 @@ Level0::Level0(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
 
     auto head_dragon_ptr = std::make_shared<Item>();
     head_dragon_ptr->name = "Head-Dragon";
-    head_dragon_ptr->interaction_description = "This is the Old Summer Palace bronze head of Dragon. It was looted by during the Second Opium War and went missing since then.";
+    head_dragon_ptr->interaction_description = "This is the Old Summer Palace bronze head of the Dragon. In 1860 during the Second Opium War, the Old Summer Palace was ransacked and destroyed by British and French forces. To this day, the head's whereabouts remain unknown.";
     head_dragon_ptr->transform = head_dragon;
     head_dragon_ptr->show_description_box = true;
     head_dragon_ptr->spawn_point = head_dragon->position;
@@ -104,7 +104,7 @@ Level0::Level0(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
 
     auto head_chicken_ptr = std::make_shared<Item>();
     head_chicken_ptr->name = "Head-Chicken";
-    head_chicken_ptr->interaction_description = "This is the Old Summer Palace bronze head of Rooster. It was looted by during the Second Opium War and went missing since then.";
+    head_chicken_ptr->interaction_description = "This is the Old Summer Palace bronze head of the Rooster. In 1860 during the Second Opium War, the Old Summer Palace was ransacked and destroyed by British and French forces. To this day, the head's whereabouts remain unknown.";
     head_chicken_ptr->transform = head_chicken;
     head_chicken_ptr->show_description_box = true;
     head_chicken_ptr->spawn_point = head_chicken->position;
@@ -112,7 +112,7 @@ Level0::Level0(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
 
     auto head_snake_ptr = std::make_shared<Item>();
     head_snake_ptr->name = "Head-Snake";
-    head_snake_ptr->interaction_description = "This is the Old Summer Palace bronze head of Snake. It was looted by during the Second Opium War and went missing since then.";
+    head_snake_ptr->interaction_description = "This is the Old Summer Palace bronze head of the Snake. In 1860 during the Second Opium War, the Old Summer Palace was ransacked and destroyed by British and French forces. To this day, the head's whereabouts remain unknown.";
     head_snake_ptr->transform = head_snake;
     head_snake_ptr->show_description_box = true;
     head_snake_ptr->spawn_point = head_snake->position;
@@ -120,7 +120,7 @@ Level0::Level0(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
 
     auto head_sheep_ptr = std::make_shared<Item>();
     head_sheep_ptr->name = "Head-Sheep";
-    head_sheep_ptr->interaction_description = "This is the Old Summer Palace bronze head of Sheep. It was looted by during the Second Opium War and went missing since then.";
+    head_sheep_ptr->interaction_description = "This is the Old Summer Palace bronze head of the Goat. In 1860 during the Second Opium War, the Old Summer Palace was ransacked and destroyed by British and French forces. To this day, the head's whereabouts remain unknown.";
     head_sheep_ptr->transform = head_sheep;
     head_sheep_ptr->show_description_box = true;
     head_sheep_ptr->spawn_point = head_sheep->position;
