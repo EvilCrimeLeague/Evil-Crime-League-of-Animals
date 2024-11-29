@@ -345,6 +345,7 @@ void PlayMode::update(float elapsed) {
 				game_info->achievements[1] = 1;
 				game_info->update_game_info();
 			}
+			restart();
 		}
 	}
 
