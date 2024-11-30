@@ -30,8 +30,8 @@ void UI::draw_texture(unsigned int texture) {
 
 void UI::draw(){
     draw_texture(box_texture);
-    draw_texture(text_texture);
     draw_texture(img_texture);
+    draw_texture(text_texture);
 }
 
 void UI::gen_box_texture(){
@@ -727,4 +727,14 @@ std::shared_ptr<Text> UI::add_text(std::string text, glm::vec2 start_pos, std::s
     texts.push_back(text_ptr);
     extra_texts.push_back(text_ptr);
     return text_ptr;
+}
+
+void UI::show_game_start() {
+    hide_all();
+    game_start_img->hide = false;
+    manual_text->hide = false;
+    manual_text->text = "Press Enter to start";
+    manual_text->start_pos = glm::vec2(960, 690);
+
+    need_update_texture = true;
 }

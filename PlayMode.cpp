@@ -54,6 +54,8 @@ PlayMode::PlayMode() {
 	player.at = level->walkmesh->nearest_walk_point(player.transform->position);
 
 	ui->set_title("Level 1");
+	ui->show_game_start();
+	game_over = true;
 }
 
 PlayMode::~PlayMode() {
