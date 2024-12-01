@@ -80,6 +80,9 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
         else if (transform.name == "Painting.006") painting_7 = &transform;
         else if (transform.name == "Painting.007") painting_8 = &transform;
         else if (transform.name == "Painting.008") painting_9 = &transform;
+        else if (transform.name == "Painting.010") painting_10 = &transform;
+        else if (transform.name == "Painting.011") painting_11 = &transform;
+        else if (transform.name == "Painting.012") painting_12 = &transform;
         else if (transform.name == "ControlPanel") control_panel = &transform;
         else if (transform.name == "Paper") paper_1 = &transform;
         else if (transform.name == "Paper.001") paper_2 = &transform;
@@ -132,6 +135,16 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     else if (painting_7 == nullptr) throw std::runtime_error("Painting 7 not found.");
     else if (painting_8 == nullptr) throw std::runtime_error("Painting 8 not found.");
     else if (painting_9 == nullptr) throw std::runtime_error("Painting 9 not found.");
+    else if (painting_10 == nullptr) throw std::runtime_error("Painting 10 not found.");
+    else if (painting_11 == nullptr) throw std::runtime_error("Painting 11 not found.");
+    else if (painting_12 == nullptr) throw std::runtime_error("Painting 12 not found.");
+    else if (podium_1 == nullptr) throw std::runtime_error("Podium 1 not found.");
+    else if (podium_2 == nullptr) throw std::runtime_error("Podium 2 not found.");
+    else if (podium_3 == nullptr) throw std::runtime_error("Podium 3 not found.");
+    else if (podium_4 == nullptr) throw std::runtime_error("Podium 4 not found.");
+    else if (podium_5 == nullptr) throw std::runtime_error("Podium 5 not found.");
+    else if (podium == nullptr) throw std::runtime_error("Podium not found.");
+    else if (fov_2 == nullptr) throw std::runtime_error("fov2 not found.");
     else if (fov_1 == nullptr) throw std::runtime_error("fov1 not found.");
 
 
@@ -154,6 +167,12 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
             drawable.texture = gen_texture_from_img("UI/Level2/The_Old_Bluebird.png");
         } else if (drawable.transform->name == "Painting.008") {
             drawable.texture = gen_texture_from_img("UI/Level2/PlaceholderV.png");
+        } else if (drawable.transform->name == "Painting.010") {
+            drawable.texture = gen_texture_from_img("UI/Level2/L'Duck_en_sentinelle.png");
+        } else if (drawable.transform->name == "Painting.011") {
+            drawable.texture = gen_texture_from_img("UI/Level2/Quackphemia_White_Van_Rensselaer.png");
+        } else if (drawable.transform->name == "Painting.012") {
+            drawable.texture = gen_texture_from_img("UI/Level2/The_Song_Of_The_Duck.png");
         }
 	}
 
@@ -175,8 +194,8 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     guard_detectables["RedPanda"] = false;
 
     // initialize items
-    std::vector<Scene::Transform *> paintings = {painting_1, painting_2, painting_3, painting_4, painting_5, painting_6, painting_7, painting_8, painting_9};
-    for(int i=1; i<=9; i++){
+    std::vector<Scene::Transform *> paintings = {painting_1, painting_2, painting_3, painting_4, painting_5, painting_6, painting_7, painting_8, painting_9, painting_10, painting_11, painting_12};
+    for(int i=1; i<=12; i++){
         auto painting = paintings[i-1];
         if (painting == nullptr) throw std::runtime_error("Painting"+std::to_string(i)+"not found.");
         auto painting_ptr = std::make_shared<Item>();
@@ -195,6 +214,9 @@ Level2::Level2(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     items[painting_7->name]->description_img_path = "UI/Level2/Reptile_Sunset.png";
     items[painting_8->name]->description_img_path = "UI/Level2/The_Old_Bluebird.png";
     items[painting_9->name]->description_img_path = "UI/Level2/PlaceHolderV.png";
+    items[painting_10->name]->description_img_path = "UI/Level2/L'Duck_en_sentinelle.png";
+    items[painting_11->name]->description_img_path = "UI/Level2/Quackphemia_White_Van_Rensselaer.png";
+    items[painting_12->name]->description_img_path = "UI/Level2/The_Song_Of_The_Duck.png";
 
     auto controll_panel_ptr = std::make_shared<Item>();
     controll_panel_ptr->name = "ControlPanel";
