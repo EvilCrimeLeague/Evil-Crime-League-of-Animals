@@ -679,9 +679,9 @@ std::shared_ptr<UI::Img> UI::add_img(std::string path) {
     return img_ptr;
 }
 
-void UI::show_img(std::shared_ptr<Img> img) {
+void UI::show_img(std::shared_ptr<Img> img, bool showing_highres_img) {
     hide_all();
-    showing_highres_img = true;
+    this->showing_highres_img = showing_highres_img;
     img->hide = false;
     if(img->size.x > img->size.y) {
         // landscape
