@@ -8,6 +8,9 @@ struct Level0 : Level { // A level that displays the bronze head player has coll
 	Scene::Transform *head_chicken = nullptr;
 	Scene::Transform *head_snake = nullptr;
     Scene::Transform *head_sheep = nullptr;
+    Scene::Transform *curator_dog1 = nullptr;
+    Scene::Transform *curator_dog2 = nullptr;
+    Scene::Transform *x = nullptr; 
 
     Scene::Transform *achievement_paintings = nullptr; // seen all paintings
     Scene::Transform *achievement_die = nullptr; // die in a level more than 10 times

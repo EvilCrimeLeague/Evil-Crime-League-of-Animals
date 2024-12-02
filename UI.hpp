@@ -322,7 +322,7 @@ struct UI {
     void set_title(std::string title);
 
     std::shared_ptr<Img> add_img(std::string path);
-    void show_img(std::shared_ptr<Img> img);
+    void show_img(std::shared_ptr<Img> img, bool showing_highres_img=true);
     void hide_img();
 
     bool should_pause();

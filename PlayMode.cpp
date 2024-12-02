@@ -512,7 +512,12 @@ void PlayMode::restart(bool new_level){
 	}
 
 	if(new_level) {
-		ui->set_title("Level " + std::to_string(level_id + 1));
+		if(level_id ==3) {
+			ui->set_title("Level 0");
+		} else {
+			ui->set_title("Level " + std::to_string(level_id + 1));
+		}
+		
 		player.transform = level->player_transform;
 		player.transform->position = level->player_spawn_point;
 		player.transform->rotation = level->player_spawn_rotation;

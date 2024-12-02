@@ -58,6 +58,9 @@ Level0::Level0(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
         else if (transform.name == "Achievement.001") achievement_die = &transform;
         else if (transform.name == "Achievement.002") achievement_no_die = &transform;
         else if (transform.name == "Achievement.003") achievement_collectibles = &transform;
+        else if (transform.name == "CuratorDog") curator_dog1 = &transform;
+        else if (transform.name == "CuratorDog.001") curator_dog2 = &transform;
+        else if (transform.name == "Plane") x = &transform;
 	}
 
     if (player_transform == nullptr) throw std::runtime_error("Player not found.");
@@ -70,6 +73,9 @@ Level0::Level0(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     else if (achievement_die == nullptr) throw std::runtime_error("Achievement.001 not found.");
     else if (achievement_no_die == nullptr) throw std::runtime_error("Achievement.002 not found.");
     else if (achievement_collectibles == nullptr) throw std::runtime_error("Achievement.003 not found.");
+    else if (curator_dog1 == nullptr) throw std::runtime_error("CuratorDog not found.");
+    else if (curator_dog2 == nullptr) throw std::runtime_error("CuratorDog.001 not found.");
+    else if (x == nullptr) throw std::runtime_error("Plane not found.");
 
     heads = {head_sheep, head_chicken, head_snake, head_dog, head_dragon};
 
@@ -125,6 +131,22 @@ Level0::Level0(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     head_sheep_ptr->show_description_box = true;
     head_sheep_ptr->spawn_point = head_sheep->position;
     items["Head-Sheep"] = head_sheep_ptr;
+
+    auto curator_dog1_ptr = std::make_shared<Item>();
+    curator_dog1_ptr->name = "CuratorDog1";
+    curator_dog1_ptr->interaction_description = "You have not complete your mission yet. Please come back later.";
+    curator_dog1_ptr->transform = curator_dog1;
+    curator_dog1_ptr->show_description_box = true;
+    curator_dog1_ptr->spawn_point = curator_dog1->position;
+    items["CuratorDog1"] = curator_dog1_ptr;
+
+    auto curator_dog2_ptr = std::make_shared<Item>();
+    curator_dog2_ptr->name = "CuratorDog2";
+    curator_dog2_ptr->interaction_description = "I never thought I’d live to see the heads be reunited in my lifetime. Thank you Red Panda. Let’s take a photo to commemorate this occasion.";
+    curator_dog2_ptr->transform = curator_dog2;
+    curator_dog2_ptr->show_description_box = true;
+    curator_dog2_ptr->spawn_point = curator_dog2->position;
+    items["CuratorDog2"] = curator_dog2_ptr;
     
     // initialize guard dogs
 
@@ -170,12 +192,33 @@ void Level0::handle_enter_key() {
     if (ui->showing_description) {
         // Interact with item
         ui->hide_description();
-    } 
+        ui->hide_inventory_description_img();
+    } else if (ui->showing_image) {
+        ui->hide_img();
+    }
 }
 
 void Level0::handle_interact_key() {
     if(ui->showing_interactable_button) {
-        ui->show_description(curr_item->interaction_description);
+        if (curr_item->name=="X") {
+            if (!curr_item->added) {
+                curr_item->img = ui->add_img(curr_item->description_img_path);
+                curr_item->added = true;
+            }
+            ui->show_img(curr_item->img, false);
+        } else {
+            ui->show_description(curr_item->interaction_description);
+            if(curr_item->name == "CuratorDog2" && items.find("X") == items.end()) {
+                auto x_ptr = std::make_shared<Item>();
+                x_ptr->name = "X";
+                x_ptr->interaction_description = "Take a photo.";
+                x_ptr->transform = x;
+                x_ptr->spawn_point = x->position;
+                x_ptr->description_img_path = "UI/Level2/256test.png";
+                items["X"] = x_ptr;
+            } 
+        }
+        
     }
 }
 
@@ -204,6 +247,7 @@ void Level0::restart() {
     } 
     if(info->achievements[3] == 1) {
         items["Achievement-Collectibles"]->interaction_description = "Collected all heads in all levels."; // show the achievement
+        items["CuratorDog1"]->interaction_description = "You have completed your mission. Congratulations!";
     }
     if(info->achievements[1] == 1) {
         items["Achievement-Die"]->interaction_description = "Died more than 10 times in a level."; // show the achievement
@@ -211,6 +255,8 @@ void Level0::restart() {
     if(info->achievements[2] == 1) {
         items["Achievement-No-Die"]->interaction_description = "Made through a level with no death."; // show the achievement
     }
+
+    items.erase("X");
 }
 
 void Level0::update() {
