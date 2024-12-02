@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Level.hpp"
+#include <algorithm>
 
 struct Level0 : Level { // A level that displays the bronze head player has collected
     Scene::Transform *head_dragon = nullptr;
@@ -16,6 +17,7 @@ struct Level0 : Level { // A level that displays the bronze head player has coll
     Scene::Transform *achievement_die = nullptr; // die in a level more than 10 times
     Scene::Transform *achievement_no_die = nullptr; // made through a level with no death
     Scene::Transform *achievement_collectibles = nullptr; // collected all collectibles
+    Scene::Transform *guard_dog = nullptr;
 
     std::vector<Scene::Transform *> heads;
 

@@ -1,5 +1,6 @@
 #include "Level0.hpp"
 #include "Sound.hpp"
+#include "PlayMode.hpp"
 #include <glm/gtx/norm.hpp>
 
 #include <iostream>
@@ -260,5 +261,8 @@ void Level0::restart() {
 }
 
 void Level0::update() {
-    
+    if ((player_transform->position.y >= curator_dog1->position.y) && (info->achievements[3] == 0)) {
+        stop_player = true;
+        player_transform->position.y = curator_dog1->position.y;
+    } else if ((player_transform->position.y < curator_dog1->position.y)) stop_player = false;
 }

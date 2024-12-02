@@ -207,7 +207,7 @@ void PlayMode::update(float elapsed) {
 	
 	constexpr float player_speed = 20.0f;
 
-	if(!paused && !game_over) {
+	if(!paused && !game_over && !level->stop_player) {
 		// play footstep sounds
 		if (left.pressed || right.pressed || down.pressed || up.pressed ) {
 			if (speed_percent <= 0.25) speed_percent += elapsed;
@@ -223,7 +223,9 @@ void PlayMode::update(float elapsed) {
 		}
 	}
 
-	if(!paused && !game_over) {
+	if (!up.pressed) level->stop_player = false;
+
+	if(!paused && !game_over && !level->stop_player) {
 		//combine inputs into a move:
 		glm::vec2 move = glm::vec2(0.0f);
 		if (left.pressed && !right.pressed) {
@@ -248,7 +250,6 @@ void PlayMode::update(float elapsed) {
 
 		//get move in world coordinate system:
 		glm::vec3 remain = player.transform->make_local_to_world() * glm::vec4(move.x, move.y, 0.0f, 0.0f);
-
 		//using a for() instead of a while() here so that if walkpoint gets stuck in
 		// some awkward case, code will not infinite loop:
 		for (uint32_t iter = 0; iter < 10; ++iter) {
@@ -501,6 +502,7 @@ void PlayMode::restart(bool new_level){
 	seen_by_guard_timer = 0.0f;
 	game_over = false;
 	paused = false;
+	level->stop_player = false;
 	laser_timer = 0.0f;
 	laser_pause = false;
 	level->disable_lasers = false;
