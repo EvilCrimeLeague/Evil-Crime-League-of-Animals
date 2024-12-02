@@ -148,6 +148,7 @@ struct Level {
     // game info
     std::shared_ptr<GameInfo> info;
     uint32_t death_count = 0;
+    bool stop_player = false;
 
     Level(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_);
     virtual ~Level() {}

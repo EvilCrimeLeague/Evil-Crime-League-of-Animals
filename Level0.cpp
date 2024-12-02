@@ -1,5 +1,6 @@
 #include "Level0.hpp"
 #include "Sound.hpp"
+#include "PlayMode.hpp"
 #include <glm/gtx/norm.hpp>
 
 #include <iostream>
@@ -58,6 +59,7 @@ Level0::Level0(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
         else if (transform.name == "Achievement.001") achievement_die = &transform;
         else if (transform.name == "Achievement.002") achievement_no_die = &transform;
         else if (transform.name == "Achievement.003") achievement_collectibles = &transform;
+        else if (transform.name == "CuratorDog") guard_dog = &transform;
 	}
 
     if (player_transform == nullptr) throw std::runtime_error("Player not found.");
@@ -70,6 +72,7 @@ Level0::Level0(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     else if (achievement_die == nullptr) throw std::runtime_error("Achievement.001 not found.");
     else if (achievement_no_die == nullptr) throw std::runtime_error("Achievement.002 not found.");
     else if (achievement_collectibles == nullptr) throw std::runtime_error("Achievement.003 not found.");
+    else if (guard_dog == nullptr) throw std::runtime_error("Guard dog not found.");
 
     heads = {head_sheep, head_chicken, head_snake, head_dog, head_dragon};
 
@@ -125,6 +128,11 @@ Level0::Level0(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     head_sheep_ptr->show_description_box = true;
     head_sheep_ptr->spawn_point = head_sheep->position;
     items["Head-Sheep"] = head_sheep_ptr;
+
+    auto guard_dog_ptr = std::make_shared<GuardDog>();
+    guard_dog_ptr->name = "GuardDog";
+    guard_dog_ptr->transform = guard_dog;
+    guard_dog_ptr->spawn_point = guard_dog->position;
     
     // initialize guard dogs
 
@@ -214,5 +222,8 @@ void Level0::restart() {
 }
 
 void Level0::update() {
-    
+    if ((player_transform->position.y >= guard_dog->position.y) && (info->achievements[3] == 0)) {
+        stop_player = true;
+        player_transform->position.y = guard_dog->position.y;
+    } else if ((player_transform->position.y < guard_dog->position.y)) stop_player = false;
 }
