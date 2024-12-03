@@ -213,7 +213,7 @@ struct UI {
         restart_bt_img = std::make_shared<Img>(glm::vec2(40, 20), "UI/R.png");
         restart_bt_img->hide = false;
         inventory_img = std::make_shared<Img>(glm::vec2(0, 592), "UI/inventory.png");
-        menu_img = std::make_shared<Img>(glm::vec2(440, 160), "UI/menu.png");
+        menu_img = std::make_shared<Img>(glm::vec2(340, 210), "UI/menu.png");
         menu_bt_img = std::make_shared<Img>(glm::vec2(960, 20), "UI/Q.png");
         menu_bt_img->hide = false;
         level_1_img = std::make_shared<Img>(glm::vec2(0, 0), "UI/1b.png");
@@ -241,12 +241,9 @@ struct UI {
 
         // Create slots for menu
         menu_slot_id_start = (uint32_t)imgs.size();
-        glm::vec2 pivot = menu_img->pos + glm::vec2(100,150);
+        glm::vec2 pivot = menu_img->pos + glm::vec2(120,130);
         for (uint32_t i = 0; i < menu_slot_num; i++) {
-            uint32_t row = static_cast<uint32_t>(i / 2);
-            uint32_t col = i % 2;
-
-            glm::vec2 pos = pivot + glm::vec2(col*120, row*100);
+            glm::vec2 pos = pivot + glm::vec2(i*100, 0);
             menu_item_pos.push_back(pos);
             imgs.push_back(std::make_shared<Img>(pos, size, data));
         }
