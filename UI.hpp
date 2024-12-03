@@ -241,7 +241,7 @@ struct UI {
 
         // Create slots for menu
         menu_slot_id_start = (uint32_t)imgs.size();
-        glm::vec2 pivot = menu_img->pos + glm::vec2(120,130);
+        glm::vec2 pivot = menu_img->pos + glm::vec2(120,150);
         for (uint32_t i = 0; i < menu_slot_num; i++) {
             glm::vec2 pos = pivot + glm::vec2(i*100, 0);
             menu_item_pos.push_back(pos);
