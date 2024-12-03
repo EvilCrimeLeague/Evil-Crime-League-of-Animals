@@ -464,7 +464,7 @@ void Level2::handle_interact_key() {
             }
             ui->show_img(curr_item->img);
             paintings_seen.insert(curr_item->name);
-            if(paintings_seen.size() == 9) {
+            if(paintings_seen.size() == 12) {
                 info->achievements[0] = 1;
                 info->update_game_info();
             }
