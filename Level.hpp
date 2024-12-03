@@ -172,6 +172,7 @@ struct Level {
     bool pause_game = false;
 
     virtual void restart() = 0;
+    void reset_items();
     std::shared_ptr< Sound::PlayingSample > rolling_loop;
     float closest_dist_infront = 5.0f;
 

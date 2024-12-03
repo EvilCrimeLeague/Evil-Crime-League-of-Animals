@@ -224,9 +224,7 @@ void Level0::handle_interact_key() {
 }
 
 void Level0::restart() {
-    for(auto &item: items) {
-        item.second->transform->position = item.second->spawn_point;
-    }
+    reset_items();
     
     for(int i=0; i<(int)heads.size(); i++){
         if(info->targets_obtained[i] == 1) {

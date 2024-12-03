@@ -241,3 +241,10 @@ void Level::move_lasers() {
 		}
 	}
 }
+
+void Level::reset_items() {
+    for(auto &item: items) {
+        item.second->transform->position = item.second->spawn_point;
+        item.second->added = false;
+    }
+}

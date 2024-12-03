@@ -542,10 +542,7 @@ void Level2::handle_description_choice(uint32_t choice_id) {
 }
 
 void Level2::restart() {
-    for(auto &item: items) {
-        item.second->transform->position = item.second->spawn_point;
-        item.second->added = false;
-    }
+    reset_items();
 
     for(auto &guard_dog: guard_dogs) {
         guard_dog->transform->position = guard_dog->spawn_point;
