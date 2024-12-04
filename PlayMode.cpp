@@ -233,16 +233,14 @@ void PlayMode::update(float elapsed) {
 		if (down.pressed && !up.pressed) move.x = 1.0f;
 		if (!down.pressed && up.pressed) move.x = -1.0f;
 
-		//make it so that moving diagonally doesn't go faster:
-		if (move != glm::vec2(0.0f)) move = glm::normalize(move) * playerSpeed * elapsed;
-
 		if(move.x != 0.f || move.y != 0.f){
 			player.rotation = glm::angleAxis(glm::atan(-move.y, -move.x)+glm::radians(-90.f),glm::vec3(0.0f, 0.0f, 1.0f));
 			move = glm::vec2(-1.0f, 0.f);
-			move = glm::normalize(move) * playerSpeed * elapsed;
 		}
 		player.transform->rotation = player.rotation;
 
+		//make it so that moving diagonally doesn't go faster:
+		if (move != glm::vec2(0.0f)) move = glm::normalize(move) * playerSpeed * elapsed;
 
 		//get move in world coordinate system:
 		glm::vec3 remain = player.transform->make_local_to_world() * glm::vec4(move.x, move.y, 0.0f, 0.0f);
