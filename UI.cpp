@@ -734,7 +734,7 @@ void UI::show_game_start() {
     game_start_img->hide = false;
     manual_text->hide = false;
     manual_text->text = "Press Enter to start";
-    manual_text->start_pos = glm::vec2(960, 690);
+    manual_text->start_pos = glm::vec2(960, 630);
 
     need_update_texture = true;
 }
