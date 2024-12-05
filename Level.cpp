@@ -36,6 +36,20 @@ std::shared_ptr<Level::Item> Level::get_closest_item(glm::vec3 player_position) 
 }
 
 void Level::update_guard_detection() {
+	auto barycentric_weights = [&](glm::vec3 const &a, glm::vec3 const &b, glm::vec3 const &c, glm::vec3 const &pt) {
+		// Reference: https://gamedev.stackexchange.com/questions/23743/whats-the-most-efficient-way-to-find-barycentric-coordinates
+		glm::vec3 v0 = b - a, v1 = c - a, v2 = pt - a;
+		float d00 = glm::dot(v0, v0);
+		float d01 = glm::dot(v0, v1);
+		float d11 = glm::dot(v1, v1);
+		float d20 = glm::dot(v2, v0);
+		float d21 = glm::dot(v2, v1);
+		float denom = d00 * d11 - d01 * d01;
+		float v = (d11 * d20 - d01 * d21) / denom;
+		float w = (d00 * d21 - d01 * d20) / denom;
+		float u = 1.0f - v - w;
+		return glm::vec3(u,v,w);
+	};
 	// MeshBuffer *guard_fov_meshbuffer = guard_fov_meshes;
 	for (auto &item: guard_detectables) {
 		item.second = false;
@@ -57,7 +71,7 @@ void Level::update_guard_detection() {
 		point_vertex.Color = glm::u8vec4(0xff, 0x00, 0x00, 0x7);
 		glm::vec3 guardDogDirectionWorld = glm::normalize(guardDog->transform->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
 		for (uint32_t x = 0; x < verticalRays; x++) {
-			float verticalAngle = (guardDogVerticalFov / 2) + (x * verticalStep);
+			float verticalAngle = - (guardDogVerticalFov / 2) + (x * verticalStep);
 			glm::vec3 verticalDirection = glm::angleAxis(glm::radians(verticalAngle), glm::vec3(1.0f, 0.0f, 0.0f)) * guardDogDirectionWorld;
 			for (uint32_t z = 0; z < horizontalRays; z++) {
 				float horizontalAngle = - (guardDogHorizontalFov / 2) + (z * horizontalStep);
@@ -69,6 +83,18 @@ void Level::update_guard_detection() {
 				for (Scene::Drawable &d : scene.drawables) {
 					auto item_seen = guard_detectables.find(d.transform->name);
 					if ( item_seen != guard_detectables.end()) {
+						if (d.transform->name == "Bone") {
+							glm::vec3 pos = d.transform->position;
+							Ray bone_ray = Ray(point, pos, glm::vec2(0.0, 5.2f), (uint32_t) 0);
+							float mag1 = glm::length(pos - point);
+							if (mag1 >= 5.2) continue;
+							float dot = glm::dot(pos - point, guardDogDirectionWorld - point);	
+							float mag2 = glm::length(guardDogDirectionWorld - point);
+							if (mag1 == 0 || mag2 == 0 || mag1 >= 5.2) continue;
+							auto cos = dot / (mag1 * mag2);
+							if (cos < 50) guard_detectables["Bone"] = true;					
+							continue;
+						}
 						GLuint start = d.mesh->start;
 						GLuint count = d.mesh->count;
 						glm::mat4x3 transform = d.transform->make_local_to_world();
