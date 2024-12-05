@@ -188,7 +188,7 @@ Level0::Level0(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
 
     // initialize achievement
     auto achievement_paintings_ptr = std::make_shared<Item>();
-    achievement_paintings_ptr->name = "Achievement-Paintings";
+    achievement_paintings_ptr->name = "Achievement-Paints";
     achievement_paintings_ptr->interaction_description = "???";
     achievement_paintings_ptr->transform = achievement_paintings;
     achievement_paintings_ptr->show_description_box = true;
@@ -279,7 +279,7 @@ void Level0::restart() {
     }
 
     if(info->achievements[0] == 1) {
-        items["Achievement-Paintings"]->interaction_description = "Viewed all paintings in Level 2."; // show the achievement
+        items["Achievement-Paints"]->interaction_description = "Viewed all paintings in Level 2."; // show the achievement
     } 
     if(info->achievements[3] == 1) {
         items["Achievement-Collectibles"]->interaction_description = "Collected all heads in all levels."; // show the achievement
