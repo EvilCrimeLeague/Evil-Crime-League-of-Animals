@@ -57,7 +57,7 @@ void Level::update_guard_detection() {
 		point_vertex.Color = glm::u8vec4(0xff, 0x00, 0x00, 0x7);
 		glm::vec3 guardDogDirectionWorld = glm::normalize(guardDog->transform->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
 		for (uint32_t x = 0; x < verticalRays; x++) {
-			float verticalAngle = - (guardDogVerticalFov / 2) + (x * verticalStep);
+			float verticalAngle = (guardDogVerticalFov / 2) + (x * verticalStep);
 			glm::vec3 verticalDirection = glm::angleAxis(glm::radians(verticalAngle), glm::vec3(1.0f, 0.0f, 0.0f)) * guardDogDirectionWorld;
 			for (uint32_t z = 0; z < horizontalRays; z++) {
 				float horizontalAngle = - (guardDogHorizontalFov / 2) + (z * horizontalStep);
@@ -67,9 +67,6 @@ void Level::update_guard_detection() {
 				std::string closest_item = "Wall";
 				// loop through primitives 
 				for (Scene::Drawable &d : scene.drawables) {
-					// if (d.transform->name == "GuardDog") {
-					// 	std::cout<<d.meshBuffer->data[1].Position.x<<" "<<d.meshBuffer->data[1].Position.y<<" "<<d.meshBuffer->data[1].Position.z<<std::endl;
-					// }
 					auto item_seen = guard_detectables.find(d.transform->name);
 					if ( item_seen != guard_detectables.end()) {
 						GLuint start = d.mesh->start;
@@ -111,7 +108,6 @@ void Level::update_guard_detection() {
 					}
 				}
 				guard_detectables[closest_item] = true;
-				// std::cout<<r.at(closest_t).x<<" "<<r.at(closest_t).y<<" "<<r.at(closest_t).z<<std::endl;
 				Vertex ray_vertex;
 				ray_vertex.Position = guardDog->guard_fov_transform->make_world_to_local() * glm::vec4(r.at(closest_t), 1);
 				ray_vertex.Color = glm::u8vec4(0xff, 0x00, 0x00, 0x20);
@@ -130,9 +126,7 @@ void Level::update_guard_detection() {
 		}
 		std::reverse(guardDog->guard_fov_data.begin(), guardDog->guard_fov_data.end());
 		guardDog->guard_fov_meshes->ChangeBuffer(guardDog->guard_fov_data);
-		// std::cout<<guard_fov_meshes->data[0].Position.x<<" "<<guard_fov_meshes->data[0].Position.y<<" "<<guard_fov_meshes->data[0].Position.z<<std::endl;
-		// std::cout<<guardDog->transform->position.x<<" "<<guardDog->transform->position.y<<" "<<guardDog->transform->position.z<<std::endl;
-    }//}
+    }
 }
 
 void Level::update_animation(const float deltaTime) {
@@ -198,7 +192,6 @@ bool Level::check_laser_hits() {
 			glm::mat4x3 new_player_transform = player.transform->make_local_to_world();
 			for (GLuint j = player_start; j < player_start + player_count; j+= 12) {
 				glm::vec3 position = new_player_transform * glm::vec4(player.meshBuffer->data[j].Position, 1);
-				// glm::vec3 dir = glm::normalize(player_transform->make_local_to_world() * glm::vec4(-1.0, 0.0, 0.0, 0.0));
 				for (Scene::Drawable &d: scene.drawables) {
 					if (d.transform->name.find("Laser") != std::string::npos || d.transform->name.find("laser") != std::string::npos) {
 						GLuint start = d.mesh->start;
@@ -234,7 +227,6 @@ void Level::move_lasers() {
 		if (laser->on) {
 			laser->transform->position = laser->spawn_point;
 		} else {
-			// std::cout<<laser->name<<std::endl;
 			laser->transform->position = glm::vec3(100, 100, 100);
 		}
 	}
