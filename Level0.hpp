@@ -19,6 +19,10 @@ struct Level0 : Level { // A level that displays the bronze head player has coll
     Scene::Transform *achievement_collectibles = nullptr; // collected all collectibles
     Scene::Transform *guard_dog = nullptr;
 
+    Scene::Transform *painting_1 = nullptr;
+    Scene::Transform *painting_2 = nullptr;
+    Scene::Transform *painting_3 = nullptr;
+
     std::vector<Scene::Transform *> heads;
 
     Level0(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_);

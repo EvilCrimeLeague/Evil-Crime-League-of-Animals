@@ -62,6 +62,9 @@ Level0::Level0(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
         else if (transform.name == "CuratorDog") curator_dog1 = &transform;
         else if (transform.name == "CuratorDog.001") curator_dog2 = &transform;
         else if (transform.name == "Plane") x = &transform;
+        else if (transform.name == "Painting.001") painting_1 = &transform;
+        else if (transform.name == "Painting.002") painting_2 = &transform;
+        else if (transform.name == "Painting.003") painting_3 = &transform;
 	}
 
     if (player_transform == nullptr) throw std::runtime_error("Player not found.");
@@ -77,6 +80,19 @@ Level0::Level0(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     else if (curator_dog1 == nullptr) throw std::runtime_error("CuratorDog not found.");
     else if (curator_dog2 == nullptr) throw std::runtime_error("CuratorDog.001 not found.");
     else if (x == nullptr) throw std::runtime_error("Plane not found.");
+    else if (painting_1 == nullptr) throw std::runtime_error("Painting 1 not found.");
+    else if (painting_2 == nullptr) throw std::runtime_error("Painting 2 not found.");
+    else if (painting_3 == nullptr) throw std::runtime_error("Painting 3 not found.");
+
+    for (auto &drawable : scene.drawables) {
+        if (drawable.transform->name == "Painting.001") {
+            drawable.texture = gen_texture_from_img("UI/level1.png");
+        } else if (drawable.transform->name == "Painting.002") {
+            drawable.texture = gen_texture_from_img("UI/level2.png");
+        } else if (drawable.transform->name == "Painting.003") {
+            drawable.texture = gen_texture_from_img("UI/level3.png");
+        }
+    }
 
     heads = {head_sheep, head_chicken, head_snake, head_dog, head_dragon};
 
@@ -93,6 +109,21 @@ Level0::Level0(std::shared_ptr<UI> ui_, std::shared_ptr<GameInfo> info_): Level(
     camera_spawn_point = camera->transform->position;
 
     // initialize items
+    std::vector<Scene::Transform *> paintings = {painting_1, painting_2, painting_3};
+    for(int i=1; i<=3; i++){
+        auto painting = paintings[i-1];
+        if (painting == nullptr) throw std::runtime_error("Painting"+std::to_string(i)+"not found.");
+        auto painting_ptr = std::make_shared<Item>();
+        painting_ptr->name = painting->name;
+        painting_ptr->interaction_description = "Look at it";
+        painting_ptr->transform = painting;
+        painting_ptr->spawn_point = painting->position;
+        items[painting_ptr->name] = painting_ptr;
+    }
+    items[painting_1->name]->description_img_path = "UI/level1.png";
+    items[painting_2->name]->description_img_path = "UI/level2.png";
+    items[painting_3->name]->description_img_path = "UI/level3.png";
+
     auto head_dog_ptr = std::make_shared<Item>();
     head_dog_ptr->name = "Head-Dog";
     head_dog_ptr->interaction_description = "This is the Old Summer Palace bronze head of the Dog. In 1860 during the Second Opium War, the Old Summer Palace was ransacked and destroyed by British and French forces. To this day, the head's whereabouts remain unknown.";
@@ -207,6 +238,12 @@ void Level0::handle_interact_key() {
                 curr_item->added = true;
             }
             ui->show_img(curr_item->img, false);
+        } else if (curr_item->name.find("Painting") != std::string::npos) {
+            if (!curr_item->added) {
+                curr_item->img = ui->add_img(curr_item->description_img_path);
+                curr_item->added = true;
+            }
+            ui->show_img(curr_item->img);
         } else {
             ui->show_description(curr_item->interaction_description);
             if(curr_item->name == "CuratorDog2" && items.find("X") == items.end()) {
