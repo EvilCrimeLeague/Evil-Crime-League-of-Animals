@@ -36,24 +36,11 @@ std::shared_ptr<Level::Item> Level::get_closest_item(glm::vec3 player_position) 
 }
 
 void Level::update_guard_detection() {
-	auto barycentric_weights = [&](glm::vec3 const &a, glm::vec3 const &b, glm::vec3 const &c, glm::vec3 const &pt) {
-		// Reference: https://gamedev.stackexchange.com/questions/23743/whats-the-most-efficient-way-to-find-barycentric-coordinates
-		glm::vec3 v0 = b - a, v1 = c - a, v2 = pt - a;
-		float d00 = glm::dot(v0, v0);
-		float d01 = glm::dot(v0, v1);
-		float d11 = glm::dot(v1, v1);
-		float d20 = glm::dot(v2, v0);
-		float d21 = glm::dot(v2, v1);
-		float denom = d00 * d11 - d01 * d01;
-		float v = (d11 * d20 - d01 * d21) / denom;
-		float w = (d00 * d21 - d01 * d20) / denom;
-		float u = 1.0f - v - w;
-		return glm::vec3(u,v,w);
-	};
 	// MeshBuffer *guard_fov_meshbuffer = guard_fov_meshes;
 	for (auto &item: guard_detectables) {
 		item.second = false;
 	}
+	closest_bone_dist = 5.2f;
 	for (auto guardDog: guard_dogs) guardDog->guard_fov_data.clear();
 
     for (auto guardDog: guard_dogs) {
@@ -76,8 +63,8 @@ void Level::update_guard_detection() {
 			for (uint32_t z = 0; z < horizontalRays; z++) {
 				float horizontalAngle = - (guardDogHorizontalFov / 2) + (z * horizontalStep);
 				glm::vec3 direction = glm::angleAxis(glm::radians(horizontalAngle), glm::vec3(0.0f, 0.0f, 1.0f)) * verticalDirection;
-				Ray r = Ray(point, direction, glm::vec2(0.0f, 5.2f), (uint32_t)0);
-				float closest_t = 5.2f;
+				Ray r = Ray(point, direction, glm::vec2(0.0f, visionDistance), (uint32_t)0);
+				float closest_t = visionDistance;
 				std::string closest_item = "Wall";
 				// loop through primitives 
 				for (Scene::Drawable &d : scene.drawables) {
@@ -85,14 +72,56 @@ void Level::update_guard_detection() {
 					if ( item_seen != guard_detectables.end()) {
 						if (d.transform->name == "Bone") {
 							glm::vec3 pos = d.transform->position;
-							Ray bone_ray = Ray(point, pos, glm::vec2(0.0, 5.2f), (uint32_t) 0);
+							Ray bone_ray = Ray(point, pos, glm::vec2(0.0, visionDistance), (uint32_t) 0);
 							float mag1 = glm::length(pos - point);
-							if (mag1 >= 5.2) continue;
+							if (mag1 >= visionDistance) continue;
 							float dot = glm::dot(pos - point, guardDogDirectionWorld - point);	
 							float mag2 = glm::length(guardDogDirectionWorld - point);
-							if (mag1 == 0 || mag2 == 0 || mag1 >= 5.2) continue;
+							if (mag1 == 0 || mag2 == 0 || mag1 >= visionDistance) continue;
 							auto cos = dot / (mag1 * mag2);
-							if (cos < 50) guard_detectables["Bone"] = true;					
+							if (cos < 50) {
+								for (Scene::Drawable &wall : scene.drawables) {
+									if (wall.transform->name == "Wall") {
+										GLuint wall_start = wall.mesh->start;
+										GLuint wall_count = wall.mesh->count;
+										glm::mat4x3 transform = wall.transform->make_local_to_world();
+										for (GLuint i = wall_start; i < wall_start + wall_count; i += 3) {
+											glm::vec3 a = transform * glm::vec4(wall.meshBuffer->data[i].Position, 1);
+											glm::vec3 b = transform * glm::vec4(wall.meshBuffer->data[i + 1].Position, 1);
+											glm::vec3 c = transform * glm::vec4(wall.meshBuffer->data[i + 2].Position, 1);
+											glm::vec3 ab = a - b;
+											glm::vec3 ac = a - c;
+											glm::vec3 cb = c - b;
+											glm::vec3 ca = c - a;
+											glm::vec3 ba = b - a;
+											glm::vec3 bc = b - c;
+											glm::vec3 normal = glm::cross(ba, cb);
+											float denominator = glm::dot(normal, bone_ray.dir);
+
+											if (glm::abs(denominator) > 0.00001f) {
+												float t = glm::dot(a - bone_ray.point, normal) / denominator;
+												// if the ray intersects the abc plane
+												if (t >= 0.00001f && t <= visionDistance) {
+													glm::vec3 p = bone_ray.at(t);
+													glm::vec3 ap = a - p;
+													glm::vec3 bp = b - p;
+													glm::vec3 cp = c - p;
+													if (glm::dot(glm::cross(ac, ab), glm::cross(ac, ap)) > 0 && 
+														glm::dot(glm::cross(cb, ca), glm::cross(cb, cp)) > 0 &&
+														glm::dot(glm::cross(ba, bc), glm::cross(ba, bp)) > 0) {
+														if (t < closest_bone_dist) {
+															// guard sees something
+															closest_bone_dist = t;
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+								if (closest_bone_dist == visionDistance) guard_detectables["Bone"] = true;
+								continue;
+							}		
 							continue;
 						}
 						GLuint start = d.mesh->start;

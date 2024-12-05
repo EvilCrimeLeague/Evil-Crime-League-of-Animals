@@ -401,7 +401,7 @@ void Level1::update() {
         driver_guardDog_rotate->start();
         // driver_fov_rotate->start();
     }
-    if (guard_detectables["Bone"]) {
+    if (guard_detectables["Bone"] && driver_bone_move->finished) {
         float dist = glm::distance(guardDog->position, bone->position);
         if(dist > 0.5f && !driver_guardDog_walk->playing) {
             driver_guardDog_rotate->stop();
