@@ -215,7 +215,7 @@ void Level0::handle_interact_key() {
                 x_ptr->interaction_description = "Take a photo.";
                 x_ptr->transform = x;
                 x_ptr->spawn_point = x->position;
-                x_ptr->description_img_path = "UI/Level2/256test.png";
+                x_ptr->description_img_path = "UI/Level2/thankyou.png";
                 items["X"] = x_ptr;
             } 
         }
