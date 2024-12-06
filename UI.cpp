@@ -690,6 +690,7 @@ void UI::show_img(std::shared_ptr<Img> img, bool showing_highres) {
         // portrait
         description_img_box->rect = glm::vec4(400, 50, 880, 670);
     }
+    manual_text->start_pos.y = 690;
     manual_text->start_pos.x = 480;
     manual_text->text = "Press 'return' to continue";
     manual_text->hide = false;
